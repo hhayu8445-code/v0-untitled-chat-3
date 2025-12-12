@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import { useSession } from "next-auth/react"
 import { Sidebar } from "@/components/sidebar"
@@ -9,14 +9,14 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
-import { Textarea } from "@/components/ui/textarea"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Textarea } from "@/components/ui/textarea" // Added from updates
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog" // Added from updates
 import { Card } from "@/components/ui/card"
-import { Slider } from "@/components/ui/slider"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { toast, Toaster } from "sonner"
+import { toast, Toaster } from "sonner" // Added from updates
 import {
   Users,
+  RefreshCw,
   Trophy,
   Plus,
   Trash2,
@@ -26,66 +26,216 @@ import {
   Eye,
   EyeOff,
   Star,
+  Gem,
   MessageSquare,
   Edit,
   X,
   Shield,
+  AlertCircle,
   Package,
   TrendingUp,
   Ban,
-  Megaphone,
-  ImageIcon,
-  Pencil,
-  Check,
-} from "lucide-react"
-import {
-  usePrizes,
-  useTestimonials,
-  useAnnouncements,
-  useBanners,
-  useUsers,
-  useAssets,
-  useForum,
-  useAnalytics,
-  useSpinStats,
-  useAdminCheck,
-} from "@/hooks/use-supabase-admin"
+  DollarSign,
+} from "lucide-react" // Added from updates
+import { FRAMEWORKS } from "@/lib/constants" // Added from updates
+
+// Types for Spin Wheel
+interface Prize {
+  id: string
+  name: string
+  coins: number
+  color: string
+  probability: number
+  is_active: boolean
+  sort_order: number
+  rarity?: string
+  description?: string
+  image_url?: string
+  win_count?: number
+}
+
+// Updated Prize interface from updates (implicitly handled by the Prize interface)
+// interface UpdatedPrize {
+//   id: string
+//   name: string
+//   coins: number
+//   probability: number
+//   color: string
+//   rarity: string
+//   is_active: boolean
+//   description?: string
+//   image_url?: string
+// }
+
+interface EligibleUser {
+  id: string
+  user_id: string
+  spins_remaining: number
+  reason: string
+  expires_at: string | null
+  created_at: string
+  user?: {
+    id: string
+    name: string
+    username: string
+    avatar: string
+    discord_id: string
+  }
+}
+
+interface SpinStats {
+  totalSpins: number
+  totalCoinsWon: number
+  uniqueSpinners: number
+  todaySpins: number
+  todayCoinsWon: number
+  avgCoinsPerSpin: number
+  mostWonPrize: string
+  activeForceWins?: number
+  recentSpins?: any[] // Added from updates
+  uniqueUsers?: number // Added from updates
+}
+
+// New interface for Testimonials from updates
+interface Testimonial {
+  id: string
+  username: string
+  avatar: string | null
+  content: string
+  rating: number
+  server_name: string | null
+  upvotes_received: number | null
+  is_featured: boolean
+  is_verified: boolean
+  badge: string | null
+  image_url: string | null
+  created_at: string
+}
+
+interface StatsData {
+  // This interface seems to be from the original code but not fully used/updated in the provided updates.
+  users: number
+  assets: number
+  downloads: number
+  posts: number
+  categories: number
+  frameworks: number
+}
+
+// Added from updates
+interface User {
+  id: string
+  discordId: string
+  username: string
+  email: string
+  avatar: string
+  membership: string
+  coins: number
+  reputation: number
+  downloads: number
+  isAdmin: boolean
+  isBanned: boolean
+  banReason: string | null
+  createdAt: string
+  lastSeen: string
+}
+
+// Added from updates
+interface Asset {
+  id: string
+  title: string
+  description: string
+  category: string
+  status: string
+  downloads: number
+  coinPrice: number
+  author: {
+    username: string
+    avatar: string
+  }
+  createdAt: string
+}
+
+const RARITY_OPTIONS = [
+  { value: "common", label: "Common", color: "text-gray-400", bg: "bg-gray-500/20", icon: Star, chance: "High" },
+  {
+    value: "uncommon",
+    label: "Uncommon",
+    color: "text-green-400",
+    bg: "bg-green-500/20",
+    icon: Star,
+    chance: "Medium",
+  },
+  { value: "rare", label: "Rare", color: "text-blue-400", bg: "bg-blue-500/20", icon: Gem, chance: "Low" },
+  { value: "epic", label: "Epic", color: "text-purple-400", bg: "bg-purple-500/20", icon: Gem, chance: "Very Low" },
+  {
+    value: "legendary",
+    label: "Legendary",
+    color: "text-yellow-400",
+    bg: "bg-yellow-500/20",
+    icon: Crown,
+    chance: "Ultra Rare",
+  },
+]
+
+// Expanded COLOR_PRESETS
+const COLOR_PRESETS = [
+  "#ef4444",
+  "#f97316",
+  "#f59e0b",
+  "#eab308",
+  "#84cc16",
+  "#22c55e",
+  "#10b981",
+  "#14b8a6",
+  "#06b6d4",
+  "#0ea5e9",
+  "#3b82f6",
+  "#6366f1",
+  "#8b5cf6",
+  "#a855f7",
+  "#d946ef",
+  "#ec4899",
+  "#f43f5e",
+]
 
 export default function AdminPage() {
-  const router = useRouter()
+  // Use useSession and manage isAdmin state
   const { data: session, status } = useSession()
-  const [activePanel, setActivePanel] = useState<string | null>(null)
+  const router = useRouter()
+  // Removed isAdmin and loading states, replaced with useAuth hook
+  // const { user: authUser, isAdmin: authIsAdmin, isLoading: authIsLoading } = useAuth() // Not used in merged code, using local isAdmin state
+  const [loading, setLoading] = useState(true) // Keep original loading for session check
+  const [isAdmin, setIsAdmin] = useState(false) // Added from updates
 
-  // Direct Supabase hooks - no fetch needed
-  const { isAdmin, loading: adminLoading, checkAdmin } = useAdminCheck()
-  const { prizes, loading: prizesLoading, fetchPrizes, createPrize, updatePrize, deletePrize } = usePrizes()
-  const { stats: spinStats, loading: spinStatsLoading, fetchSpinStats } = useSpinStats()
-  const {
-    testimonials,
-    loading: testimonialsLoading,
-    fetchTestimonials,
-    createTestimonial,
-    updateTestimonial,
-    deleteTestimonial,
-  } = useTestimonials()
-  const {
-    announcements,
-    loading: announcementsLoading,
-    fetchAnnouncements,
-    createAnnouncement,
-    updateAnnouncement,
-    deleteAnnouncement,
-  } = useAnnouncements()
-  const { banners, loading: bannersLoading, fetchBanners, createBanner, updateBanner, deleteBanner } = useBanners()
-  const { users, loading: usersLoading, fetchUsers, banUser, unbanUser, updateCoins } = useUsers()
-  const { assets, loading: assetsLoading, fetchAssets, approveAsset, rejectAsset, updateAsset } = useAssets()
-  const { threads, loading: forumLoading, fetchPendingThreads, approveThread, rejectThread } = useForum()
-  const { stats: analyticsStats, loading: analyticsLoading, fetchAnalytics } = useAnalytics()
+  // Feature Panel States (Consolidated from original and updates)
+  const [showSpinWheelPanel, setShowSpinWheelPanel] = useState(false)
+  const [showTestimonialsPanel, setShowTestimonialsPanel] = useState(false)
+  const [showUsersPanel, setShowUsersPanel] = useState(false)
+  const [showAnalyticsPanel, setShowAnalyticsPanel] = useState(false)
+  const [showAssetsPanel, setShowAssetsPanel] = useState(false)
+  const [activePanel, setActivePanel] = useState<string | null>(null) // Added from updates
 
-  // Dialog states
-  const [prizeDialog, setPrizeDialog] = useState(false)
-  const [editingPrize, setEditingPrize] = useState<any>(null)
+  // Tab States (Consolidated from original and updates)
+  const [spinWheelTab, setSpinWheelTab] = useState("prizes")
+  const [testimonialsTab, setTestimonialsTab] = useState("list")
+  const [usersTab, setUsersTab] = useState("list")
+  const [analyticsTab, setAnalyticsTab] = useState("overview")
+  const [assetsTab, setAssetsTab] = useState("pending")
+  const [activeTab, setActiveTab] = useState<string>("prizes") // Added from updates
+
+  // Spin Wheel States
+  const [prizes, setPrizes] = useState<Prize[]>([])
+  const [eligibleUsers, setEligibleUsers] = useState<EligibleUser[]>([])
+  const [spinStats, setSpinStats] = useState<SpinStats | null>(null) // Updated type
+  const [spinWheelLoading, setSpinWheelLoading] = useState(false)
+  // const [saving, setSaving] = useState(false) // Replaced by a more granular saving state if needed
+
+  // Prize Dialog - Enhanced with more fields
+  // const [showPrizeDialog, setShowPrizeDialog] = useState(false) // Replaced by prizeDialog state
+  const [editingPrize, setEditingPrize] = useState<Prize | null>(null)
   const [prizeForm, setPrizeForm] = useState({
+    // Added from updates
     name: "",
     coins: 10,
     color: "#3b82f6",
@@ -96,1477 +246,1397 @@ export default function AdminPage() {
     image_url: "",
   })
 
-  const [testimonialDialog, setTestimonialDialog] = useState(false)
-  const [editingTestimonial, setEditingTestimonial] = useState<any>(null)
+  // User Search (for granting spins)
+  const [userSearch, setUserSearch] = useState("")
+  const [searchResults, setSearchResults] = useState<any[]>([])
+  const [searchLoading, setSearchLoading] = useState(false)
+  const [selectedUser, setSelectedUser] = useState<any>(null)
+  // Adjusted grant spins state variables
+  const [grantSpins, setGrantSpins] = useState(1)
+  const [grantReason, setGrantReason] = useState("")
+
+  // Delete Confirmation
+  const [deleteDialog, setDeleteDialog] = useState<{ type: string; id: string; name: string } | null>(null)
+
+  // New state for probability preview (not implemented yet, but added for future use)
+  const [showProbabilityPreview, setShowProbabilityPreview] = useState(false)
+
+  // ----- Testimonials States -----
+  // const [editingTestimonial, setEditingTestimonial] = useState<Testimonial | null>(null) // Replaced by editingItem
+  // const [isLoadingTestimonials, setIsLoadingTestimonials] = useState(false) // Replaced by testimonialsLoading
+  // const [newTestimonial, setNewTestimonial] = useState({ // Replaced by testimonialForm
+  //   username: "",
+  //   avatar: "",
+  //   content: "",
+  //   rating: 5,
+  //   server_name: "",
+  //   upvotes_received: 0,
+  //   is_featured: true,
+  //   is_verified: false,
+  //   badge: "",
+  //   image_url: "",
+  // })
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([]) // Moved from updates
+  const [prizesLoading, setPrizesLoading] = useState(false) // From updates - replaced by prizesLoading
+  // const [newPrize, setNewPrize] = useState({ // Replaced by prizeForm
+  //   // From updates
+  //   name: "",
+  //   coins: 0,
+  //   probability: 10,
+  //   color: "#4ade80",
+  //   rarity: "common",
+  //   description: "",
+  //   image_url: "",
+  // })
+
+  const [users, setUsers] = useState<User[]>([]) // Added from updates
+  const [usersLoading, setUsersLoading] = useState(false) // Replaced by usersLoading
+  const [userPage, setUserPage] = useState(1) // Added from updates
+  const [totalUsers, setTotalUsers] = useState(0) // Added from updates
+
+  const [analytics, setAnalytics] = useState<any>(null) // Added from updates
+  const [analyticsLoading, setAnalyticsLoading] = useState(false) // Replaced by analyticsLoading
+
+  const [assets, setAssets] = useState<Asset[]>([]) // Added from updates
+  const [assetsLoading, setAssetsLoading] = useState(false) // Replaced by assetsLoading
+  const [assetFilter, setAssetFilter] = useState("pending") // Added from updates
+
+  const [saving, setSaving] = useState(false) // Added from updates
+  const [prizeDialog, setPrizeDialog] = useState(false) // Added from updates
+  const [testimonialDialog, setTestimonialDialog] = useState(false) // Added from updates
+  const [userDialog, setUserDialog] = useState(false) // Added from updates
+  const [editingItem, setEditingItem] = useState<any>(null) // Added from updates
+
   const [testimonialForm, setTestimonialForm] = useState({
+    // Added from updates
     username: "",
     avatar: "",
     content: "",
     rating: 5,
     server_name: "",
     upvotes_received: 0,
+    is_featured: true,
+    is_verified: false,
     badge: "",
     image_url: "",
-    is_visible: true,
-    is_verified: false,
   })
+  const [testimonialsLoading, setTestimonialsLoading] = useState(false) // Renamed from setIsLoadingTestimonials
 
-  const [announcementDialog, setAnnouncementDialog] = useState(false)
-  const [editingAnnouncement, setEditingAnnouncement] = useState<any>(null)
-  const [announcementForm, setAnnouncementForm] = useState({
-    title: "",
-    message: "",
-    link: "",
-    link_text: "",
-    type: "info",
-    is_active: true,
-    is_dismissible: true,
-    bg_color: "",
-    text_color: "",
-    sort_order: 0,
-  })
-
-  const [bannerDialog, setBannerDialog] = useState(false)
-  const [editingBanner, setEditingBanner] = useState<any>(null)
-  const [bannerForm, setBannerForm] = useState({
-    title: "",
-    image_url: "",
-    link: "",
-    position: "hero",
-    is_active: true,
-    sort_order: 0,
-  })
-
-  const [userSearch, setUserSearch] = useState("")
-  const [assetFilter, setAssetFilter] = useState("all")
-  const [coinsDialog, setCoinsDialog] = useState(false)
-  const [selectedUser, setSelectedUser] = useState<any>(null)
-  const [coinsAmount, setCoinsAmount] = useState(0)
-  const [coinsAction, setCoinsAction] = useState<"add" | "remove" | "set">("add")
-
-  // Find the handleApproveAsset function and add these:
-
-  // After handleRejectAsset function, add:
-  const [editingAsset, setEditingAsset] = useState<any | null>(null)
-  const [assetDialogOpen, setAssetDialogOpen] = useState(false)
-
-  const handleUpdateAsset = async () => {
-    if (!editingAsset) return
-    const { error } = await updateAsset(editingAsset.id, {
-      title: editingAsset.title,
-      description: editingAsset.description,
-      category: editingAsset.category,
-      coin_price: editingAsset.coin_price,
-      is_featured: editingAsset.is_featured,
-      is_verified: editingAsset.is_verified,
-      status: editingAsset.status,
-    })
-    if (error) {
-      toast.error(error.message)
-    } else {
-      toast.success("Asset updated successfully")
-      setAssetDialogOpen(false)
-      setEditingAsset(null)
+  const fetchPrizes = useCallback(async () => {
+    setPrizesLoading(true) // Renamed from setIsLoadingPrizes
+    try {
+      const res = await fetch("/api/admin/spin-wheel/prizes")
+      if (res.ok) {
+        const data = await res.json()
+        setPrizes(data.prizes || data || [])
+      } else {
+        toast.error("Failed to fetch prizes")
+      }
+    } catch (error) {
+      toast.error("Error fetching prizes")
+    } finally {
+      setPrizesLoading(false)
     }
-  }
+  }, [])
 
-  // Check admin on mount
-  useEffect(() => {
-    if (status === "authenticated" && session?.user?.id) {
-      checkAdmin(session.user.id)
-    } else if (status === "unauthenticated") {
-      router.push("/")
+  const fetchSpinStats = useCallback(async () => {
+    try {
+      const res = await fetch("/api/admin/spin-wheel/stats")
+      if (res.ok) {
+        const data = await res.json()
+        setSpinStats(data)
+      } else {
+        console.error("Failed to fetch spin wheel stats:", res.statusText) // Added error logging
+      }
+    } catch (error) {
+      console.error("Error fetching spin stats:", error) // Changed error logging
     }
-  }, [status, session, checkAdmin, router])
+  }, [])
 
-  // Load data when panel opens
+  const fetchTestimonials = useCallback(async () => {
+    setTestimonialsLoading(true) // Renamed from setIsLoadingTestimonials
+    try {
+      const res = await fetch("/api/testimonials")
+      if (res.ok) {
+        const data = await res.json()
+        setTestimonials(data || [])
+      } else {
+        toast.error("Failed to fetch testimonials")
+      }
+    } catch (error) {
+      toast.error("Error fetching testimonials")
+    } finally {
+      setTestimonialsLoading(false)
+    }
+  }, [])
+
+  const fetchUsers = useCallback(async () => {
+    setUsersLoading(true) // Renamed from setIsLoadingUsers
+    try {
+      const res = await fetch(`/api/admin/users?search=${userSearch}&page=${userPage}`)
+      if (res.ok) {
+        const data = await res.json()
+        setUsers(data.users || [])
+        setTotalUsers(data.total || 0) // Added from updates
+      } else {
+        toast.error("Failed to fetch users")
+      }
+    } catch (error) {
+      toast.error("Error fetching users")
+    } finally {
+      setUsersLoading(false)
+    }
+  }, [userSearch, userPage]) // Added dependencies
+
+  const fetchAssets = useCallback(async () => {
+    setAssetsLoading(true) // Renamed from setIsLoadingAssets
+    try {
+      const res = await fetch(`/api/admin/assets?status=${assetFilter}`)
+      if (res.ok) {
+        const data = await res.json()
+        setAssets(data.assets || [])
+      } else {
+        toast.error("Failed to fetch assets")
+      }
+    } catch (error) {
+      toast.error("Error fetching assets")
+    } finally {
+      setAssetsLoading(false)
+    }
+  }, [assetFilter]) // Added dependency
+
+  const fetchAnalytics = useCallback(async () => {
+    setAnalyticsLoading(true) // Renamed from setIsLoadingAnalytics
+    try {
+      const res = await fetch("/api/admin/analytics")
+      if (res.ok) {
+        const data = await res.json()
+        setAnalytics(data)
+      } else {
+        toast.error("Failed to fetch analytics")
+      }
+    } catch (error) {
+      toast.error("Error fetching analytics")
+    } finally {
+      setAnalyticsLoading(false)
+    }
+  }, [])
+
+  // Combined admin check and initial data fetching
   useEffect(() => {
-    if (!isAdmin) return
+    const checkAdmin = async () => {
+      if (status === "loading") return
+      if (!session) {
+        router.push("/")
+        return
+      }
 
-    if (activePanel === "spinWheel" && prizes.length === 0) {
-      fetchPrizes()
-      fetchSpinStats()
-    } else if (activePanel === "testimonials" && testimonials.length === 0) {
-      fetchTestimonials(true)
-    } else if (activePanel === "announcements" && announcements.length === 0) {
-      fetchAnnouncements(true)
-    } else if (activePanel === "banners" && banners.length === 0) {
-      fetchBanners(true)
-    } else if (activePanel === "users" && users.length === 0) {
+      try {
+        const res = await fetch("/api/admin/check")
+        if (res.ok) {
+          setIsAdmin(true) // This state is now managed by useAuth, so it's redundant. Use local isAdmin state.
+          // fetchStats() // Removed, general stats are fetched by other panel loads now
+          fetchPrizes() // Fetch prizes immediately
+          fetchSpinStats() // Fetch spin stats immediately
+          // fetchTestimonials() // Moved to panel load
+          // fetchUsers() // Moved to panel load
+          // fetchAssets() // Moved to panel load
+          // fetchAnalytics() // Moved to panel load
+        } else {
+          router.push("/dashboard")
+        }
+      } catch (error) {
+        console.error("Admin check failed:", error) // Changed error logging
+        router.push("/dashboard")
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    checkAdmin()
+  }, [session, status, router, fetchPrizes, fetchSpinStats]) // Added fetchSpinStats to dependencies
+
+  // Fetch data when panels open
+  useEffect(() => {
+    if (activePanel === "testimonials" && testimonials.length === 0) {
+      fetchTestimonials()
+    }
+  }, [activePanel, testimonials.length, fetchTestimonials]) // Dependencies for panel load
+
+  useEffect(() => {
+    if (activePanel === "users" && users.length === 0) {
       fetchUsers()
-    } else if (activePanel === "assets" && assets.length === 0) {
+    }
+  }, [activePanel, users.length, fetchUsers]) // Dependencies for panel load
+
+  useEffect(() => {
+    if (activePanel === "assets" && assets.length === 0) {
       fetchAssets()
-    } else if (activePanel === "forum" && threads.length === 0) {
-      fetchPendingThreads()
-    } else if (activePanel === "analytics" && !analyticsStats) {
+    }
+  }, [activePanel, assets.length, fetchAssets]) // Dependencies for panel load
+
+  useEffect(() => {
+    if (activePanel === "analytics" && !analytics) {
       fetchAnalytics()
     }
-  }, [
-    activePanel,
-    isAdmin,
-    prizes.length,
-    testimonials.length,
-    announcements.length,
-    banners.length,
-    users.length,
-    assets.length,
-    threads.length,
-    analyticsStats,
-    fetchPrizes,
-    fetchSpinStats,
-    fetchTestimonials,
-    fetchAnnouncements,
-    fetchBanners,
-    fetchUsers,
-    fetchAssets,
-    fetchPendingThreads,
-    fetchAnalytics,
-  ])
+  }, [activePanel, analytics, fetchAnalytics]) // Dependencies for panel load
 
-  // Prize handlers
-  const handleSavePrize = async () => {
-    const { error } = editingPrize ? await updatePrize(editingPrize.id, prizeForm) : await createPrize(prizeForm)
+  // Save prize
+  const savePrize = async () => {
+    setSaving(true)
+    try {
+      const url = editingItem ? `/api/admin/spin-wheel/prizes/${editingItem.id}` : "/api/admin/spin-wheel/prizes"
+      const method = editingItem ? "PUT" : "POST"
 
-    if (error) {
-      toast.error(error.message)
-    } else {
-      toast.success(editingPrize ? "Prize updated" : "Prize created")
-      setPrizeDialog(false)
-      setEditingPrize(null)
-      setPrizeForm({
-        name: "",
-        coins: 10,
-        color: "#3b82f6",
-        probability: 10,
-        is_active: true,
-        rarity: "common",
-        description: "",
-        image_url: "",
+      const res = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(prizeForm),
       })
+
+      if (res.ok) {
+        toast.success(editingItem ? "Prize updated" : "Prize created")
+        setPrizeDialog(false)
+        setEditingItem(null)
+        fetchPrizes()
+        fetchSpinStats() // Fetch stats after prize changes
+      } else {
+        const error = await res.json() // Get error message from API
+        toast.error(error.error || "Failed to save prize")
+      }
+    } catch (error) {
+      console.error("Error saving prize:", error) // Changed error logging
+      toast.error("Error saving prize")
+    } finally {
+      setSaving(false)
     }
   }
 
-  const handleDeletePrize = async (id: string) => {
-    const { error } = await deletePrize(id)
-    if (error) toast.error(error.message)
-    else toast.success("Prize deleted")
-  }
+  // Delete prize
+  const deletePrize = async (id: string) => {
+    if (!confirm("Delete this prize?")) return
 
-  // Testimonial handlers
-  const handleSaveTestimonial = async () => {
-    const { error } = editingTestimonial
-      ? await updateTestimonial(editingTestimonial.id, testimonialForm)
-      : await createTestimonial(testimonialForm)
-
-    if (error) {
-      toast.error(error.message)
-    } else {
-      toast.success(editingTestimonial ? "Testimonial updated" : "Testimonial created")
-      setTestimonialDialog(false)
-      setEditingTestimonial(null)
-      setTestimonialForm({
-        username: "",
-        avatar: "",
-        content: "",
-        rating: 5,
-        server_name: "",
-        upvotes_received: 0,
-        badge: "",
-        image_url: "",
-        is_visible: true,
-        is_verified: false,
+    try {
+      const res = await fetch(`/api/admin/spin-wheel/prizes/${id}`, {
+        method: "DELETE",
       })
+
+      if (res.ok) {
+        toast.success("Prize deleted")
+        fetchPrizes()
+      } else {
+        const error = await res.json() // Get error message from API
+        toast.error(error.error || "Failed to delete prize")
+      }
+    } catch (error) {
+      console.error("Error deleting prize:", error) // Changed error logging
+      toast.error("Error deleting prize")
     }
   }
 
-  const handleDeleteTestimonial = async (id: string) => {
-    const { error } = await deleteTestimonial(id)
-    if (error) toast.error(error.message)
-    else toast.success("Testimonial deleted")
-  }
-
-  // Announcement handlers
-  const handleSaveAnnouncement = async () => {
-    const { error } = editingAnnouncement
-      ? await updateAnnouncement(editingAnnouncement.id, announcementForm)
-      : await createAnnouncement(announcementForm)
-
-    if (error) {
-      toast.error(error.message)
-    } else {
-      toast.success(editingAnnouncement ? "Announcement updated" : "Announcement created")
-      setAnnouncementDialog(false)
-      setEditingAnnouncement(null)
-      setAnnouncementForm({
-        title: "",
-        message: "",
-        link: "",
-        link_text: "",
-        type: "info",
-        is_active: true,
-        is_dismissible: true,
-        bg_color: "",
-        text_color: "",
-        sort_order: 0,
+  // Toggle prize active
+  const togglePrizeActive = async (prize: Prize) => {
+    try {
+      const res = await fetch(`/api/admin/spin-wheel/prizes/${prize.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...prize, is_active: !prize.is_active }),
       })
+
+      if (res.ok) {
+        toast.success(`Prize ${!prize.is_active ? "activated" : "deactivated"}`)
+        fetchPrizes()
+      } else {
+        const error = await res.json() // Get error message from API
+        toast.error(error.error || "Failed to update prize")
+      }
+    } catch (error) {
+      console.error("Error updating prize:", error) // Changed error logging
+      toast.error("Error updating prize")
     }
   }
 
-  const handleDeleteAnnouncement = async (id: string) => {
-    const { error } = await deleteAnnouncement(id)
-    if (error) toast.error(error.message)
-    else toast.success("Announcement deleted")
-  }
+  // Save testimonial
+  const saveTestimonial = async () => {
+    setSaving(true)
+    try {
+      const url = editingItem ? `/api/testimonials/${editingItem.id}` : "/api/testimonials"
+      const method = editingItem ? "PUT" : "POST"
 
-  // Banner handlers
-  const handleSaveBanner = async () => {
-    const { error } = editingBanner ? await updateBanner(editingBanner.id, bannerForm) : await createBanner(bannerForm)
+      const res = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(testimonialForm),
+      })
 
-    if (error) {
-      toast.error(error.message)
-    } else {
-      toast.success(editingBanner ? "Banner updated" : "Banner created")
-      setBannerDialog(false)
-      setEditingBanner(null)
-      setBannerForm({ title: "", image_url: "", link: "", position: "hero", is_active: true, sort_order: 0 })
+      if (res.ok) {
+        toast.success(editingItem ? "Testimonial updated" : "Testimonial created")
+        setTestimonialDialog(false)
+        setEditingItem(null)
+        fetchTestimonials()
+      } else {
+        const error = await res.json() // Get error message from API
+        toast.error(error.error || "Failed to save testimonial")
+      }
+    } catch (error) {
+      console.error("Error saving testimonial:", error) // Changed error logging
+      toast.error("Error saving testimonial")
+    } finally {
+      setSaving(false)
     }
   }
 
-  const handleDeleteBanner = async (id: string) => {
-    const { error } = await deleteBanner(id)
-    if (error) toast.error(error.message)
-    else toast.success("Banner deleted")
-  }
+  // Delete testimonial
+  const deleteTestimonial = async (id: string) => {
+    if (!confirm("Delete this testimonial?")) return
 
-  // User handlers
-  const handleBanUser = async (id: string) => {
-    const reason = prompt("Ban reason:")
-    if (!reason) return
-    const { error } = await banUser(id, reason)
-    if (error) toast.error(error.message)
-    else toast.success("User banned")
-  }
+    try {
+      const res = await fetch(`/api/testimonials/${id}`, {
+        method: "DELETE",
+      })
 
-  const handleUnbanUser = async (id: string) => {
-    const { error } = await unbanUser(id)
-    if (error) toast.error(error.message)
-    else toast.success("User unbanned")
-  }
-
-  const handleUpdateCoins = async () => {
-    if (!selectedUser) return
-    const { error } = await updateCoins(selectedUser.id, coinsAmount, coinsAction)
-    if (error) toast.error(error.message)
-    else {
-      toast.success("Coins updated")
-      setCoinsDialog(false)
-      setSelectedUser(null)
+      if (res.ok) {
+        toast.success("Testimonial deleted")
+        fetchTestimonials()
+      } else {
+        const error = await res.json() // Get error message from API
+        toast.error(error.error || "Failed to delete testimonial")
+      }
+    } catch (error) {
+      console.error("Error deleting testimonial:", error) // Changed error logging
+      toast.error("Error deleting testimonial")
     }
   }
 
-  // Asset handlers
-  const handleApproveAsset = async (id: string) => {
-    const { error } = await approveAsset(id)
-    if (error) toast.error(error.message)
-    else toast.success("Asset approved")
+  // Toggle testimonial visibility
+  const toggleTestimonialVisibility = async (testimonial: Testimonial) => {
+    try {
+      const res = await fetch(`/api/testimonials/${testimonial.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...testimonial, is_featured: !testimonial.is_featured }),
+      })
+
+      if (res.ok) {
+        toast.success(`Testimonial ${!testimonial.is_featured ? "shown" : "hidden"}`)
+        fetchTestimonials()
+      } else {
+        const error = await res.json() // Get error message from API
+        toast.error(error.error || "Failed to update testimonial")
+      }
+    } catch (error) {
+      console.error("Error updating testimonial:", error) // Changed error logging
+      toast.error("Error updating testimonial")
+    }
   }
 
-  const handleRejectAsset = async (id: string) => {
-    const { error } = await rejectAsset(id)
-    if (error) toast.error(error.message)
-    else toast.success("Asset rejected")
+  // Ban user
+  const banUser = async (userId: string, reason: string) => {
+    try {
+      const res = await fetch(`/api/admin/users/${userId}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "ban", ban: true, reason }),
+      })
+
+      if (res.ok) {
+        toast.success("User banned")
+        fetchUsers()
+      } else {
+        const error = await res.json() // Get error message from API
+        toast.error(error.error || "Failed to ban user")
+      }
+    } catch (error) {
+      console.error("Error banning user:", error) // Changed error logging
+      toast.error("Error banning user")
+    }
   }
 
-  // Forum handlers
-  const handleApproveThread = async (id: string) => {
-    const { error } = await approveThread(id)
-    if (error) toast.error(error.message)
-    else toast.success("Thread approved")
+  // Update user coins
+  const updateUserCoins = async (userId: string, amount: number, reason: string) => {
+    try {
+      const res = await fetch(`/api/admin/users/${userId}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "addCoins", amount, reason }),
+      })
+
+      if (res.ok) {
+        toast.success("Coins updated")
+        fetchUsers()
+      } else {
+        const error = await res.json() // Get error message from API
+        toast.error(error.error || "Failed to update coins")
+      }
+    } catch (error) {
+      console.error("Error updating coins:", error) // Changed error logging
+      toast.error("Error updating coins")
+    }
   }
 
-  const handleRejectThread = async (id: string) => {
-    const reason = prompt("Rejection reason (optional):")
-    const { error } = await rejectThread(id, reason || undefined)
-    if (error) toast.error(error.message)
-    else toast.success("Thread rejected")
+  // Update asset status
+  const updateAssetStatus = async (assetId: string, status: string) => {
+    try {
+      const res = await fetch("/api/admin/assets", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ assetId, status }),
+      })
+
+      if (res.ok) {
+        toast.success("Asset status updated")
+        fetchAssets()
+      } else {
+        const error = await res.json() // Get error message from API
+        toast.error(error.error || "Failed to update asset")
+      }
+    } catch (error) {
+      console.error("Error updating asset:", error) // Changed error logging
+      toast.error("Error updating asset")
+    }
   }
 
-  if (status === "loading" || adminLoading) {
+  // Auto-balance probabilities
+  const autoBalanceProbabilities = () => {
+    const activePrizes = prizes.filter((p) => p.is_active)
+    if (activePrizes.length === 0) {
+      toast.warning("No active prizes to balance.") // Added warning
+      return
+    }
+
+    const equalProb = Math.floor(100 / activePrizes.length)
+    const remainder = 100 - equalProb * activePrizes.length
+
+    // Update the local state first for immediate feedback
+    const updatedPrizes = prizes.map((prize) => {
+      if (!prize.is_active) return prize
+      const activeIndex = activePrizes.findIndex((p) => p.id === prize.id)
+      const newProbability = equalProb + (activeIndex === 0 ? remainder : 0)
+      return {
+        ...prize,
+        probability: newProbability,
+      }
+    })
+    setPrizes(updatedPrizes)
+
+    // Then send updates to the backend
+    activePrizes.forEach((prize, i) => {
+      const prob = equalProb + (i === 0 ? remainder : 0)
+      fetch("/api/admin/spin-wheel/prizes", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: prize.id, probability: prob }),
+      })
+    })
+
+    toast.success("Probabilities auto-balanced!")
+  }
+
+  if (loading) {
     return (
-      <div className="flex min-h-screen bg-background">
-        <Sidebar />
-        <div className="flex-1 flex items-center justify-center">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        </div>
+      <div className="flex min-h-screen items-center justify-center bg-black">
+        {" "}
+        {/* Changed background */}
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     )
   }
 
   if (!isAdmin) {
-    return (
-      <div className="flex min-h-screen bg-background">
-        <Sidebar />
-        <div className="flex-1 flex items-center justify-center">
-          <Card className="p-8 text-center">
-            <Shield className="h-16 w-16 mx-auto mb-4 text-red-500" />
-            <h2 className="text-xl font-bold mb-2">Access Denied</h2>
-            <p className="text-muted-foreground">You do not have admin privileges.</p>
-          </Card>
-        </div>
-      </div>
-    )
+    router.push("/") // Redirect if not admin
+    return null // Render nothing if redirecting
   }
 
-  const totalProbability = prizes.reduce((sum, p) => sum + (p.probability || 0), 0)
+  const totalProbability = prizes.filter((p) => p.is_active).reduce((sum, p) => sum + p.probability, 0)
 
   return (
-    <div className="flex min-h-screen bg-background">
-      <Sidebar />
-      <div className="flex-1 flex flex-col">
-        <Header />
-        <main className="flex-1 p-6">
-          <div className="max-w-7xl mx-auto">
-            <h1 className="text-3xl font-bold mb-6">Admin Panel</h1>
-
-            {/* Panel Cards */}
-            {!activePanel && (
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {[
-                  { id: "spinWheel", icon: Trophy, label: "Spin Wheel", color: "text-yellow-500" },
-                  { id: "testimonials", icon: Star, label: "Testimonials", color: "text-purple-500" },
-                  { id: "announcements", icon: Megaphone, label: "Announcements", color: "text-blue-500" },
-                  { id: "banners", icon: ImageIcon, label: "Banners", color: "text-green-500" },
-                  { id: "users", icon: Users, label: "Users", color: "text-cyan-500" },
-                  { id: "assets", icon: Package, label: "Assets", color: "text-orange-500" },
-                  { id: "forum", icon: MessageSquare, label: "Forum", color: "text-pink-500" },
-                  { id: "analytics", icon: TrendingUp, label: "Analytics", color: "text-indigo-500" },
-                ].map(({ id, icon: Icon, label, color }) => (
-                  <Card
-                    key={id}
-                    className="p-6 cursor-pointer hover:bg-accent/50 transition-colors"
-                    onClick={() => setActivePanel(id)}
-                  >
-                    <Icon className={`h-8 w-8 ${color} mb-2`} />
-                    <h3 className="font-semibold">{label}</h3>
-                  </Card>
-                ))}
+    <div className="flex min-h-screen flex-col bg-black">
+      {" "}
+      {/* Changed background */}
+      <Header />
+      <div className="flex flex-1">
+        <Sidebar frameworks={FRAMEWORKS} />
+        <main className="flex-1 p-6 lg:p-8">
+          {" "}
+          {/* Adjusted padding */}
+          <Toaster richColors closeButton /> {/* Added closeButton */}
+          <div className="mx-auto max-w-7xl space-y-8">
+            {" "}
+            {/* Changed max-width and spacing */}
+            {/* Header */}
+            <div className="flex items-center justify-between">
+              {" "}
+              {/* Added from updates */}
+              <div>
+                <h1 className="text-3xl font-bold text-white">Admin Dashboard</h1> {/* Changed text color */}
+                <p className="mt-1 text-sm text-gray-400">Manage your platform</p> {/* Changed text color */}
               </div>
-            )}
-
-            {/* Back Button */}
-            {activePanel && (
-              <Button variant="ghost" className="mb-4" onClick={() => setActivePanel(null)}>
-                <X className="h-4 w-4 mr-2" /> Back
-              </Button>
-            )}
-
-            {/* Spin Wheel Panel */}
-            {activePanel === "spinWheel" && (
-              <div className="space-y-6">
-                <div className="flex justify-between items-center">
-                  <h2 className="text-2xl font-bold">Spin Wheel Management</h2>
-                  <Button
-                    onClick={() => {
-                      setEditingPrize(null)
-                      setPrizeForm({
-                        name: "",
-                        coins: 10,
-                        color: "#3b82f6",
-                        probability: 10,
-                        is_active: true,
-                        rarity: "common",
-                        description: "",
-                        image_url: "",
-                      })
-                      setPrizeDialog(true)
-                    }}
-                  >
-                    <Plus className="h-4 w-4 mr-2" /> Add Prize
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {" "}
+              {/* Added from updates */}
+              <Card
+                className="group cursor-pointer border-border bg-card p-6 transition-all hover:border-primary" // Added styles
+                onClick={() => setActivePanel(activePanel === "spin-wheel" ? null : "spin-wheel")}
+              >
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="font-semibold text-white">Spin Wheel</h3> {/* Changed text color */}
+                    <p className="text-sm text-muted-foreground">Manage prizes & stats</p> {/* Changed text color */}
+                  </div>
+                  <Trophy className="h-8 w-8 text-primary" />
+                </div>
+                {spinStats && (
+                  <div className="mt-4 grid grid-cols-2 gap-2 text-sm">
+                    <div>
+                      <p className="text-gray-400">Total Spins</p> {/* Changed text color */}
+                      <p className="font-semibold text-white">{spinStats.totalSpins || 0}</p> {/* Changed text color */}
+                    </div>
+                    <div>
+                      <p className="text-gray-400">Coins Won</p> {/* Changed text color */}
+                      <p className="font-semibold text-white">{spinStats.totalCoinsWon || 0}</p>{" "}
+                      {/* Changed text color */}
+                    </div>
+                  </div>
+                )}
+              </Card>
+              <Card
+                className="group cursor-pointer border-border bg-card p-6 transition-all hover:border-primary" // Added styles
+                onClick={() => setActivePanel(activePanel === "testimonials" ? null : "testimonials")}
+              >
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="font-semibold text-white">Testimonials</h3> {/* Changed text color */}
+                    <p className="text-sm text-muted-foreground">Manage reviews</p> {/* Changed text color */}
+                  </div>
+                  <MessageSquare className="h-8 w-8 text-primary" />
+                </div>
+                <div className="mt-4 grid grid-cols-2 gap-2 text-sm">
+                  <div>
+                    <p className="text-gray-400">Total</p> {/* Changed text color */}
+                    <p className="font-semibold text-white">{testimonials.length}</p> {/* Changed text color */}
+                  </div>
+                  <div>
+                    <p className="text-gray-400">Verified</p> {/* Changed text color */}
+                    <p className="font-semibold text-white">{testimonials.filter((t) => t.is_verified).length}</p>{" "}
+                    {/* Changed text color */}
+                  </div>
+                </div>
+              </Card>
+              <Card
+                className="group cursor-pointer border-border bg-card p-6 transition-all hover:border-primary" // Added styles
+                onClick={() => setActivePanel(activePanel === "users" ? null : "users")}
+              >
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="font-semibold text-white">Users</h3> {/* Changed text color */}
+                    <p className="text-sm text-muted-foreground">Manage members</p> {/* Changed text color */}
+                  </div>
+                  <Users className="h-8 w-8 text-primary" />
+                </div>
+                <div className="mt-4 grid grid-cols-2 gap-2 text-sm">
+                  <div>
+                    <p className="text-gray-400">Total</p> {/* Changed text color */}
+                    <p className="font-semibold text-white">{totalUsers}</p> {/* Changed text color */}
+                  </div>
+                  <div>
+                    <p className="text-gray-400">Banned</p> {/* Changed text color */}
+                    <p className="font-semibold text-white">{users.filter((u) => u.isBanned).length}</p>{" "}
+                    {/* Changed text color */}
+                  </div>
+                </div>
+              </Card>
+              <Card
+                className="group cursor-pointer border-border bg-card p-6 transition-all hover:border-primary" // Added styles
+                onClick={() => setActivePanel(activePanel === "assets" ? null : "assets")}
+              >
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="font-semibold text-white">Assets</h3> {/* Changed text color */}
+                    <p className="text-sm text-muted-foreground">Manage content</p> {/* Changed text color */}
+                  </div>
+                  <Package className="h-8 w-8 text-primary" />
+                </div>
+                <div className="mt-4 grid grid-cols-2 gap-2 text-sm">
+                  <div>
+                    <p className="text-gray-400">Total</p> {/* Changed text color */}
+                    <p className="font-semibold text-white">{assets.length}</p> {/* Changed text color */}
+                  </div>
+                  <div>
+                    <p className="text-gray-400">Pending</p> {/* Changed text color */}
+                    <p className="font-semibold text-white">{assets.filter((a) => a.status === "pending").length}</p>{" "}
+                    {/* Changed text color */}
+                  </div>
+                </div>
+              </Card>
+              <Card
+                className="group cursor-pointer border-border bg-card p-6 transition-all hover:border-primary" // Added styles
+                onClick={() => setActivePanel(activePanel === "analytics" ? null : "analytics")}
+              >
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="font-semibold text-white">Analytics</h3> {/* Changed text color */}
+                    <p className="text-sm text-muted-foreground">View insights</p> {/* Changed text color */}
+                  </div>
+                  <TrendingUp className="h-8 w-8 text-primary" />
+                </div>
+                {analytics && (
+                  <div className="mt-4 grid grid-cols-2 gap-2 text-sm">
+                    <div>
+                      <p className="text-gray-400">Downloads</p> {/* Changed text color */}
+                      <p className="font-semibold text-white">{analytics.overview?.totalDownloads || 0}</p>{" "}
+                      {/* Changed text color */}
+                    </div>
+                    <div>
+                      <p className="text-gray-400">Posts</p> {/* Changed text color */}
+                      <p className="font-semibold text-white">{analytics.overview?.totalPosts || 0}</p>{" "}
+                      {/* Changed text color */}
+                    </div>
+                  </div>
+                )}
+              </Card>
+            </div>
+            {activePanel === "spin-wheel" && (
+              <Card className="border-border bg-card p-6">
+                <div className="mb-6 flex items-center justify-between">
+                  <h2 className="text-2xl font-bold text-white">Spin Wheel Management</h2> {/* Changed text color */}
+                  <Button variant="ghost" size="sm" onClick={() => setActivePanel(null)}>
+                    <X className="h-5 w-5" />
                   </Button>
                 </div>
 
-                {/* Stats */}
-                {spinStats && (
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <Card className="p-4">
-                      <div className="text-sm text-muted-foreground">Total Spins</div>
-                      <div className="text-2xl font-bold">{spinStats.totalSpins}</div>
-                    </Card>
-                    <Card className="p-4">
-                      <div className="text-sm text-muted-foreground">Coins Won</div>
-                      <div className="text-2xl font-bold">{spinStats.totalCoinsWon}</div>
-                    </Card>
-                    <Card className="p-4">
-                      <div className="text-sm text-muted-foreground">Unique Spinners</div>
-                      <div className="text-2xl font-bold">{spinStats.uniqueSpinners}</div>
-                    </Card>
-                    <Card className="p-4">
-                      <div className="text-sm text-muted-foreground">Avg/Spin</div>
-                      <div className="text-2xl font-bold">{spinStats.avgCoinsPerSpin}</div>
-                    </Card>
-                  </div>
-                )}
+                <Tabs value={activeTab} onValueChange={setActiveTab}>
+                  <TabsList className="mb-6">
+                    <TabsTrigger value="prizes">Prizes</TabsTrigger>
+                    <TabsTrigger value="probability">Win Rates</TabsTrigger>
+                    <TabsTrigger value="stats">Statistics</TabsTrigger>
+                  </TabsList>
 
-                {/* Probability Bar */}
-                <Card className="p-4">
-                  <div className="flex justify-between mb-2">
-                    <span>Total Probability</span>
-                    <span className={totalProbability === 100 ? "text-green-500" : "text-red-500"}>
-                      {totalProbability}%
-                    </span>
-                  </div>
-                  <div className="h-2 bg-muted rounded-full overflow-hidden flex">
-                    {prizes
-                      .filter((p) => p.is_active)
-                      .map((prize, i) => (
-                        <div
-                          key={i}
-                          style={{ width: `${prize.probability}%`, backgroundColor: prize.color }}
-                          className="h-full"
-                        />
-                      ))}
-                  </div>
-                </Card>
+                  <TabsContent value="prizes" className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <p className="text-sm text-gray-400">{prizes.length} prizes configured</p>{" "}
+                      {/* Changed text color */}
+                      <Button
+                        onClick={() => {
+                          setEditingItem(null)
+                          setPrizeForm({
+                            name: "",
+                            coins: 10,
+                            color: "#3b82f6",
+                            probability: 10,
+                            is_active: true,
+                            rarity: "common",
+                            description: "",
+                            image_url: "",
+                          })
+                          setPrizeDialog(true)
+                        }}
+                      >
+                        <Plus className="mr-2 h-4 w-4" />
+                        Add Prize
+                      </Button>
+                    </div>
 
-                {/* Prizes List */}
-                {prizesLoading ? (
+                    {prizesLoading ? ( // Changed from isLoadingPrizes
+                      <div className="flex justify-center py-8">
+                        <Loader2 className="h-6 w-6 animate-spin" />
+                      </div>
+                    ) : (
+                      <div className="space-y-2">
+                        {prizes.map((prize) => (
+                          <div
+                            key={prize.id}
+                            className="flex items-center justify-between rounded-lg border border-border bg-background p-4"
+                          >
+                            <div className="flex items-center gap-4">
+                              <div className="h-10 w-10 rounded-lg" style={{ backgroundColor: prize.color }} />
+                              <div>
+                                <div className="flex items-center gap-2">
+                                  <p className="font-semibold text-white">{prize.name}</p> {/* Changed text color */}
+                                  <span className="text-sm text-yellow-500">{prize.coins} coins</span>
+                                  {prize.rarity && (
+                                    <span
+                                      className={`text-xs ${
+                                        RARITY_OPTIONS.find((r) => r.value === prize.rarity)?.color
+                                      }`}
+                                    >
+                                      {prize.rarity}
+                                    </span>
+                                  )}
+                                </div>
+                                <p className="text-sm text-gray-400">{prize.probability}% chance</p>{" "}
+                                {/* Changed text color */}
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Button variant="ghost" size="sm" onClick={() => togglePrizeActive(prize)}>
+                                {prize.is_active ? (
+                                  <Eye className="h-4 w-4" />
+                                ) : (
+                                  <EyeOff className="h-4 w-4 opacity-50" />
+                                )}
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => {
+                                  setEditingItem(prize)
+                                  setPrizeForm({
+                                    name: prize.name,
+                                    coins: prize.coins,
+                                    color: prize.color,
+                                    probability: prize.probability,
+                                    is_active: prize.is_active,
+                                    rarity: prize.rarity || "common",
+                                    description: prize.description || "",
+                                    image_url: prize.image_url || "",
+                                  })
+                                  setPrizeDialog(true)
+                                }}
+                              >
+                                <Edit className="h-4 w-4" />
+                              </Button>
+                              <Button variant="ghost" size="sm" onClick={() => deletePrize(prize.id)}>
+                                <Trash2 className="h-4 w-4 text-red-500" />
+                              </Button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </TabsContent>
+
+                  <TabsContent value="probability" className="space-y-4">
+                    <div className="rounded-lg border border-border bg-background p-4">
+                      <div className="mb-4 flex items-center justify-between">
+                        <div>
+                          <p className="text-sm font-semibold text-white">Total Probability</p>{" "}
+                          {/* Changed text color */}
+                          <p className="text-2xl font-bold text-white">{totalProbability}%</p>{" "}
+                          {/* Changed text color */}
+                        </div>
+                        <Button onClick={autoBalanceProbabilities} size="sm">
+                          Auto Balance
+                        </Button>
+                      </div>
+                      {totalProbability !== 100 && (
+                        <div className="flex items-center gap-2 text-sm text-yellow-500">
+                          <AlertCircle className="h-4 w-4" />
+                          <span>Probabilities should total 100%</span>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="space-y-4">
+                      {prizes
+                        .filter((p) => p.is_active)
+                        .map((prize) => (
+                          <div key={prize.id} className="rounded-lg border border-border bg-background p-4">
+                            <div className="mb-3 flex items-center justify-between">
+                              <div className="flex items-center gap-3">
+                                <div className="h-8 w-8 rounded" style={{ backgroundColor: prize.color }} />
+                                <div>
+                                  <p className="font-semibold text-white">{prize.name}</p> {/* Changed text color */}
+                                  <p className="text-sm text-gray-400">{prize.coins} coins</p>{" "}
+                                  {/* Changed text color */}
+                                </div>
+                              </div>
+                              <span className="text-lg font-bold text-white">{prize.probability}%</span>{" "}
+                              {/* Changed text color */}
+                            </div>
+                            <div className="h-2 overflow-hidden rounded-full bg-gray-700">
+                              <div
+                                className="h-full transition-all"
+                                style={{
+                                  width: `${prize.probability}%`,
+                                  backgroundColor: prize.color,
+                                }}
+                              />
+                            </div>
+                          </div>
+                        ))}
+                    </div>
+                  </TabsContent>
+
+                  <TabsContent value="stats" className="space-y-4">
+                    <div className="flex justify-end">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={fetchSpinStats}
+                        disabled={false} // This should be a loading state if implemented
+                      >
+                        <RefreshCw className="mr-2 h-4 w-4" />
+                        Refresh
+                      </Button>
+                    </div>
+
+                    {spinStats && (
+                      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                        <Card className="border-border bg-background p-4">
+                          <p className="text-sm text-gray-400">Total Spins</p> {/* Changed text color */}
+                          <p className="text-2xl font-bold text-white">{spinStats.totalSpins}</p>{" "}
+                          {/* Changed text color */}
+                        </Card>
+                        <Card className="border-border bg-background p-4">
+                          <p className="text-sm text-gray-400">Coins Won</p> {/* Changed text color */}
+                          <p className="text-2xl font-bold text-white">{spinStats.totalCoinsWon}</p>{" "}
+                          {/* Changed text color */}
+                        </Card>
+                        <Card className="border-border bg-background p-4">
+                          <p className="text-sm text-gray-400">Avg Per Spin</p> {/* Changed text color */}
+                          <p className="text-2xl font-bold text-white">{spinStats.avgCoinsPerSpin?.toFixed(1) || 0}</p>{" "}
+                          {/* Changed text color */}
+                        </Card>
+                        <Card className="border-border bg-background p-4">
+                          <p className="text-sm text-gray-400">Unique Spinners</p> {/* Changed text color */}
+                          <p className="text-2xl font-bold text-white">{spinStats.uniqueSpinners}</p>{" "}
+                          {/* Changed text color */}
+                        </Card>
+                      </div>
+                    )}
+                  </TabsContent>
+                </Tabs>
+              </Card>
+            )}
+            {activePanel === "testimonials" && (
+              <Card className="border-border bg-card p-6">
+                <div className="mb-6 flex items-center justify-between">
+                  <h2 className="text-2xl font-bold text-white">Testimonials Management</h2> {/* Changed text color */}
+                  <div className="flex items-center gap-2">
+                    <Button
+                      onClick={() => {
+                        setEditingItem(null)
+                        setTestimonialForm({
+                          username: "",
+                          avatar: "",
+                          content: "",
+                          rating: 5,
+                          server_name: "",
+                          upvotes_received: 0,
+                          is_featured: true,
+                          is_verified: false,
+                          badge: "",
+                          image_url: "",
+                        })
+                        setTestimonialDialog(true)
+                      }}
+                    >
+                      <Plus className="mr-2 h-4 w-4" />
+                      Add Testimonial
+                    </Button>
+                    <Button variant="ghost" size="sm" onClick={() => setActivePanel(null)}>
+                      <X className="h-5 w-5" />
+                    </Button>
+                  </div>
+                </div>
+
+                {testimonialsLoading ? ( // Changed from isLoadingTestimonials
                   <div className="flex justify-center py-8">
-                    <Loader2 className="h-8 w-8 animate-spin" />
+                    <Loader2 className="h-6 w-6 animate-spin" />
                   </div>
                 ) : (
-                  <div className="grid gap-4">
-                    {prizes.map((prize) => (
-                      <Card key={prize.id} className="p-4 flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                          <div className="w-4 h-4 rounded-full" style={{ backgroundColor: prize.color }} />
-                          <div>
-                            <div className="font-semibold">{prize.name}</div>
-                            <div className="text-sm text-muted-foreground">
-                              {prize.coins} coins - {prize.probability}%
+                  <div className="space-y-2">
+                    {testimonials.map((testimonial) => (
+                      <div
+                        key={testimonial.id}
+                        className="flex items-start justify-between rounded-lg border border-border bg-background p-4"
+                      >
+                        <div className="flex gap-4">
+                          <img
+                            src={testimonial.avatar || "/placeholder.svg?height=40&width=40"}
+                            alt={testimonial.username}
+                            className="h-10 w-10 rounded-full"
+                          />
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2">
+                              <p className="font-semibold text-white">{testimonial.username}</p>{" "}
+                              {/* Changed text color */}
+                              {testimonial.is_verified && <CheckCircle className="h-4 w-4 text-blue-500" />}
+                              {testimonial.badge && (
+                                <span className="rounded bg-primary/20 px-2 py-0.5 text-xs text-primary">
+                                  {testimonial.badge}
+                                </span>
+                              )}
+                              <div className="flex items-center">
+                                {[...Array(5)].map((_, i) => (
+                                  <Star
+                                    key={i}
+                                    className={`h-3 w-3 ${
+                                      i < testimonial.rating ? "fill-yellow-500 text-yellow-500" : "text-gray-600"
+                                    }`}
+                                  />
+                                ))}
+                              </div>
                             </div>
+                            <p className="mt-1 text-sm text-gray-300">{testimonial.content}</p>{" "}
+                            {/* Changed text color */}
+                            {testimonial.server_name && (
+                              <p className="mt-1 text-xs text-gray-500">Server: {testimonial.server_name}</p>
+                            )}
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Button variant="ghost" size="sm" onClick={() => toggleTestimonialVisibility(testimonial)}>
+                            {testimonial.is_featured ? (
+                              <Eye className="h-4 w-4" />
+                            ) : (
+                              <EyeOff className="h-4 w-4 opacity-50" />
+                            )}
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              setEditingItem(testimonial)
+                              setTestimonialForm({
+                                username: testimonial.username,
+                                avatar: testimonial.avatar || "",
+                                content: testimonial.content,
+                                rating: testimonial.rating,
+                                server_name: testimonial.server_name || "",
+                                upvotes_received: testimonial.upvotes_received || 0,
+                                is_featured: testimonial.is_featured,
+                                is_verified: testimonial.is_verified,
+                                badge: testimonial.badge || "",
+                                image_url: testimonial.image_url || "",
+                              })
+                              setTestimonialDialog(true)
+                            }}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button variant="ghost" size="sm" onClick={() => deleteTestimonial(testimonial.id)}>
+                            <Trash2 className="h-4 w-4 text-red-500" />
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </Card>
+            )}
+            {activePanel === "users" && (
+              <Card className="border-border bg-card p-6">
+                <div className="mb-6 flex items-center justify-between">
+                  <h2 className="text-2xl font-bold text-white">Users Management</h2> {/* Changed text color */}
+                  <Button variant="ghost" size="sm" onClick={() => setActivePanel(null)}>
+                    <X className="h-5 w-5" />
+                  </Button>
+                </div>
+
+                <div className="mb-4 flex gap-2">
+                  <Input
+                    placeholder="Search users..."
+                    value={userSearch}
+                    onChange={(e) => setUserSearch(e.target.value)}
+                    className="max-w-sm"
+                  />
+                  <Button onClick={fetchUsers}>
+                    <RefreshCw className="mr-2 h-4 w-4" />
+                    Refresh
+                  </Button>
+                </div>
+
+                {usersLoading ? ( // Changed from isLoadingUsers
+                  <div className="flex justify-center py-8">
+                    <Loader2 className="h-6 w-6 animate-spin" />
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {users.map((user) => (
+                      <div
+                        key={user.id}
+                        className="flex items-center justify-between rounded-lg border border-border bg-background p-4"
+                      >
+                        <div className="flex items-center gap-4">
+                          <img
+                            src={user.avatar || "/placeholder.svg?height=40&width=40"}
+                            alt={user.username}
+                            className="h-10 w-10 rounded-full"
+                          />
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <p className="font-semibold text-white">{user.username}</p> {/* Changed text color */}
+                              {user.isAdmin && <Shield className="h-4 w-4 text-primary" />}
+                              {user.isBanned && <Ban className="h-4 w-4 text-red-500" />}
+                            </div>
+                            <p className="text-sm text-gray-400">
+                              {" "}
+                              {/* Changed text color */}
+                              {user.coins} coins • {user.membership}
+                            </p>
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => updatePrize(prize.id, { is_active: !prize.is_active })}
+                            onClick={() => {
+                              const amountStr = prompt("Enter coins amount (+ or -):")
+                              const reason = prompt("Reason:")
+                              if (amountStr && reason) {
+                                const amount = Number.parseInt(amountStr)
+                                if (!isNaN(amount)) {
+                                  updateUserCoins(user.discordId, amount, reason)
+                                } else {
+                                  toast.error("Invalid amount entered.")
+                                }
+                              }
+                            }}
                           >
-                            {prize.is_active ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+                            <DollarSign className="h-4 w-4" />
                           </Button>
                           <Button
                             variant="ghost"
                             size="sm"
                             onClick={() => {
-                              setEditingPrize(prize)
-                              setPrizeForm(prize)
-                              setPrizeDialog(true)
+                              const reason = prompt("Ban reason:")
+                              if (reason) {
+                                banUser(user.discordId, reason)
+                              }
                             }}
                           >
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          <Button variant="ghost" size="sm" onClick={() => handleDeletePrize(prize.id)}>
-                            <Trash2 className="h-4 w-4 text-red-500" />
+                            <Ban className="h-4 w-4 text-red-500" />
                           </Button>
                         </div>
-                      </Card>
+                      </div>
                     ))}
                   </div>
                 )}
-              </div>
+              </Card>
             )}
-
-            {/* Testimonials Panel */}
-            {activePanel === "testimonials" && (
-              <div className="space-y-6">
-                <div className="flex justify-between items-center">
-                  <h2 className="text-2xl font-bold">Testimonials Management</h2>
-                  <Button
-                    onClick={() => {
-                      setEditingTestimonial(null)
-                      setTestimonialForm({
-                        username: "",
-                        avatar: "",
-                        content: "",
-                        rating: 5,
-                        server_name: "",
-                        upvotes_received: 0,
-                        badge: "",
-                        image_url: "",
-                        is_visible: true,
-                        is_verified: false,
-                      })
-                      setTestimonialDialog(true)
-                    }}
-                  >
-                    <Plus className="h-4 w-4 mr-2" /> Add Testimonial
-                  </Button>
-                </div>
-
-                {testimonialsLoading ? (
-                  <div className="flex justify-center py-8">
-                    <Loader2 className="h-8 w-8 animate-spin" />
-                  </div>
-                ) : (
-                  <div className="grid gap-4">
-                    {testimonials.map((t) => (
-                      <Card key={t.id} className="p-4">
-                        <div className="flex items-start justify-between">
-                          <div className="flex gap-3">
-                            <img
-                              src={t.avatar || "/placeholder.svg?height=40&width=40"}
-                              alt=""
-                              className="w-10 h-10 rounded-full"
-                            />
-                            <div>
-                              <div className="flex items-center gap-2">
-                                <span className="font-semibold">{t.username}</span>
-                                {t.is_verified && <CheckCircle className="h-4 w-4 text-blue-500" />}
-                                {t.badge && (
-                                  <span className="text-xs px-2 py-0.5 bg-primary/20 rounded">{t.badge}</span>
-                                )}
-                              </div>
-                              <div className="flex items-center gap-1 text-yellow-500">
-                                {[...Array(5)].map((_, i) => (
-                                  <Star key={i} className={`h-3 w-3 ${i < t.rating ? "fill-current" : ""}`} />
-                                ))}
-                              </div>
-                              <p className="text-sm mt-1 text-muted-foreground">{t.content}</p>
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => updateTestimonial(t.id, { is_visible: !t.is_visible })}
-                            >
-                              {t.is_visible ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => {
-                                setEditingTestimonial(t)
-                                setTestimonialForm(t)
-                                setTestimonialDialog(true)
-                              }}
-                            >
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                            <Button variant="ghost" size="sm" onClick={() => handleDeleteTestimonial(t.id)}>
-                              <Trash2 className="h-4 w-4 text-red-500" />
-                            </Button>
-                          </div>
-                        </div>
-                      </Card>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Announcements Panel */}
-            {activePanel === "announcements" && (
-              <div className="space-y-6">
-                <div className="flex justify-between items-center">
-                  <h2 className="text-2xl font-bold">Announcements Management</h2>
-                  <Button
-                    onClick={() => {
-                      setEditingAnnouncement(null)
-                      setAnnouncementForm({
-                        title: "",
-                        message: "",
-                        link: "",
-                        link_text: "",
-                        type: "info",
-                        is_active: true,
-                        is_dismissible: true,
-                        bg_color: "",
-                        text_color: "",
-                        sort_order: 0,
-                      })
-                      setAnnouncementDialog(true)
-                    }}
-                  >
-                    <Plus className="h-4 w-4 mr-2" /> Add Announcement
-                  </Button>
-                </div>
-
-                {announcementsLoading ? (
-                  <div className="flex justify-center py-8">
-                    <Loader2 className="h-8 w-8 animate-spin" />
-                  </div>
-                ) : (
-                  <div className="grid gap-4">
-                    {announcements.map((a) => (
-                      <Card key={a.id} className="p-4">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <span
-                                className={`text-xs px-2 py-0.5 rounded ${a.type === "promo" ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white" : a.type === "warning" ? "bg-yellow-500/20 text-yellow-500" : a.type === "error" ? "bg-red-500/20 text-red-500" : a.type === "success" ? "bg-green-500/20 text-green-500" : "bg-blue-500/20 text-blue-500"}`}
-                              >
-                                {a.type}
-                              </span>
-                              <span className="font-semibold">{a.title}</span>
-                            </div>
-                            <p className="text-sm text-muted-foreground mt-1">{a.message}</p>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => updateAnnouncement(a.id, { is_active: !a.is_active })}
-                            >
-                              {a.is_active ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => {
-                                setEditingAnnouncement(a)
-                                setAnnouncementForm(a)
-                                setAnnouncementDialog(true)
-                              }}
-                            >
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                            <Button variant="ghost" size="sm" onClick={() => handleDeleteAnnouncement(a.id)}>
-                              <Trash2 className="h-4 w-4 text-red-500" />
-                            </Button>
-                          </div>
-                        </div>
-                      </Card>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Banners Panel */}
-            {activePanel === "banners" && (
-              <div className="space-y-6">
-                <div className="flex justify-between items-center">
-                  <h2 className="text-2xl font-bold">Banners Management</h2>
-                  <Button
-                    onClick={() => {
-                      setEditingBanner(null)
-                      setBannerForm({
-                        title: "",
-                        image_url: "",
-                        link: "",
-                        position: "hero",
-                        is_active: true,
-                        sort_order: 0,
-                      })
-                      setBannerDialog(true)
-                    }}
-                  >
-                    <Plus className="h-4 w-4 mr-2" /> Add Banner
-                  </Button>
-                </div>
-
-                {bannersLoading ? (
-                  <div className="flex justify-center py-8">
-                    <Loader2 className="h-8 w-8 animate-spin" />
-                  </div>
-                ) : banners.length === 0 ? (
-                  <Card className="p-8 text-center">
-                    <ImageIcon className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                    <p className="text-muted-foreground">No banners yet. Add your first banner!</p>
-                  </Card>
-                ) : (
-                  <div className="grid gap-4">
-                    {banners.map((b) => (
-                      <Card key={b.id} className="p-4">
-                        <div className="flex items-center gap-4">
-                          <img
-                            src={b.image_url || "/placeholder.svg?height=60&width=120"}
-                            alt={b.title}
-                            className="h-16 w-32 object-cover rounded"
-                          />
-                          <div className="flex-1">
-                            <div className="font-semibold">{b.title}</div>
-                            <div className="text-sm text-muted-foreground">Position: {b.position}</div>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => updateBanner(b.id, { is_active: !b.is_active })}
-                            >
-                              {b.is_active ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => {
-                                setEditingBanner(b)
-                                setBannerForm(b)
-                                setBannerDialog(true)
-                              }}
-                            >
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                            <Button variant="ghost" size="sm" onClick={() => handleDeleteBanner(b.id)}>
-                              <Trash2 className="h-4 w-4 text-red-500" />
-                            </Button>
-                          </div>
-                        </div>
-                      </Card>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Users Panel */}
-            {activePanel === "users" && (
-              <div className="space-y-6">
-                <div className="flex justify-between items-center">
-                  <h2 className="text-2xl font-bold">Users Management</h2>
-                  <div className="flex gap-2">
-                    <Input
-                      placeholder="Search users..."
-                      value={userSearch}
-                      onChange={(e) => setUserSearch(e.target.value)}
-                      className="w-64"
-                    />
-                    <Button onClick={() => fetchUsers(userSearch)}>Search</Button>
-                  </div>
-                </div>
-
-                {usersLoading ? (
-                  <div className="flex justify-center py-8">
-                    <Loader2 className="h-8 w-8 animate-spin" />
-                  </div>
-                ) : (
-                  <div className="grid gap-4">
-                    {users.map((user) => (
-                      <Card key={user.id} className="p-4">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                            <img
-                              src={user.avatar || "/placeholder.svg?height=40&width=40"}
-                              alt=""
-                              className="w-10 h-10 rounded-full"
-                            />
-                            <div>
-                              <div className="flex items-center gap-2">
-                                <span className="font-semibold">{user.username}</span>
-                                {user.is_admin && <Shield className="h-4 w-4 text-blue-500" />}
-                                {user.membership === "vip" && <Crown className="h-4 w-4 text-yellow-500" />}
-                                {user.is_banned && <Ban className="h-4 w-4 text-red-500" />}
-                              </div>
-                              <div className="text-sm text-muted-foreground">Coins: {user.coins || 0}</div>
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => {
-                                setSelectedUser(user)
-                                setCoinsAmount(0)
-                                setCoinsDialog(true)
-                              }}
-                            >
-                              Coins
-                            </Button>
-                            {user.is_banned ? (
-                              <Button variant="outline" size="sm" onClick={() => handleUnbanUser(user.id)}>
-                                Unban
-                              </Button>
-                            ) : (
-                              <Button variant="destructive" size="sm" onClick={() => handleBanUser(user.id)}>
-                                Ban
-                              </Button>
-                            )}
-                          </div>
-                        </div>
-                      </Card>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Assets Panel */}
             {activePanel === "assets" && (
-              <div className="space-y-6">
-                <div className="flex justify-between items-center">
-                  <h2 className="text-2xl font-bold">Assets Management</h2>
-                  <Select
-                    value={assetFilter}
-                    onValueChange={(v) => {
-                      setAssetFilter(v)
-                      fetchAssets(v)
-                    }}
-                  >
-                    <SelectTrigger className="w-40">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All</SelectItem>
-                      <SelectItem value="pending">Pending</SelectItem>
-                      <SelectItem value="approved">Approved</SelectItem>
-                      <SelectItem value="rejected">Rejected</SelectItem>
-                    </SelectContent>
-                  </Select>
+              <Card className="border-border bg-card p-6">
+                <div className="mb-6 flex items-center justify-between">
+                  <h2 className="text-2xl font-bold text-white">Assets Management</h2> {/* Changed text color */}
+                  <Button variant="ghost" size="sm" onClick={() => setActivePanel(null)}>
+                    <X className="h-5 w-5" />
+                  </Button>
                 </div>
 
-                {assetsLoading ? (
+                <Tabs value={assetFilter} onValueChange={setAssetFilter} className="mb-4">
+                  <TabsList>
+                    <TabsTrigger value="all">All</TabsTrigger>
+                    <TabsTrigger value="pending">Pending</TabsTrigger>
+                    <TabsTrigger value="approved">Approved</TabsTrigger>
+                    <TabsTrigger value="rejected">Rejected</TabsTrigger>
+                  </TabsList>
+                </Tabs>
+
+                {assetsLoading ? ( // Changed from isLoadingAssets
                   <div className="flex justify-center py-8">
-                    <Loader2 className="h-8 w-8 animate-spin" />
+                    <Loader2 className="h-6 w-6 animate-spin" />
                   </div>
-                ) : assets.length === 0 ? (
-                  <Card className="p-8 text-center">
-                    <p className="text-muted-foreground">No assets found</p>
-                  </Card>
                 ) : (
-                  <div className="grid gap-4">
+                  <div className="space-y-2">
                     {assets.map((asset) => (
-                      <Card key={asset.id} className="p-4">
-                        <div className="flex items-start justify-between gap-4">
-                          <div className="flex items-start gap-4">
-                            {asset.thumbnail && (
-                              <img
-                                src={asset.thumbnail || "/placeholder.svg"}
-                                alt={asset.title}
-                                className="w-20 h-20 rounded-lg object-cover"
-                              />
-                            )}
-                            <div className="space-y-1">
-                              <div className="font-semibold flex items-center gap-2">
-                                {asset.title}
-                                {asset.is_featured && (
-                                  <span className="text-xs bg-yellow-500/20 text-yellow-500 px-2 py-0.5 rounded">
-                                    Featured
-                                  </span>
-                                )}
-                                {asset.is_verified && (
-                                  <span className="text-xs bg-green-500/20 text-green-500 px-2 py-0.5 rounded">
-                                    Verified
-                                  </span>
-                                )}
-                              </div>
-                              <div className="text-sm text-muted-foreground">
-                                Category: {asset.category} | Status:{" "}
-                                <span
-                                  className={
-                                    asset.status === "approved"
-                                      ? "text-green-500"
-                                      : asset.status === "rejected"
-                                        ? "text-red-500"
-                                        : "text-yellow-500"
-                                  }
-                                >
-                                  {asset.status}
-                                </span>
-                              </div>
-                              <div className="text-sm text-muted-foreground">
-                                Downloads: {asset.downloads || 0} | Price: {asset.coin_price || 0} coins
-                              </div>
-                              {asset.author && (
-                                <div className="text-sm text-muted-foreground">Author: {asset.author.username}</div>
-                              )}
-                            </div>
-                          </div>
-                          <div className="flex gap-2 flex-wrap justify-end">
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => {
-                                setEditingAsset(asset)
-                                setAssetDialogOpen(true)
-                              }}
-                            >
-                              <Pencil className="h-4 w-4 mr-1" />
-                              Edit
-                            </Button>
-                            {asset.status === "pending" && (
-                              <>
-                                <Button size="sm" onClick={() => handleApproveAsset(asset.id)}>
-                                  <Check className="h-4 w-4 mr-1" />
-                                  Approve
-                                </Button>
-                                <Button variant="destructive" size="sm" onClick={() => handleRejectAsset(asset.id)}>
-                                  <X className="h-4 w-4 mr-1" />
-                                  Reject
-                                </Button>
-                              </>
-                            )}
-                            {asset.status === "rejected" && (
-                              <Button size="sm" onClick={() => handleApproveAsset(asset.id)}>
-                                <Check className="h-4 w-4 mr-1" />
-                                Approve
-                              </Button>
-                            )}
-                            {asset.status === "approved" && (
-                              <Button variant="destructive" size="sm" onClick={() => handleRejectAsset(asset.id)}>
-                                <X className="h-4 w-4 mr-1" />
-                                Reject
-                              </Button>
-                            )}
-                          </div>
-                        </div>
-                      </Card>
-                    ))}
-                  </div>
-                )}
-
-                {/* Asset Edit Dialog */}
-                <Dialog open={assetDialogOpen} onOpenChange={setAssetDialogOpen}>
-                  <DialogContent className="max-w-lg">
-                    <DialogHeader>
-                      <DialogTitle>Edit Asset</DialogTitle>
-                    </DialogHeader>
-                    {editingAsset && (
-                      <div className="space-y-4">
+                      <div
+                        key={asset.id}
+                        className="flex items-center justify-between rounded-lg border border-border bg-background p-4"
+                      >
                         <div>
-                          <Label>Title</Label>
-                          <Input
-                            value={editingAsset.title || ""}
-                            onChange={(e) => setEditingAsset({ ...editingAsset, title: e.target.value })}
-                          />
+                          <p className="font-semibold text-white">{asset.title}</p> {/* Changed text color */}
+                          <p className="text-sm text-gray-400">
+                            {" "}
+                            {/* Changed text color */}
+                            {asset.category} • {asset.downloads} downloads • {asset.coinPrice} coins
+                          </p>
+                          <p className="text-xs text-gray-500">by {asset.author?.username || "Unknown"}</p>
                         </div>
-                        <div>
-                          <Label>Description</Label>
-                          <Textarea
-                            value={editingAsset.description || ""}
-                            onChange={(e) => setEditingAsset({ ...editingAsset, description: e.target.value })}
-                            rows={3}
-                          />
-                        </div>
-                        <div className="grid grid-cols-2 gap-4">
-                          <div>
-                            <Label>Category</Label>
-                            <Select
-                              value={editingAsset.category || ""}
-                              onValueChange={(v) => setEditingAsset({ ...editingAsset, category: v })}
-                            >
-                              <SelectTrigger>
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="scripts">Scripts</SelectItem>
-                                <SelectItem value="vehicles">Vehicles</SelectItem>
-                                <SelectItem value="mlo">MLO</SelectItem>
-                                <SelectItem value="clothing">Clothing</SelectItem>
-                                <SelectItem value="maps">Maps</SelectItem>
-                                <SelectItem value="tools">Tools</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </div>
-                          <div>
-                            <Label>Coin Price</Label>
-                            <Input
-                              type="number"
-                              value={editingAsset.coin_price || 0}
-                              onChange={(e) =>
-                                setEditingAsset({ ...editingAsset, coin_price: Number.parseInt(e.target.value) || 0 })
-                              }
-                            />
-                          </div>
-                        </div>
-                        <div className="grid grid-cols-2 gap-4">
-                          <div>
-                            <Label>Status</Label>
-                            <Select
-                              value={editingAsset.status || "pending"}
-                              onValueChange={(v) => setEditingAsset({ ...editingAsset, status: v })}
-                            >
-                              <SelectTrigger>
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="pending">Pending</SelectItem>
-                                <SelectItem value="approved">Approved</SelectItem>
-                                <SelectItem value="rejected">Rejected</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-6">
-                          <div className="flex items-center gap-2">
-                            <Switch
-                              checked={editingAsset.is_featured || false}
-                              onCheckedChange={(c) => setEditingAsset({ ...editingAsset, is_featured: c })}
-                            />
-                            <Label>Featured</Label>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <Switch
-                              checked={editingAsset.is_verified || false}
-                              onCheckedChange={(c) => setEditingAsset({ ...editingAsset, is_verified: c })}
-                            />
-                            <Label>Verified</Label>
-                          </div>
-                        </div>
-                        <div className="flex justify-end gap-2 pt-4">
-                          <Button variant="outline" onClick={() => setAssetDialogOpen(false)}>
-                            Cancel
+                        <div className="flex items-center gap-2">
+                          <Button variant="ghost" size="sm" onClick={() => updateAssetStatus(asset.id, "approved")}>
+                            <CheckCircle className="h-4 w-4 text-green-500" />
                           </Button>
-                          <Button onClick={handleUpdateAsset}>Save Changes</Button>
+                          <Button variant="ghost" size="sm" onClick={() => updateAssetStatus(asset.id, "rejected")}>
+                            <X className="h-4 w-4 text-red-500" />
+                          </Button>
                         </div>
                       </div>
-                    )}
-                  </DialogContent>
-                </Dialog>
-              </div>
-            )}
-
-            {/* Forum Panel */}
-            {activePanel === "forum" && (
-              <div className="space-y-6">
-                <h2 className="text-2xl font-bold">Pending Forum Threads</h2>
-
-                {forumLoading ? (
-                  <div className="flex justify-center py-8">
-                    <Loader2 className="h-8 w-8 animate-spin" />
-                  </div>
-                ) : threads.length === 0 ? (
-                  <Card className="p-8 text-center">
-                    <CheckCircle className="h-12 w-12 mx-auto mb-4 text-green-500" />
-                    <p className="text-muted-foreground">No pending threads!</p>
-                  </Card>
-                ) : (
-                  <div className="grid gap-4">
-                    {threads.map((thread) => (
-                      <Card key={thread.id} className="p-4">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <div className="font-semibold">{thread.title}</div>
-                            <div className="text-sm text-muted-foreground">By {thread.author?.username}</div>
-                          </div>
-                          <div className="flex gap-2">
-                            <Button size="sm" onClick={() => handleApproveThread(thread.id)}>
-                              Approve
-                            </Button>
-                            <Button variant="destructive" size="sm" onClick={() => handleRejectThread(thread.id)}>
-                              Reject
-                            </Button>
-                          </div>
-                        </div>
-                      </Card>
                     ))}
                   </div>
                 )}
-              </div>
+              </Card>
             )}
-
-            {/* Analytics Panel */}
             {activePanel === "analytics" && (
-              <div className="space-y-6">
-                <h2 className="text-2xl font-bold">Analytics</h2>
+              <Card className="border-border bg-card p-6">
+                <div className="mb-6 flex items-center justify-between">
+                  <h2 className="text-2xl font-bold text-white">Analytics Overview</h2> {/* Changed text color */}
+                  <Button variant="ghost" size="sm" onClick={() => setActivePanel(null)}>
+                    <X className="h-5 w-5" />
+                  </Button>
+                </div>
 
-                {analyticsLoading ? (
+                {analyticsLoading ? ( // Changed from isLoadingAnalytics
                   <div className="flex justify-center py-8">
-                    <Loader2 className="h-8 w-8 animate-spin" />
+                    <Loader2 className="h-6 w-6 animate-spin" />
                   </div>
-                ) : (
-                  analyticsStats && (
-                    <>
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <Card className="p-4">
-                          <div className="text-sm text-muted-foreground">Total Users</div>
-                          <div className="text-2xl font-bold">{analyticsStats.totalUsers}</div>
-                        </Card>
-                        <Card className="p-4">
-                          <div className="text-sm text-muted-foreground">Total Assets</div>
-                          <div className="text-2xl font-bold">{analyticsStats.totalAssets}</div>
-                        </Card>
-                        <Card className="p-4">
-                          <div className="text-sm text-muted-foreground">Total Downloads</div>
-                          <div className="text-2xl font-bold">{analyticsStats.totalDownloads}</div>
-                        </Card>
-                        <Card className="p-4">
-                          <div className="text-sm text-muted-foreground">Total Coins</div>
-                          <div className="text-2xl font-bold">{analyticsStats.totalCoins}</div>
-                        </Card>
-                      </div>
+                ) : analytics ? (
+                  <div className="space-y-6">
+                    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                      <Card className="border-border bg-background p-4">
+                        <p className="text-sm text-gray-400">Total Users</p> {/* Changed text color */}
+                        <p className="text-2xl font-bold text-white">{analytics.overview?.totalUsers || 0}</p>{" "}
+                        {/* Changed text color */}
+                        <p className="text-xs text-green-500">+{analytics.growth?.users || 0}% this week</p>
+                      </Card>
+                      <Card className="border-border bg-background p-4">
+                        <p className="text-sm text-gray-400">Total Assets</p> {/* Changed text color */}
+                        <p className="text-2xl font-bold text-white">{analytics.overview?.totalAssets || 0}</p>{" "}
+                        {/* Changed text color */}
+                        <p className="text-xs text-green-500">+{analytics.growth?.assets || 0}% this week</p>
+                      </Card>
+                      <Card className="border-border bg-background p-4">
+                        <p className="text-sm text-gray-400">Total Downloads</p> {/* Changed text color */}
+                        <p className="text-2xl font-bold text-white">{analytics.overview?.totalDownloads || 0}</p>{" "}
+                        {/* Changed text color */}
+                        <p className="text-xs text-green-500">+{analytics.growth?.downloads || 0}% this week</p>
+                      </Card>
+                      <Card className="border-border bg-background p-4">
+                        <p className="text-sm text-gray-400">Total Posts</p> {/* Changed text color */}
+                        <p className="text-2xl font-bold text-white">{analytics.overview?.totalPosts || 0}</p>{" "}
+                        {/* Changed text color */}
+                        <p className="text-xs text-green-500">+{analytics.growth?.posts || 0}% this week</p>
+                      </Card>
+                    </div>
 
-                      <div className="grid md:grid-cols-2 gap-6">
-                        <Card className="p-4">
-                          <h3 className="font-semibold mb-4">Top Assets</h3>
-                          <div className="space-y-2">
-                            {analyticsStats.topAssets?.map((a: any, i: number) => (
-                              <div key={i} className="flex justify-between text-sm">
-                                <span>{a.title}</span>
-                                <span className="text-muted-foreground">{a.downloads} downloads</span>
-                              </div>
-                            ))}
+                    <div>
+                      <h3 className="mb-4 text-lg font-semibold text-white">Top Assets</h3> {/* Changed text color */}
+                      <div className="space-y-2">
+                        {analytics.topAssets?.map((asset: any) => (
+                          <div
+                            key={asset.id}
+                            className="flex items-center justify-between rounded-lg border border-border bg-background p-3"
+                          >
+                            <p className="text-sm text-white">{asset.title}</p> {/* Changed text color */}
+                            <p className="text-sm text-gray-400">{asset.downloads} downloads</p>{" "}
+                            {/* Changed text color */}
                           </div>
-                        </Card>
-                        <Card className="p-4">
-                          <h3 className="font-semibold mb-4">Top Users</h3>
-                          <div className="space-y-2">
-                            {analyticsStats.topUsers?.map((u: any, i: number) => (
-                              <div key={i} className="flex justify-between text-sm">
-                                <span>{u.username}</span>
-                                <span className="text-muted-foreground">{u.coins} coins</span>
-                              </div>
-                            ))}
-                          </div>
-                        </Card>
+                        ))}
                       </div>
-                    </>
-                  )
-                )}
-              </div>
+                    </div>
+                  </div>
+                ) : null}
+              </Card>
             )}
           </div>
+          <Dialog open={prizeDialog} onOpenChange={setPrizeDialog}>
+            <DialogContent className="max-w-2xl">
+              <DialogHeader>
+                <DialogTitle>{editingItem ? "Edit Prize" : "Add Prize"}</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div>
+                  <Label>Prize Name</Label>
+                  <Input
+                    value={prizeForm.name}
+                    onChange={(e) => setPrizeForm({ ...prizeForm, name: e.target.value })}
+                    placeholder="e.g., 10 Coins"
+                  />
+                </div>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div>
+                    <Label>Coins Amount</Label>
+                    <Input
+                      type="number"
+                      value={prizeForm.coins}
+                      onChange={(e) => setPrizeForm({ ...prizeForm, coins: Number.parseInt(e.target.value) || 0 })}
+                    />
+                  </div>
+                  <div>
+                    <Label>Probability (%)</Label>
+                    <Input
+                      type="number"
+                      value={prizeForm.probability}
+                      onChange={(e) =>
+                        setPrizeForm({ ...prizeForm, probability: Number.parseInt(e.target.value) || 0 })
+                      }
+                    />
+                  </div>
+                </div>
+                <div>
+                  <Label>Color</Label>
+                  <div className="flex gap-2">
+                    {COLOR_PRESETS.map((color) => (
+                      <button
+                        key={color}
+                        className="h-8 w-8 rounded border-2"
+                        style={{
+                          backgroundColor: color,
+                          borderColor: prizeForm.color === color ? "#fff" : "transparent",
+                        }}
+                        onClick={() => setPrizeForm({ ...prizeForm, color })}
+                      />
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <Label>Rarity</Label>
+                  <div className="flex gap-2">
+                    {RARITY_OPTIONS.map((rarity) => (
+                      <button
+                        key={rarity.value}
+                        className={`rounded-lg border px-4 py-2 text-sm ${
+                          prizeForm.rarity === rarity.value
+                            ? "border-primary bg-primary/20"
+                            : "border-border bg-background"
+                        }`}
+                        onClick={() => setPrizeForm({ ...prizeForm, rarity: rarity.value })}
+                      >
+                        {rarity.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <Label>Description (Optional)</Label>
+                  <Textarea
+                    value={prizeForm.description}
+                    onChange={(e) => setPrizeForm({ ...prizeForm, description: e.target.value })}
+                    placeholder="Prize description..."
+                  />
+                </div>
+                <div>
+                  <Label>Image URL (Optional)</Label>
+                  <Input
+                    value={prizeForm.image_url}
+                    onChange={(e) => setPrizeForm({ ...prizeForm, image_url: e.target.value })}
+                    placeholder="https://..."
+                  />
+                </div>
+                <div className="flex items-center gap-2">
+                  <Switch
+                    checked={prizeForm.is_active}
+                    onCheckedChange={(checked) => setPrizeForm({ ...prizeForm, is_active: checked })}
+                  />
+                  <Label>Active</Label>
+                </div>
+                <div className="flex justify-end gap-2">
+                  <Button variant="outline" onClick={() => setPrizeDialog(false)} disabled={saving}>
+                    Cancel
+                  </Button>
+                  <Button onClick={savePrize} disabled={saving}>
+                    {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                    {editingItem ? "Update" : "Create"}
+                  </Button>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
+          <Dialog open={testimonialDialog} onOpenChange={setTestimonialDialog}>
+            <DialogContent className="max-w-2xl">
+              <DialogHeader>
+                <DialogTitle>{editingItem ? "Edit Testimonial" : "Add Testimonial"}</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div>
+                    <Label>Username</Label>
+                    <Input
+                      value={testimonialForm.username}
+                      onChange={(e) => setTestimonialForm({ ...testimonialForm, username: e.target.value })}
+                      placeholder="Username"
+                    />
+                  </div>
+                  <div>
+                    <Label>Server Name (Optional)</Label>
+                    <Input
+                      value={testimonialForm.server_name}
+                      onChange={(e) => setTestimonialForm({ ...testimonialForm, server_name: e.target.value })}
+                      placeholder="Server name"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <Label>Avatar URL (Optional)</Label>
+                  <Input
+                    value={testimonialForm.avatar}
+                    onChange={(e) => setTestimonialForm({ ...testimonialForm, avatar: e.target.value })}
+                    placeholder="https://..."
+                  />
+                </div>
+                <div>
+                  <Label>Content</Label>
+                  <Textarea
+                    value={testimonialForm.content}
+                    onChange={(e) => setTestimonialForm({ ...testimonialForm, content: e.target.value })}
+                    placeholder="Testimonial content..."
+                    rows={4}
+                  />
+                </div>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div>
+                    <Label>Rating (1-5)</Label>
+                    <Input
+                      type="number"
+                      min="1"
+                      max="5"
+                      value={testimonialForm.rating}
+                      onChange={(e) =>
+                        setTestimonialForm({ ...testimonialForm, rating: Number.parseInt(e.target.value) || 5 })
+                      }
+                    />
+                  </div>
+                  <div>
+                    <Label>Upvotes Received</Label>
+                    <Input
+                      type="number"
+                      value={testimonialForm.upvotes_received}
+                      onChange={(e) =>
+                        setTestimonialForm({
+                          ...testimonialForm,
+                          upvotes_received: Number.parseInt(e.target.value) || 0,
+                        })
+                      }
+                    />
+                  </div>
+                </div>
+                <div>
+                  <Label>Badge (Optional)</Label>
+                  <Input
+                    value={testimonialForm.badge}
+                    onChange={(e) => setTestimonialForm({ ...testimonialForm, badge: e.target.value })}
+                    placeholder="e.g., Verified, Pro, VIP"
+                  />
+                </div>
+                <div>
+                  <Label>Image URL (Optional)</Label>
+                  <Input
+                    value={testimonialForm.image_url}
+                    onChange={(e) => setTestimonialForm({ ...testimonialForm, image_url: e.target.value })}
+                    placeholder="https://..."
+                  />
+                </div>
+                <div className="flex gap-4">
+                  <div className="flex items-center gap-2">
+                    <Switch
+                      checked={testimonialForm.is_featured}
+                      onCheckedChange={(checked) => setTestimonialForm({ ...testimonialForm, is_featured: checked })}
+                    />
+                    <Label>Visible</Label>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Switch
+                      checked={testimonialForm.is_verified}
+                      onCheckedChange={(checked) => setTestimonialForm({ ...testimonialForm, is_verified: checked })}
+                    />
+                    <Label>Verified</Label>
+                  </div>
+                </div>
+                <div className="flex justify-end gap-2">
+                  <Button variant="outline" onClick={() => setTestimonialDialog(false)} disabled={saving}>
+                    Cancel
+                  </Button>
+                  <Button onClick={saveTestimonial} disabled={saving}>
+                    {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                    {editingItem ? "Update" : "Create"}
+                  </Button>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
         </main>
       </div>
-
-      {/* Prize Dialog */}
-      <Dialog open={prizeDialog} onOpenChange={setPrizeDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{editingPrize ? "Edit Prize" : "Add Prize"}</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <Label>Name</Label>
-              <Input value={prizeForm.name} onChange={(e) => setPrizeForm({ ...prizeForm, name: e.target.value })} />
-            </div>
-            <div>
-              <Label>Coins</Label>
-              <Input
-                type="number"
-                value={prizeForm.coins}
-                onChange={(e) => setPrizeForm({ ...prizeForm, coins: Number.parseInt(e.target.value) || 0 })}
-              />
-            </div>
-            <div>
-              <Label>Color</Label>
-              <Input
-                type="color"
-                value={prizeForm.color}
-                onChange={(e) => setPrizeForm({ ...prizeForm, color: e.target.value })}
-              />
-            </div>
-            <div>
-              <Label>Probability (%)</Label>
-              <Slider
-                value={[prizeForm.probability]}
-                onValueChange={([v]) => setPrizeForm({ ...prizeForm, probability: v })}
-                max={100}
-              />
-            </div>
-            <div>
-              <Label>Rarity</Label>
-              <Select value={prizeForm.rarity} onValueChange={(v) => setPrizeForm({ ...prizeForm, rarity: v })}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="common">Common</SelectItem>
-                  <SelectItem value="uncommon">Uncommon</SelectItem>
-                  <SelectItem value="rare">Rare</SelectItem>
-                  <SelectItem value="epic">Epic</SelectItem>
-                  <SelectItem value="legendary">Legendary</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label>Image URL (optional)</Label>
-              <Input
-                value={prizeForm.image_url}
-                onChange={(e) => setPrizeForm({ ...prizeForm, image_url: e.target.value })}
-              />
-            </div>
-            <div className="flex items-center gap-2">
-              <Switch
-                checked={prizeForm.is_active}
-                onCheckedChange={(v) => setPrizeForm({ ...prizeForm, is_active: v })}
-              />
-              <Label>Active</Label>
-            </div>
-            <Button className="w-full" onClick={handleSavePrize}>
-              Save
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* Testimonial Dialog */}
-      <Dialog open={testimonialDialog} onOpenChange={setTestimonialDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{editingTestimonial ? "Edit Testimonial" : "Add Testimonial"}</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4 max-h-[60vh] overflow-y-auto">
-            <div>
-              <Label>Username</Label>
-              <Input
-                value={testimonialForm.username}
-                onChange={(e) => setTestimonialForm({ ...testimonialForm, username: e.target.value })}
-              />
-            </div>
-            <div>
-              <Label>Avatar URL</Label>
-              <Input
-                value={testimonialForm.avatar}
-                onChange={(e) => setTestimonialForm({ ...testimonialForm, avatar: e.target.value })}
-              />
-            </div>
-            <div>
-              <Label>Content</Label>
-              <Textarea
-                value={testimonialForm.content}
-                onChange={(e) => setTestimonialForm({ ...testimonialForm, content: e.target.value })}
-              />
-            </div>
-            <div>
-              <Label>Rating</Label>
-              <Slider
-                value={[testimonialForm.rating]}
-                onValueChange={([v]) => setTestimonialForm({ ...testimonialForm, rating: v })}
-                min={1}
-                max={5}
-              />
-            </div>
-            <div>
-              <Label>Server Name</Label>
-              <Input
-                value={testimonialForm.server_name}
-                onChange={(e) => setTestimonialForm({ ...testimonialForm, server_name: e.target.value })}
-              />
-            </div>
-            <div>
-              <Label>Upvotes</Label>
-              <Input
-                type="number"
-                value={testimonialForm.upvotes_received}
-                onChange={(e) =>
-                  setTestimonialForm({ ...testimonialForm, upvotes_received: Number.parseInt(e.target.value) || 0 })
-                }
-              />
-            </div>
-            <div>
-              <Label>Badge</Label>
-              <Select
-                value={testimonialForm.badge || "none"}
-                onValueChange={(v) => setTestimonialForm({ ...testimonialForm, badge: v === "none" ? "" : v })}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">None</SelectItem>
-                  <SelectItem value="Verified">Verified</SelectItem>
-                  <SelectItem value="Pro">Pro</SelectItem>
-                  <SelectItem value="VIP">VIP</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2">
-                <Switch
-                  checked={testimonialForm.is_visible}
-                  onCheckedChange={(v) => setTestimonialForm({ ...testimonialForm, is_visible: v })}
-                />
-                <Label>Visible</Label>
-              </div>
-              <div className="flex items-center gap-2">
-                <Switch
-                  checked={testimonialForm.is_verified}
-                  onCheckedChange={(v) => setTestimonialForm({ ...testimonialForm, is_verified: v })}
-                />
-                <Label>Verified</Label>
-              </div>
-            </div>
-            <Button className="w-full" onClick={handleSaveTestimonial}>
-              Save
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* Announcement Dialog */}
-      <Dialog open={announcementDialog} onOpenChange={setAnnouncementDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{editingAnnouncement ? "Edit Announcement" : "Add Announcement"}</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4 max-h-[60vh] overflow-y-auto">
-            <div>
-              <Label>Title</Label>
-              <Input
-                value={announcementForm.title}
-                onChange={(e) => setAnnouncementForm({ ...announcementForm, title: e.target.value })}
-              />
-            </div>
-            <div>
-              <Label>Message</Label>
-              <Textarea
-                value={announcementForm.message}
-                onChange={(e) => setAnnouncementForm({ ...announcementForm, message: e.target.value })}
-              />
-            </div>
-            <div>
-              <Label>Type</Label>
-              <Select
-                value={announcementForm.type}
-                onValueChange={(v: any) => setAnnouncementForm({ ...announcementForm, type: v })}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="info">Info</SelectItem>
-                  <SelectItem value="success">Success</SelectItem>
-                  <SelectItem value="warning">Warning</SelectItem>
-                  <SelectItem value="error">Error</SelectItem>
-                  <SelectItem value="promo">Promo</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label>Link (optional)</Label>
-              <Input
-                value={announcementForm.link}
-                onChange={(e) => setAnnouncementForm({ ...announcementForm, link: e.target.value })}
-              />
-            </div>
-            <div>
-              <Label>Link Text</Label>
-              <Input
-                value={announcementForm.link_text}
-                onChange={(e) => setAnnouncementForm({ ...announcementForm, link_text: e.target.value })}
-              />
-            </div>
-            <div>
-              <Label>Sort Order</Label>
-              <Input
-                type="number"
-                value={announcementForm.sort_order}
-                onChange={(e) =>
-                  setAnnouncementForm({ ...announcementForm, sort_order: Number.parseInt(e.target.value) || 0 })
-                }
-              />
-            </div>
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2">
-                <Switch
-                  checked={announcementForm.is_active}
-                  onCheckedChange={(v) => setAnnouncementForm({ ...announcementForm, is_active: v })}
-                />
-                <Label>Active</Label>
-              </div>
-              <div className="flex items-center gap-2">
-                <Switch
-                  checked={announcementForm.is_dismissible}
-                  onCheckedChange={(v) => setAnnouncementForm({ ...announcementForm, is_dismissible: v })}
-                />
-                <Label>Dismissible</Label>
-              </div>
-            </div>
-            <Button className="w-full" onClick={handleSaveAnnouncement}>
-              Save
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* Banner Dialog */}
-      <Dialog open={bannerDialog} onOpenChange={setBannerDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{editingBanner ? "Edit Banner" : "Add Banner"}</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <Label>Title</Label>
-              <Input
-                value={bannerForm.title}
-                onChange={(e) => setBannerForm({ ...bannerForm, title: e.target.value })}
-              />
-            </div>
-            <div>
-              <Label>Image URL</Label>
-              <Input
-                value={bannerForm.image_url}
-                onChange={(e) => setBannerForm({ ...bannerForm, image_url: e.target.value })}
-              />
-            </div>
-            <div>
-              <Label>Link (optional)</Label>
-              <Input value={bannerForm.link} onChange={(e) => setBannerForm({ ...bannerForm, link: e.target.value })} />
-            </div>
-            <div>
-              <Label>Position</Label>
-              <Select value={bannerForm.position} onValueChange={(v) => setBannerForm({ ...bannerForm, position: v })}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="hero">Hero</SelectItem>
-                  <SelectItem value="sidebar">Sidebar</SelectItem>
-                  <SelectItem value="footer">Footer</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label>Sort Order</Label>
-              <Input
-                type="number"
-                value={bannerForm.sort_order}
-                onChange={(e) => setBannerForm({ ...bannerForm, sort_order: Number.parseInt(e.target.value) || 0 })}
-              />
-            </div>
-            <div className="flex items-center gap-2">
-              <Switch
-                checked={bannerForm.is_active}
-                onCheckedChange={(v) => setBannerForm({ ...bannerForm, is_active: v })}
-              />
-              <Label>Active</Label>
-            </div>
-            <Button className="w-full" onClick={handleSaveBanner}>
-              Save
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* Coins Dialog */}
-      <Dialog open={coinsDialog} onOpenChange={setCoinsDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Manage Coins - {selectedUser?.username}</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div className="text-center text-2xl font-bold">{selectedUser?.coins || 0} coins</div>
-            <div>
-              <Label>Amount</Label>
-              <Input
-                type="number"
-                value={coinsAmount}
-                onChange={(e) => setCoinsAmount(Number.parseInt(e.target.value) || 0)}
-              />
-            </div>
-            <div>
-              <Label>Action</Label>
-              <Select value={coinsAction} onValueChange={(v: any) => setCoinsAction(v)}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="add">Add</SelectItem>
-                  <SelectItem value="remove">Remove</SelectItem>
-                  <SelectItem value="set">Set To</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <Button className="w-full" onClick={handleUpdateCoins}>
-              Update Coins
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      <Toaster position="top-right" />
     </div>
   )
 }

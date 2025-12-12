@@ -11,14 +11,13 @@ export async function GET() {
     }
 
     const supabase = await getSupabaseAdminClient()
-
-    const currentUserDiscordId = (session.user as any).discordId || session.user.id
+    const currentUserId = session.user.id
 
     // Get all messages involving the current user
     const { data: messages, error } = await supabase
       .from("messages")
       .select("*")
-      .or(`sender_id.eq.${currentUserDiscordId},receiver_id.eq.${currentUserDiscordId}`)
+      .or(`sender_id.eq.${currentUserId},receiver_id.eq.${currentUserId}`)
       .order("created_at", { ascending: false })
 
     if (error) throw error
@@ -27,16 +26,16 @@ export async function GET() {
     const conversationMap = new Map<string, any>()
 
     for (const msg of messages || []) {
-      const partnerId = msg.sender_id === currentUserDiscordId ? msg.receiver_id : msg.sender_id
+      const partnerId = msg.sender_id === currentUserId ? msg.receiver_id : msg.sender_id
 
       if (!conversationMap.has(partnerId)) {
         conversationMap.set(partnerId, {
           partnerId,
           lastMessage: msg.content,
           lastMessageAt: msg.created_at,
-          unreadCount: msg.receiver_id === currentUserDiscordId && !msg.is_read ? 1 : 0,
+          unreadCount: msg.receiver_id === currentUserId && !msg.read ? 1 : 0,
         })
-      } else if (msg.receiver_id === currentUserDiscordId && !msg.is_read) {
+      } else if (msg.receiver_id === currentUserId && !msg.read) {
         const existing = conversationMap.get(partnerId)
         existing.unreadCount += 1
       }

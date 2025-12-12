@@ -8,7 +8,6 @@ import { CategoriesSection } from "@/components/categories-section"
 import { RecentAssets } from "@/components/recent-assets"
 import { ActivityFeed } from "@/components/activity-feed"
 import { SponsorBanner } from "@/components/sponsor-banner"
-import { AnnouncementBar } from "@/components/announcement-bar"
 
 export const metadata: Metadata = {
   title: "FiveM Tools V7 - Free Scripts, MLO, Vehicles, Decrypt CFX, Upvotes Bot",
@@ -40,7 +39,6 @@ export const metadata: Metadata = {
 export default function HomePage() {
   return (
     <div className="min-h-screen bg-background">
-      <AnnouncementBar />
       <Sidebar />
       <main className="md:ml-72 transition-all duration-300">
         <Header />
