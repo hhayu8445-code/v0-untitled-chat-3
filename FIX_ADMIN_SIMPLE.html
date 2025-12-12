@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Fix Admin Access</title>
+    <style>
+        body { font-family: monospace; padding: 20px; background: #1a1a1a; color: #fff; }
+        button { padding: 10px 20px; margin: 10px 0; cursor: pointer; font-size: 16px; }
+        .success { color: #0f0; }
+        .error { color: #f00; }
+        .warning { color: #ff0; }
+        pre { background: #000; padding: 10px; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <h1>🔧 FiveM Tools - Admin Fix</h1>
+    
+    <h2>Step 1: Check Session</h2>
+    <button onclick="checkSession()">Check My Session</button>
+    <pre id="session-result"></pre>
+    
+    <h2>Step 2: Force Clear (if isAdmin = false)</h2>
+    <button onclick="forceClear()">Force Clear Session</button>
+    <pre id="clear-result"></pre>
+    
+    <h2>Step 3: Test Admin Access</h2>
+    <button onclick="testAdmin()">Test /admin Access</button>
+    <pre id="admin-result"></pre>
+    
+    <script>
+        async function checkSession() {
+            const result = document.getElementById('session-result');
+            result.innerHTML = 'Checking...';
+            
+            try {
+                const res = await fetch('/api/auth/session');
+                const data = await res.json();
+                
+                let output = '=== SESSION CHECK ===\n';
+                output += `User: ${data?.user?.name || 'NOT LOGGED IN'}\n`;
+                output += `Discord ID: ${data?.user?.id || 'N/A'}\n`;
+                output += `Is Admin: ${data?.user?.isAdmin || false}\n`;
+                output += `Membership: ${data?.user?.membership || 'N/A'}\n`;
+                output += '===================\n\n';
+                
+                if (!data?.user) {
+                    output += '<span class="error">❌ NOT LOGGED IN!</span>\n';
+                    output += '👉 Please login via Discord first';
+                } else if (!data?.user?.isAdmin) {
+                    output += '<span class="error">❌ isAdmin = FALSE!</span>\n';
+                    output += '👉 Click "Force Clear Session" button above';
+                } else {
+                    output += '<span class="success">✅ YOU ARE ADMIN!</span>\n';
+                    output += '👉 Click "Test /admin Access" button';
+                }
+                
+                result.innerHTML = output;
+            } catch (error) {
+                result.innerHTML = `<span class="error">Error: ${error.message}</span>`;
+            }
+        }
+        
+        async function forceClear() {
+            const result = document.getElementById('clear-result');
+            result.innerHTML = 'Clearing...';
+            
+            try {
+                // Logout
+                await fetch('/api/auth/signout', { method: 'POST' }).catch(() => {});
+                
+                // Clear storage
+                localStorage.clear();
+                sessionStorage.clear();
+                
+                // Clear cookies
+                document.cookie.split(";").forEach(c => {
+                    document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+                });
+                
+                result.innerHTML = '<span class="success">✅ Session cleared!</span>\n\n';
+                result.innerHTML += '<span class="warning">⏳ Reloading in 3 seconds...</span>\n';
+                result.innerHTML += 'After reload:\n';
+                result.innerHTML += '1. Login via Discord\n';
+                result.innerHTML += '2. Click "Check My Session" again\n';
+                result.innerHTML += '3. Should show isAdmin = true';
+                
+                setTimeout(() => location.reload(), 3000);
+            } catch (error) {
+                result.innerHTML = `<span class="error">Error: ${error.message}</span>`;
+            }
+        }
+        
+        async function testAdmin() {
+            const result = document.getElementById('admin-result');
+            result.innerHTML = 'Testing...';
+            
+            try {
+                const res = await fetch('/admin', { redirect: 'manual' });
+                
+                let output = '=== ADMIN ACCESS TEST ===\n';
+                output += `Status: ${res.status}\n`;
+                output += `Type: ${res.type}\n`;
+                output += '===================\n\n';
+                
+                if (res.status === 200 || res.type === 'basic') {
+                    output += '<span class="success">✅ ACCESS GRANTED!</span>\n';
+                    output += '👉 Redirecting to /admin...';
+                    result.innerHTML = output;
+                    setTimeout(() => window.location.href = '/admin', 1000);
+                } else if (res.status === 307 || res.type === 'opaqueredirect') {
+                    output += '<span class="error">❌ REDIRECTED!</span>\n';
+                    output += 'You are being redirected (not admin)\n';
+                    output += '👉 Run "Force Clear Session" first';
+                    result.innerHTML = output;
+                } else {
+                    output += `<span class="warning">⚠️ Status: ${res.status}</span>\n`;
+                    output += 'Check console for details';
+                    result.innerHTML = output;
+                }
+            } catch (error) {
+                result.innerHTML = `<span class="error">Error: ${error.message}</span>`;
+            }
+        }
+        
+        // Auto-check on load
+        window.onload = () => {
+            checkSession();
+        };
+    </script>
+</body>
+</html>
