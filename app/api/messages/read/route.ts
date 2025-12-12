@@ -18,15 +18,14 @@ export async function POST(request: NextRequest) {
     }
 
     const supabase = await getSupabaseAdminClient()
-    const currentUserId = session.user.id
+    const currentUserId = (session.user as any).discord_id || session.user.id
 
-    // Mark all messages from otherUserId to currentUserId as read
     const { error } = await supabase
       .from("messages")
-      .update({ read: true })
+      .update({ is_read: true })
       .eq("sender_id", otherUserId)
       .eq("receiver_id", currentUserId)
-      .eq("read", false)
+      .eq("is_read", false)
 
     if (error) throw error
 

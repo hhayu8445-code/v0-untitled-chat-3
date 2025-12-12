@@ -208,6 +208,50 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
             `,
           }}
         />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                // Remove v0 branding elements
+                function removeV0Branding() {
+                  // Remove elements with v0-related attributes
+                  const v0Elements = document.querySelectorAll('[data-v0], [data-v0-*], [class*="v0"], [id*="v0"], a[href*="v0.dev"], a[href*="v0.ai"]');
+                  v0Elements.forEach(el => el.remove());
+                  
+                  // Remove elements containing "Built with v0" text
+                  const allElements = document.querySelectorAll('*');
+                  allElements.forEach(el => {
+                    if (el.textContent && el.textContent.includes('Built with v0')) {
+                      el.remove();
+                    }
+                  });
+                  
+                  // Remove iframes from v0.dev
+                  const iframes = document.querySelectorAll('iframe[src*="v0.dev"], iframe[src*="v0.ai"]');
+                  iframes.forEach(iframe => iframe.remove());
+                }
+                
+                // Run immediately
+                removeV0Branding();
+                
+                // Run after DOM is fully loaded
+                if (document.readyState === 'loading') {
+                  document.addEventListener('DOMContentLoaded', removeV0Branding);
+                }
+                
+                // Run after page load
+                window.addEventListener('load', removeV0Branding);
+                
+                // Use MutationObserver to catch dynamically added elements
+                const observer = new MutationObserver(removeV0Branding);
+                observer.observe(document.body, {
+                  childList: true,
+                  subtree: true
+                });
+              })();
+            `,
+          }}
+        />
       </head>
       <body className="font-sans antialiased scrollbar-thin">
         <AuthProvider>

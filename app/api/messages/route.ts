@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
     }
 
     const supabase = await getSupabaseAdminClient()
-    const currentUserId = session.user.id
+    const currentUserId = (session.user as any).discord_id || session.user.id
 
     // Fetch messages between the two users
     const { data: messages, error } = await supabase
@@ -33,14 +33,13 @@ export async function GET(request: NextRequest) {
 
     if (error) throw error
 
-    // Format messages
     const formattedMessages = (messages || []).map((msg) => ({
       id: msg.id,
       content: msg.content,
       senderId: msg.sender_id,
       receiverId: msg.receiver_id,
       createdAt: msg.created_at,
-      read: msg.read || false,
+      read: msg.is_read || false,
     }))
 
     return NextResponse.json({ messages: formattedMessages })
@@ -66,7 +65,7 @@ export async function POST(request: NextRequest) {
     }
 
     const supabase = await getSupabaseAdminClient()
-    const senderId = session.user.id
+    const senderId = (session.user as any).discord_id || session.user.id
 
     // Check if receiver exists
     const { data: receiver } = await supabase.from("users").select("discord_id").eq("discord_id", receiverId).single()
@@ -75,14 +74,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "User not found" }, { status: 404 })
     }
 
-    // Insert message
     const { data: message, error } = await supabase
       .from("messages")
       .insert({
         sender_id: senderId,
         receiver_id: receiverId,
         content: content.trim(),
-        read: false,
+        is_read: false,
       })
       .select()
       .single()
@@ -106,7 +104,7 @@ export async function POST(request: NextRequest) {
         senderId: message.sender_id,
         receiverId: message.receiver_id,
         createdAt: message.created_at,
-        read: message.read,
+        read: message.is_read,
       },
     })
   } catch (error) {

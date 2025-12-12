@@ -165,11 +165,24 @@
     }
   }
 
+  /* Add shimmer animation for announcement bar */
+  @keyframes shimmer {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(100%);
+    }
+  }
+
   .animate-float {
     animation: float 3s ease-in-out infinite;
   }
   .animate-pulse-glow {
     animation: pulse-glow 2s ease-in-out infinite;
+  }
+  .animate-shimmer {
+    animation: shimmer 2s ease-in-out infinite;
   }
 
   .scrollbar-thin::-webkit-scrollbar {
@@ -214,9 +227,58 @@
 
   /* Touch-friendly spacing */
   @media (hover: none) and (pointer: coarse) {
-    button, a {
+    button,
+    a {
       min-height: 44px;
       min-width: 44px;
     }
   }
+}
+
+/* Complete v0 branding removal - maximum specificity */
+[data-v0],
+[data-v0-branding],
+[data-testid*="v0"],
+[class*="v0-"],
+[class*="_v0"],
+[class*="v0_"],
+[id*="v0-"],
+[id*="_v0"],
+[id*="v0_"],
+a[href*="v0.dev"],
+a[href*="v0.app"],
+div[style*="v0"],
+button[aria-label*="v0"],
+div[aria-label*="v0"],
+iframe[src*="v0"],
+img[src*="v0"],
+img[alt*="v0"],
+span[class*="v0"],
+div[class*="branding"],
+[data-branding],
+[data-badge] {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  position: absolute !important;
+  width: 0 !important;
+  height: 0 !important;
+  max-width: 0 !important;
+  max-height: 0 !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+  margin: -1px !important;
+  padding: 0 !important;
+}
+
+/* Hide fixed position bottom elements that might be v0 badges */
+body > div[style*="fixed"][style*="bottom"],
+body > div[style*="position: fixed"] > a[href*="v0"],
+body > div:last-child[style*="z-index"]:not([class]),
+body > div:last-child > a[target="_blank"] {
+  display: none !important;
+  visibility: hidden !important;
 }

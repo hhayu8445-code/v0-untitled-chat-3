@@ -11,7 +11,7 @@ export async function GET() {
     }
 
     const supabase = await getSupabaseAdminClient()
-    const currentUserId = session.user.id
+    const currentUserId = (session.user as any).discord_id || session.user.id
 
     // Get all messages involving the current user
     const { data: messages, error } = await supabase
@@ -33,25 +33,31 @@ export async function GET() {
           partnerId,
           lastMessage: msg.content,
           lastMessageAt: msg.created_at,
-          unreadCount: msg.receiver_id === currentUserId && !msg.read ? 1 : 0,
+          unreadCount: msg.receiver_id === currentUserId && !msg.is_read ? 1 : 0,
         })
-      } else if (msg.receiver_id === currentUserId && !msg.read) {
+      } else if (msg.receiver_id === currentUserId && !msg.is_read) {
         const existing = conversationMap.get(partnerId)
         existing.unreadCount += 1
       }
     }
 
-    // Fetch user details for each partner
+    // Fetch user details for each partner - optimized bulk fetch
     const partnerIds = Array.from(conversationMap.keys())
+
+    if (partnerIds.length === 0) {
+      return NextResponse.json({ conversations: [] })
+    }
+
+    const { data: users } = await supabase
+      .from("users")
+      .select("id, discord_id, username, avatar, membership")
+      .in("discord_id", partnerIds)
+
+    const userMap = new Map((users || []).map((u) => [u.discord_id, u]))
     const conversations = []
 
     for (const partnerId of partnerIds) {
-      const { data: user } = await supabase
-        .from("users")
-        .select("id, discord_id, username, avatar, membership")
-        .eq("discord_id", partnerId)
-        .single()
-
+      const user = userMap.get(partnerId)
       if (user) {
         const convData = conversationMap.get(partnerId)
         conversations.push({
