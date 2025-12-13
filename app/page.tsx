@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import { Sidebar } from "@/components/sidebar"
 import { Header } from "@/components/header"
+import { AnnouncementBar } from "@/components/announcement-bar"
 import { HeroSection } from "@/components/hero-section"
 import { TrendingSection } from "@/components/trending-section"
 import { StatsSection } from "@/components/stats-section"
@@ -41,6 +42,7 @@ export default function HomePage() {
     <div className="min-h-screen bg-background">
       <Sidebar />
       <main className="md:ml-72 transition-all duration-300">
+        <AnnouncementBar />
         <Header />
         <div className="p-6">
           <SponsorBanner />

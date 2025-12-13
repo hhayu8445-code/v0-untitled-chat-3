@@ -212,42 +212,168 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           dangerouslySetInnerHTML={{
             __html: `
               (function() {
-                // Remove v0 branding elements
-                function removeV0Branding() {
-                  // Remove elements with v0-related attributes
-                  const v0Elements = document.querySelectorAll('[data-v0], [data-v0-*], [class*="v0"], [id*="v0"], a[href*="v0.dev"], a[href*="v0.ai"]');
-                  v0Elements.forEach(el => el.remove());
+                // Multi-layered v0 branding removal - Ultra comprehensive
+                function removeV0BrandingUltra() {
+                  // Strategy 1: Remove by attribute selectors
+                  const attributeSelectors = [
+                    '[data-v0]', '[data-v0-*]', '[data-v0-branding]', '[data-testid*="v0"]',
+                    '[class*="v0-"]', '[class*="_v0"]', '[class*="v0_"]',
+                    '[id*="v0-"]', '[id*="_v0"]', '[id*="v0_"]',
+                    'a[href*="v0.dev"]', 'a[href*="v0.app"]', 'a[href*="v0.ai"]',
+                    'div[aria-label*="v0"]', 'button[aria-label*="v0"]',
+                    '[data-branding]', '[data-badge]', '[class*="branding"]'
+                  ];
                   
-                  // Remove elements containing "Built with v0" text
-                  const allElements = document.querySelectorAll('*');
-                  allElements.forEach(el => {
-                    if (el.textContent && el.textContent.includes('Built with v0')) {
-                      el.remove();
+                  attributeSelectors.forEach(selector => {
+                    try {
+                      document.querySelectorAll(selector).forEach(el => {
+                        el.style.cssText = 'display:none!important;visibility:hidden!important;opacity:0!important;position:absolute!important;width:0!important;height:0!important;overflow:hidden!important;pointer-events:none!important;';
+                        setTimeout(() => el.remove(), 0);
+                      });
+                    } catch(e) {}
+                  });
+                  
+                  // Strategy 2: Remove by text content (Built with v0, etc)
+                  const textPatterns = ['Built with v0', 'Built with', 'Powered by v0', 'v0.dev', 'v0.app'];
+                  document.querySelectorAll('*').forEach(el => {
+                    if (el.children.length === 0 && el.textContent) {
+                      const text = el.textContent.trim();
+                      if (textPatterns.some(pattern => text.toLowerCase().includes(pattern.toLowerCase()))) {
+                        let parent = el;
+                        let depth = 0;
+                        while(parent && parent !== document.body && depth < 5) {
+                          if (parent.tagName === 'DIV' || parent.tagName === 'A' || parent.tagName === 'BUTTON') {
+                            parent.style.cssText = 'display:none!important;visibility:hidden!important;';
+                            setTimeout(() => parent.remove(), 0);
+                            break;
+                          }
+                          parent = parent.parentElement;
+                          depth++;
+                        }
+                      }
                     }
                   });
                   
-                  // Remove iframes from v0.dev
-                  const iframes = document.querySelectorAll('iframe[src*="v0.dev"], iframe[src*="v0.ai"]');
-                  iframes.forEach(iframe => iframe.remove());
+                  // Strategy 3: Remove suspicious fixed/absolute positioned elements at bottom
+                  document.querySelectorAll('body > div, body > aside, body > section').forEach(el => {
+                    const style = window.getComputedStyle(el);
+                    const isBottomFixed = (style.position === 'fixed' || style.position === 'absolute') && 
+                                         (style.bottom === '0px' || parseInt(style.bottom) < 100);
+                    
+                    if (isBottomFixed) {
+                      const hasLink = el.querySelector('a[href*="v0"]');
+                      const hasBrandingText = el.textContent && (
+                        el.textContent.toLowerCase().includes('built') || 
+                        el.textContent.toLowerCase().includes('v0') ||
+                        el.textContent.toLowerCase().includes('powered')
+                      );
+                      const hasSmallSize = el.offsetHeight < 100 && el.offsetWidth < 200;
+                      
+                      if ((hasLink || hasBrandingText) && hasSmallSize) {
+                        el.style.cssText = 'display:none!important;visibility:hidden!important;';
+                        setTimeout(() => el.remove(), 0);
+                      }
+                    }
+                  });
+                  
+                  // Strategy 4: Remove iframes from v0
+                  document.querySelectorAll('iframe').forEach(iframe => {
+                    const src = iframe.src || iframe.getAttribute('src') || '';
+                    if (src.includes('v0.dev') || src.includes('v0.app') || src.includes('v0.ai')) {
+                      iframe.style.cssText = 'display:none!important;';
+                      setTimeout(() => iframe.remove(), 0);
+                    }
+                  });
+                  
+                  // Strategy 5: Hide elements with high z-index at bottom
+                  document.querySelectorAll('[style*="z-index"]').forEach(el => {
+                    const style = window.getComputedStyle(el);
+                    const zIndex = parseInt(style.zIndex);
+                    const isBottom = style.position === 'fixed' && (style.bottom === '0px' || parseInt(style.bottom) < 50);
+                    
+                    if (zIndex > 9000 && isBottom) {
+                      const hasV0Link = el.querySelector('a[href*="v0"]');
+                      const hasV0Text = el.textContent && el.textContent.toLowerCase().includes('v0');
+                      
+                      if (hasV0Link || hasV0Text) {
+                        el.style.cssText = 'display:none!important;visibility:hidden!important;';
+                        setTimeout(() => el.remove(), 0);
+                      }
+                    }
+                  });
+                  
+                  // Strategy 6: Remove small bottom-right elements (common badge position)
+                  document.querySelectorAll('body > *').forEach(el => {
+                    const rect = el.getBoundingClientRect();
+                    const style = window.getComputedStyle(el);
+                    const isBottomRight = rect.bottom > window.innerHeight - 100 && rect.right > window.innerWidth - 200;
+                    const isSmall = rect.width < 200 && rect.height < 100;
+                    const isFixed = style.position === 'fixed' || style.position === 'absolute';
+                    
+                    if (isBottomRight && isSmall && isFixed) {
+                      const text = el.textContent?.toLowerCase() || '';
+                      if (text.includes('built') || text.includes('v0') || text.includes('powered') || el.querySelector('a')) {
+                        el.style.cssText = 'display:none!important;visibility:hidden!important;';
+                        setTimeout(() => el.remove(), 0);
+                      }
+                    }
+                  });
                 }
                 
-                // Run immediately
-                removeV0Branding();
+                // Execute immediately
+                removeV0BrandingUltra();
                 
-                // Run after DOM is fully loaded
+                // Execute on DOM ready
                 if (document.readyState === 'loading') {
-                  document.addEventListener('DOMContentLoaded', removeV0Branding);
+                  document.addEventListener('DOMContentLoaded', removeV0BrandingUltra);
+                } else {
+                  setTimeout(removeV0BrandingUltra, 0);
                 }
                 
-                // Run after page load
-                window.addEventListener('load', removeV0Branding);
-                
-                // Use MutationObserver to catch dynamically added elements
-                const observer = new MutationObserver(removeV0Branding);
-                observer.observe(document.body, {
-                  childList: true,
-                  subtree: true
+                // Execute on load with delays
+                window.addEventListener('load', () => {
+                  removeV0BrandingUltra();
+                  setTimeout(removeV0BrandingUltra, 100);
+                  setTimeout(removeV0BrandingUltra, 300);
+                  setTimeout(removeV0BrandingUltra, 500);
+                  setTimeout(removeV0BrandingUltra, 1000);
+                  setTimeout(removeV0BrandingUltra, 2000);
                 });
+                
+                // Aggressive MutationObserver
+                const observer = new MutationObserver((mutations) => {
+                  let shouldRun = false;
+                  mutations.forEach(mutation => {
+                    if (mutation.type === 'childList') {
+                      mutation.addedNodes.forEach(node => {
+                        if (node.nodeType === 1) {
+                          const el = node;
+                          const tag = el.tagName?.toLowerCase();
+                          if (['div', 'a', 'button', 'iframe', 'aside', 'section'].includes(tag)) {
+                            shouldRun = true;
+                          }
+                        }
+                      });
+                    } else if (mutation.type === 'attributes') {
+                      shouldRun = true;
+                    }
+                  });
+                  if (shouldRun) {
+                    setTimeout(removeV0BrandingUltra, 0);
+                  }
+                });
+                
+                if (document.body) {
+                  observer.observe(document.body, {
+                    childList: true,
+                    subtree: true,
+                    attributes: true,
+                    attributeFilter: ['style', 'class', 'id', 'data-v0', 'href']
+                  });
+                }
+                
+                // Aggressive periodic cleanup every 1 second
+                setInterval(removeV0BrandingUltra, 1000);
               })();
             `,
           }}
