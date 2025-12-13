@@ -2,10 +2,16 @@ import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 import { getToken } from "next-auth/jwt"
 import { security } from "./lib/security-edge"
+import { updateSession } from "@/lib/supabase/proxy"
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
   const clientIP = request.headers.get("x-forwarded-for") || request.headers.get("x-real-ip") || "unknown"
+
+  const supabaseResponse = await updateSession(request)
+  if (supabaseResponse.status === 307 || supabaseResponse.status === 308) {
+    return supabaseResponse
+  }
 
   // Rate limiting
   if (!security.checkRateLimit(clientIP, 500, 60000)) {
