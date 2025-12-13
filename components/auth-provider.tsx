@@ -2,7 +2,7 @@
 
 import { SessionProvider, useSession, signIn, signOut } from "next-auth/react"
 import type { ReactNode } from "react"
-import { useEffect, useState, useCallback } from "react"
+import { useCallback } from "react"
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   return (
@@ -14,18 +14,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 export function useAuth() {
   const { data: session, status, update } = useSession()
-  const [forceAdminCheck, setForceAdminCheck] = useState(false)
-
-  // Debug logging in development
-  useEffect(() => {
-    if (process.env.NODE_ENV === "development" && session?.user) {
-      console.log("🔐 Auth State:", {
-        id: session.user.id,
-        isAdmin: session.user.isAdmin,
-        membership: session.user.membership,
-      })
-    }
-  }, [session])
 
   const user = session?.user
     ? {
@@ -41,14 +29,13 @@ export function useAuth() {
       }
     : null
 
-  // Force check admin status from API if needed
   const checkAdminStatus = async () => {
     if (!user?.id) return false
     try {
       const res = await fetch("/api/force-admin")
       const data = await res.json()
       if (data.currentUser?.isAdmin && !user.isAdmin) {
-        await update() // Refresh session
+        await update()
         return true
       }
       return data.currentUser?.isAdmin || false
@@ -73,7 +60,7 @@ export function useAuth() {
     login: () => signIn("discord"),
     logout: () => signOut(),
     refreshSession: () => update(),
-    refreshUser, // Added refreshUser to return
+    refreshUser,
     checkAdminStatus,
   }
 }

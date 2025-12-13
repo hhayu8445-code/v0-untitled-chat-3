@@ -1,7 +1,9 @@
 "use client"
 
+import type React from "react"
+
 import { useState } from "react"
-import { useAuth } from "@/hooks/use-auth"
+import { useAuth } from "@/components/auth-provider"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -13,12 +15,12 @@ export function UploadForm() {
   const { user, isLoading } = useAuth()
   const [uploading, setUploading] = useState(false)
   const [formData, setFormData] = useState({
-    title: '',
-    description: '',
-    category: '',
-    framework: '',
+    title: "",
+    description: "",
+    category: "",
+    framework: "",
     coinPrice: 0,
-    tags: [] as string[]
+    tags: [] as string[],
   })
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -30,7 +32,7 @@ export function UploadForm() {
     const file = fileInput?.files?.[0]
 
     if (!file) {
-      alert('Please select a file')
+      alert("Please select a file")
       return
     }
 
@@ -38,38 +40,38 @@ export function UploadForm() {
 
     try {
       const uploadFormData = new FormData()
-      uploadFormData.append('file', file)
-      uploadFormData.append('title', formData.title)
-      uploadFormData.append('description', formData.description)
-      uploadFormData.append('category', formData.category)
-      uploadFormData.append('framework', formData.framework)
-      uploadFormData.append('coinPrice', formData.coinPrice.toString())
-      uploadFormData.append('tags', JSON.stringify(formData.tags))
+      uploadFormData.append("file", file)
+      uploadFormData.append("title", formData.title)
+      uploadFormData.append("description", formData.description)
+      uploadFormData.append("category", formData.category)
+      uploadFormData.append("framework", formData.framework)
+      uploadFormData.append("coinPrice", formData.coinPrice.toString())
+      uploadFormData.append("tags", JSON.stringify(formData.tags))
 
-      const response = await fetch('/api/upload/asset', {
-        method: 'POST',
-        body: uploadFormData
+      const response = await fetch("/api/upload/asset", {
+        method: "POST",
+        body: uploadFormData,
       })
 
       const result = await response.json()
 
       if (result.success) {
-        alert('Asset uploaded successfully!')
+        alert("Asset uploaded successfully!")
         form.reset()
         setFormData({
-          title: '',
-          description: '',
-          category: '',
-          framework: '',
+          title: "",
+          description: "",
+          category: "",
+          framework: "",
           coinPrice: 0,
-          tags: []
+          tags: [],
         })
       } else {
-        alert('Upload failed: ' + result.error)
+        alert("Upload failed: " + result.error)
       }
     } catch (error) {
-      console.error('Upload error:', error)
-      alert('Upload failed')
+      console.error("Upload error:", error)
+      alert("Upload failed")
     } finally {
       setUploading(false)
     }
@@ -90,7 +92,7 @@ export function UploadForm() {
             <Input
               id="title"
               value={formData.title}
-              onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+              onChange={(e) => setFormData((prev) => ({ ...prev, title: e.target.value }))}
               required
             />
           </div>
@@ -100,7 +102,7 @@ export function UploadForm() {
             <Textarea
               id="description"
               value={formData.description}
-              onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+              onChange={(e) => setFormData((prev) => ({ ...prev, description: e.target.value }))}
               required
             />
           </div>
@@ -108,7 +110,7 @@ export function UploadForm() {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <Label htmlFor="category">Category</Label>
-              <Select onValueChange={(value) => setFormData(prev => ({ ...prev, category: value }))}>
+              <Select onValueChange={(value) => setFormData((prev) => ({ ...prev, category: value }))}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select category" />
                 </SelectTrigger>
@@ -123,7 +125,7 @@ export function UploadForm() {
 
             <div>
               <Label htmlFor="framework">Framework</Label>
-              <Select onValueChange={(value) => setFormData(prev => ({ ...prev, framework: value }))}>
+              <Select onValueChange={(value) => setFormData((prev) => ({ ...prev, framework: value }))}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select framework" />
                 </SelectTrigger>
@@ -144,22 +146,17 @@ export function UploadForm() {
               type="number"
               min="0"
               value={formData.coinPrice}
-              onChange={(e) => setFormData(prev => ({ ...prev, coinPrice: parseInt(e.target.value) || 0 }))}
+              onChange={(e) => setFormData((prev) => ({ ...prev, coinPrice: Number.parseInt(e.target.value) || 0 }))}
             />
           </div>
 
           <div>
             <Label htmlFor="file">File (ZIP only)</Label>
-            <Input
-              id="file"
-              type="file"
-              accept=".zip"
-              required
-            />
+            <Input id="file" type="file" accept=".zip" required />
           </div>
 
           <Button type="submit" disabled={uploading} className="w-full">
-            {uploading ? 'Uploading...' : 'Upload Asset'}
+            {uploading ? "Uploading..." : "Upload Asset"}
           </Button>
         </form>
       </CardContent>

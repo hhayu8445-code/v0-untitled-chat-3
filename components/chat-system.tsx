@@ -1,7 +1,9 @@
 "use client"
 
+import type React from "react"
+
 import { useState, useEffect } from "react"
-import { useAuth } from "@/hooks/use-auth"
+import { useAuth } from "@/components/auth-provider"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -40,11 +42,11 @@ export function ChatSystem({ threadId }: { threadId?: string }) {
 
   const fetchMessages = async () => {
     try {
-      const response = await fetch('/api/messages')
+      const response = await fetch("/api/messages")
       const data = await response.json()
       setMessages(data.messages || [])
     } catch (error) {
-      console.error('Failed to fetch messages:', error)
+      console.error("Failed to fetch messages:", error)
     }
   }
 
@@ -54,7 +56,7 @@ export function ChatSystem({ threadId }: { threadId?: string }) {
       const data = await response.json()
       setMessages(data.replies || [])
     } catch (error) {
-      console.error('Failed to fetch replies:', error)
+      console.error("Failed to fetch replies:", error)
     }
   }
 
@@ -64,14 +66,14 @@ export function ChatSystem({ threadId }: { threadId?: string }) {
 
     setLoading(true)
     try {
-      const url = threadId ? `/api/forum/threads/${threadId}/replies` : '/api/messages'
+      const url = threadId ? `/api/forum/threads/${threadId}/replies` : "/api/messages"
       const response = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
           content: newMessage,
-          ...(threadId && { threadId })
-        })
+          ...(threadId && { threadId }),
+        }),
       })
 
       if (response.ok) {
@@ -83,7 +85,7 @@ export function ChatSystem({ threadId }: { threadId?: string }) {
         }
       }
     } catch (error) {
-      console.error('Failed to send message:', error)
+      console.error("Failed to send message:", error)
     } finally {
       setLoading(false)
     }
@@ -105,7 +107,7 @@ export function ChatSystem({ threadId }: { threadId?: string }) {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <MessageCircle className="h-5 w-5" />
-          {threadId ? 'Discussion' : 'Messages'}
+          {threadId ? "Discussion" : "Messages"}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -128,15 +130,13 @@ export function ChatSystem({ threadId }: { threadId?: string }) {
                 </div>
                 <p className="text-sm">{message.content}</p>
                 {!threadId && message.thread && (
-                  <p className="text-xs text-muted-foreground mt-1">
-                    in: {message.thread.title}
-                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">in: {message.thread.title}</p>
                 )}
               </div>
             </div>
           ))}
         </div>
-        
+
         <form onSubmit={sendMessage} className="flex gap-2">
           <Input
             value={newMessage}

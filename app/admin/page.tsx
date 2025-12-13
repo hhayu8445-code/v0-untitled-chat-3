@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react"
 import { useRouter } from "next/navigation"
-import { useSession } from "next-auth/react"
+import { useAuth } from "@/components/auth-provider"
 import { Sidebar } from "@/components/sidebar"
 import { Header } from "@/components/header"
 import { Button } from "@/components/ui/button"
@@ -200,7 +200,7 @@ const COLOR_PRESETS = [
 
 export default function AdminPage() {
   // Use useSession and manage isAdmin state
-  const { data: session, status } = useSession()
+  const { user, isAdmin: userIsAdmin, isLoading: authLoading } = useAuth()
   const router = useRouter()
   // Removed isAdmin and loading states, replaced with useAuth hook
   // const { user: authUser, isAdmin: authIsAdmin, isLoading: authIsLoading } = useAuth() // Not used in merged code, using local isAdmin state
@@ -424,8 +424,8 @@ export default function AdminPage() {
   // Combined admin check and initial data fetching
   useEffect(() => {
     const checkAdmin = async () => {
-      if (status === "loading") return
-      if (!session) {
+      if (authLoading) return
+      if (!user) {
         router.push("/")
         return
       }
@@ -453,7 +453,7 @@ export default function AdminPage() {
     }
 
     checkAdmin()
-  }, [session, status, router, fetchPrizes, fetchSpinStats]) // Added fetchSpinStats to dependencies
+  }, [user, authLoading, router, fetchPrizes, fetchSpinStats]) // Added fetchSpinStats to dependencies
 
   // Fetch data when panels open
   useEffect(() => {
@@ -731,7 +731,7 @@ export default function AdminPage() {
     toast.success("Probabilities auto-balanced!")
   }
 
-  if (loading) {
+  if (loading || authLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-black">
         {" "}
@@ -742,8 +742,16 @@ export default function AdminPage() {
   }
 
   if (!isAdmin) {
-    router.push("/") // Redirect if not admin
-    return null // Render nothing if redirecting
+    // Show access denied message instead of redirecting directly
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-black">
+        <div className="text-center">
+          <Shield className="mx-auto h-12 w-12 text-red-500" />
+          <h1 className="mt-4 text-2xl font-bold text-white">Access Denied</h1>
+          <p className="mt-2 text-gray-400">You don't have permission to access this page</p>
+        </div>
+      </div>
+    )
   }
 
   const totalProbability = prizes.filter((p) => p.is_active).reduce((sum, p) => sum + p.probability, 0)
