@@ -140,9 +140,20 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="en" className={`dark ${geist.variable} ${geistMono.variable}`}>
       <head>
-        <meta name="google-site-verification" content="1C9OLiOYFZjjSl2iE84XV83Ga4pT7ScpQxcUnKETTj0" />
-        <link rel="dns-prefetch" href="https://cdn.discordapp.com" />
-        <link rel="preconnect" href="https://cdn.discordapp.com" crossOrigin="anonymous" />
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-30YPXMETSE"></script>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', 'G-30YPXMETSE', {
+                page_path: window.location.pathname,
+                cookie_flags: 'SameSite=None;Secure'
+              });
+            `,
+          }}
+        />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -190,6 +201,44 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
                 ratingCount: "2500",
               },
             }),
+          }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              name: SITE_NAME,
+              url: SITE_URL,
+              logo: SITE_LOGO,
+              description: SITE_DESCRIPTION,
+              sameAs: ["https://discord.gg/fivemtools"],
+              contactPoint: {
+                "@type": "ContactPoint",
+                contactType: "Customer Support",
+                availableLanguage: ["English", "Indonesian", "Spanish", "Portuguese"],
+              },
+            }),
+          }}
+        />
+        <meta name="google-site-verification" content="1C9OLiOYFZjjSl2iE84XV83Ga4pT7ScpQxcUnKETTj0" />
+        <link rel="dns-prefetch" href="https://cdn.discordapp.com" />
+        <link rel="preconnect" href="https://cdn.discordapp.com" crossOrigin="anonymous" />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                const cookies = document.cookie.split(';');
+                for (let cookie of cookies) {
+                  const [name, value] = cookie.trim().split('=');
+                  if (name === 'csrf-token') {
+                    window.__CSRF_TOKEN__ = decodeURIComponent(value);
+                    break;
+                  }
+                }
+              })();
+            `,
           }}
         />
         <script
