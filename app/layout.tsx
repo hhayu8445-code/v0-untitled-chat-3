@@ -6,6 +6,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next"
 import { AuthProvider } from "@/components/auth-provider"
 import { AppWrapper } from "@/components/app-wrapper"
 import { SITE_NAME, SITE_DESCRIPTION, SITE_URL, SITE_LOGO, SEO_KEYWORDS } from "@/lib/constants"
+import Script from "next/script"
 import "./globals.css"
 
 const geist = Geist({
@@ -141,13 +142,17 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="en" className={`dark ${geist.variable} ${geistMono.variable}`}>
       <head>
-        <script
+        <Script
+          id="gtm-script"
+          strategy="afterInteractive"
           dangerouslySetInnerHTML={{
             __html: `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-N3GV4T4M');`,
           }}
         />
 
-        <script
+        <Script
+          id="google-consent-mode"
+          strategy="beforeInteractive"
           dangerouslySetInnerHTML={{
             __html: `
               window.dataLayer = window.dataLayer || [];
@@ -170,8 +175,11 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
             `,
           }}
         />
-        <script async src="https://www.googletagmanager.com/gtag/js?id=G-30YPXMETSE"></script>
-        <script
+
+        <Script async src="https://www.googletagmanager.com/gtag/js?id=G-30YPXMETSE" strategy="afterInteractive" />
+        <Script
+          id="google-analytics"
+          strategy="afterInteractive"
           dangerouslySetInnerHTML={{
             __html: `
               window.dataLayer = window.dataLayer || [];
@@ -187,6 +195,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
             `,
           }}
         />
+
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -441,7 +450,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
             width="0"
             style={{ display: "none", visibility: "hidden" }}
             title="Google Tag Manager"
-          ></iframe>
+          />
         </noscript>
 
         <AuthProvider>
