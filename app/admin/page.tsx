@@ -37,7 +37,6 @@ import {
   Ban,
   DollarSign,
 } from "lucide-react" // Added from updates
-import { FRAMEWORKS } from "@/lib/constants" // Added from updates
 
 // Types for Spin Wheel
 interface Prize {
@@ -755,10 +754,10 @@ export default function AdminPage() {
       {/* Changed background */}
       <Header />
       <div className="flex flex-1">
-        <Sidebar frameworks={FRAMEWORKS} />
-        <main className="flex-1 p-6 lg:p-8">
+        <Sidebar /> {/* Removed frameworks prop */}
+        <main className="ml-0 md:ml-72 flex-1 p-6 lg:p-8">
           {" "}
-          {/* Adjusted padding */}
+          {/* Adjusted padding and added ml-72 */}
           <Toaster richColors closeButton /> {/* Added closeButton */}
           <div className="mx-auto max-w-7xl space-y-8">
             {" "}
