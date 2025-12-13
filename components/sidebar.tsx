@@ -33,9 +33,12 @@ const Icon3D = ({ src, alt, className }: { src: string; alt: string; className?:
   <img
     src={src || "/placeholder.svg"}
     alt={alt}
+    aria-hidden="true"
     className={cn("w-6 h-6 object-contain", className)}
     loading="lazy"
     decoding="async"
+    width={24}
+    height={24}
   />
 )
 
@@ -154,10 +157,11 @@ export function Sidebar() {
     <>
       {/* Mobile Menu Button */}
       <button
+        aria-label={mobileOpen ? "Close navigation menu" : "Open navigation menu"}
         onClick={() => setMobileOpen(!mobileOpen)}
         className="md:hidden fixed top-4 left-4 z-50 p-2.5 rounded-xl glass-card border border-border"
       >
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
           <path
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -182,7 +186,14 @@ export function Sidebar() {
         {/* Logo */}
         <div className="p-4 flex items-center gap-3 border-b border-border">
           <Link href="/" className="flex items-center gap-3">
-            <img src={SITE_LOGO || "/placeholder.svg"} alt={SITE_NAME} className="h-10 w-10 rounded-xl object-cover" />
+            <img
+              src={SITE_LOGO || "/placeholder.svg"}
+              alt={`${SITE_NAME} Logo`}
+              className="h-10 w-10 rounded-xl object-cover"
+              width={40}
+              height={40}
+              loading="eager"
+            />
             {!collapsed && (
               <div>
                 <h1 className="font-bold text-lg text-foreground">{SITE_NAME}</h1>
@@ -191,6 +202,7 @@ export function Sidebar() {
             )}
           </Link>
           <button
+            aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
             onClick={() => setCollapsed(!collapsed)}
             className="ml-auto p-1.5 rounded-lg hover:bg-accent/50 transition-colors hidden md:flex"
           >

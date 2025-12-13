@@ -116,6 +116,7 @@ export function AnnouncementBar() {
               setCurrentIndex((prev) => (prev - 1 + visibleAnnouncements.length) % visibleAnnouncements.length)
             }
             className="absolute left-2 p-1 rounded-full hover:bg-white/10 transition-colors"
+            aria-label="Previous announcement"
           >
             <ChevronLeft className="w-4 h-4 text-white/70" />
           </button>
@@ -123,7 +124,7 @@ export function AnnouncementBar() {
 
         {/* Icon */}
         <div className={cn("flex-shrink-0 p-1.5 rounded-full bg-white/10 backdrop-blur-sm", typeStyles.iconColor)}>
-          <IconComponent className="w-4 h-4" />
+          <IconComponent className="w-4 h-4" aria-hidden="true" />
         </div>
 
         {/* Badge */}
@@ -154,7 +155,7 @@ export function AnnouncementBar() {
             className="hidden sm:inline-flex items-center gap-1 px-3 py-1 text-xs font-semibold rounded-full bg-white/20 hover:bg-white/30 text-white transition-all"
           >
             Learn More
-            <ExternalLink className="w-3 h-3" />
+            <ExternalLink className="w-3 h-3" aria-hidden="true" />
           </a>
         )}
 
@@ -163,6 +164,7 @@ export function AnnouncementBar() {
           <button
             onClick={() => setCurrentIndex((prev) => (prev + 1) % visibleAnnouncements.length)}
             className="absolute right-10 p-1 rounded-full hover:bg-white/10 transition-colors"
+            aria-label="Next announcement"
           >
             <ChevronRight className="w-4 h-4 text-white/70" />
           </button>
@@ -189,6 +191,7 @@ export function AnnouncementBar() {
                 "w-1.5 h-1.5 rounded-full transition-all",
                 idx === currentIndex % visibleAnnouncements.length ? "bg-white w-3" : "bg-white/40 hover:bg-white/60",
               )}
+              aria-label={`Go to announcement ${idx + 1}`}
             />
           ))}
         </div>

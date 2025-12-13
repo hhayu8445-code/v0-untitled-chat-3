@@ -27,8 +27,8 @@ export const metadata: Metadata = {
     default: `${SITE_NAME} - FiveM Scripts, MLO, Vehicles, Decrypt CFX, Upvotes Free`,
     template: `%s | ${SITE_NAME} - FiveM Resources`,
   },
-  description: SITE_DESCRIPTION,
-  keywords: SEO_KEYWORDS,
+  description: `${SITE_DESCRIPTION} #FiveMRoles #FiveMPopulation #FiveMServer #FiveMCommunity #FiveMRanking #ServerBoost #FiveMAdvertise #FiveMTools #FiveMUpvotes #FiveMScripts #FiveMResources #FiveMCustomization #GTARP #FiveM #GTAV #GrandTheftAuto #GTAOnline #GamingCommunity`,
+  keywords: `${SEO_KEYWORDS}, FiveM Roles, FiveM Population, FiveM Server, FiveM Community, FiveM Ranking, Server Boost, FiveM Advertise, FiveM Tools, FiveM Upvotes, FiveM Scripts, FiveM Resources, FiveM Customization, GTA RP, FiveM, GTA V, Grand Theft Auto, GTA Online, Gaming Community`,
   authors: [{ name: "FiveM Tools Team", url: SITE_URL }],
   creator: "FiveM Tools V7",
   publisher: "FiveM Tools",
@@ -55,9 +55,9 @@ export const metadata: Metadata = {
     locale: "en_US",
     alternateLocale: ["id_ID"],
     url: SITE_URL,
-    title: `${SITE_NAME} - #1 FiveM Resource Hub | Scripts, MLO, Decrypt, Upvotes`,
+    title: `${SITE_NAME} - #1 FiveM Resource Hub | Scripts, MLO, Decrypt, Upvotes #FiveMTools #GTARP`,
     description:
-      "Download Free FiveM Scripts, MLO Maps, Vehicles, EUP Clothing. Decrypt CFX V7, FiveM Upvotes Bot, Leak Scripts. QBCore, ESX, QBox Framework Resources.",
+      "Download Free FiveM Scripts, MLO Maps, Vehicles, EUP Clothing. Decrypt CFX V7, FiveM Upvotes Bot, Leak Scripts. QBCore, ESX, QBox Framework Resources. #FiveMScripts #FiveMServer #FiveMCommunity #GTAV #GTAOnline",
     siteName: SITE_NAME,
     images: [
       {
@@ -77,8 +77,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: `${SITE_NAME} - FiveM Scripts, MLO, Decrypt CFX, Upvotes`,
-    description: "Free FiveM Resources: Scripts, MLO, Vehicles, EUP, Decrypt CFX V7, Upvotes Bot. QBCore, ESX, QBox.",
+    title: `${SITE_NAME} - FiveM Scripts, MLO, Decrypt CFX, Upvotes #FiveMTools #GTARP`,
+    description:
+      "Free FiveM Resources: Scripts, MLO, Vehicles, EUP, Decrypt CFX V7, Upvotes Bot. QBCore, ESX, QBox. #FiveMCommunity #GTAOnline",
     images: [SITE_LOGO],
     creator: "@fivemtools",
     site: "@fivemtools",
@@ -140,6 +141,35 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="en" className={`dark ${geist.variable} ${geistMono.variable}`}>
       <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-N3GV4T4M');`,
+          }}
+        />
+
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              
+              gtag('consent', 'default', {
+                'ad_storage': 'denied',
+                'ad_user_data': 'denied',
+                'ad_personalization': 'denied',
+                'analytics_storage': 'denied',
+                'regions': ['AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FI', 'FR', 'DE', 'GR', 'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 'PL', 'PT', 'RO', 'SK', 'SI', 'ES', 'SE', 'GB', 'IS', 'LI', 'NO', 'CH']
+              });
+              
+              gtag('consent', 'default', {
+                'ad_storage': 'granted',
+                'ad_user_data': 'granted',
+                'ad_personalization': 'granted',
+                'analytics_storage': 'granted'
+              });
+            `,
+          }}
+        />
         <script async src="https://www.googletagmanager.com/gtag/js?id=G-30YPXMETSE"></script>
         <script
           dangerouslySetInnerHTML={{
@@ -149,7 +179,10 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
               gtag('js', new Date());
               gtag('config', 'G-30YPXMETSE', {
                 page_path: window.location.pathname,
-                cookie_flags: 'SameSite=None;Secure'
+                cookie_flags: 'SameSite=None;Secure',
+                anonymize_ip: true,
+                allow_google_signals: true,
+                send_page_view: true
               });
             `,
           }}
@@ -245,25 +278,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           dangerouslySetInnerHTML={{
             __html: `
               (function() {
-                const cookies = document.cookie.split(';');
-                for (let cookie of cookies) {
-                  const [name, value] = cookie.trim().split('=');
-                  if (name === 'csrf-token') {
-                    window.__CSRF_TOKEN__ = decodeURIComponent(value);
-                    break;
-                  }
-                }
-              })();
-            `,
-          }}
-        />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function() {
-                // Multi-layered v0 branding removal - Ultra comprehensive
                 function removeV0BrandingUltra() {
-                  // Strategy 1: Remove by attribute selectors
                   const attributeSelectors = [
                     '[data-v0]', '[data-v0-*]', '[data-v0-branding]', '[data-testid*="v0"]',
                     '[class*="v0-"]', '[class*="_v0"]', '[class*="v0_"]',
@@ -282,7 +297,6 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
                     } catch(e) {}
                   });
                   
-                  // Strategy 2: Remove by text content (Built with v0, etc)
                   const textPatterns = ['Built with v0', 'Built with', 'Powered by v0', 'v0.dev', 'v0.app'];
                   document.querySelectorAll('*').forEach(el => {
                     if (el.children.length === 0 && el.textContent) {
@@ -303,7 +317,6 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
                     }
                   });
                   
-                  // Strategy 3: Remove suspicious fixed/absolute positioned elements at bottom
                   document.querySelectorAll('body > div, body > aside, body > section').forEach(el => {
                     const style = window.getComputedStyle(el);
                     const isBottomFixed = (style.position === 'fixed' || style.position === 'absolute') && 
@@ -325,7 +338,6 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
                     }
                   });
                   
-                  // Strategy 4: Remove iframes from v0
                   document.querySelectorAll('iframe').forEach(iframe => {
                     const src = iframe.src || iframe.getAttribute('src') || '';
                     if (src.includes('v0.dev') || src.includes('v0.app') || src.includes('v0.ai')) {
@@ -334,7 +346,6 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
                     }
                   });
                   
-                  // Strategy 5: Hide elements with high z-index at bottom
                   document.querySelectorAll('[style*="z-index"]').forEach(el => {
                     const style = window.getComputedStyle(el);
                     const zIndex = parseInt(style.zIndex);
@@ -351,7 +362,6 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
                     }
                   });
                   
-                  // Strategy 6: Remove small bottom-right elements (common badge position)
                   document.querySelectorAll('body > *').forEach(el => {
                     const rect = el.getBoundingClientRect();
                     const style = window.getComputedStyle(el);
@@ -369,17 +379,14 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
                   });
                 }
                 
-                // Execute immediately
                 removeV0BrandingUltra();
                 
-                // Execute on DOM ready
                 if (document.readyState === 'loading') {
                   document.addEventListener('DOMContentLoaded', removeV0BrandingUltra);
                 } else {
                   setTimeout(removeV0BrandingUltra, 0);
                 }
                 
-                // Execute on load with delays
                 window.addEventListener('load', () => {
                   removeV0BrandingUltra();
                   setTimeout(removeV0BrandingUltra, 100);
@@ -389,7 +396,6 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
                   setTimeout(removeV0BrandingUltra, 2000);
                 });
                 
-                // Aggressive MutationObserver
                 const observer = new MutationObserver((mutations) => {
                   let shouldRun = false;
                   mutations.forEach(mutation => {
@@ -421,7 +427,6 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
                   });
                 }
                 
-                // Aggressive periodic cleanup every 1 second
                 setInterval(removeV0BrandingUltra, 1000);
               })();
             `,
@@ -429,6 +434,16 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         />
       </head>
       <body className="font-sans antialiased scrollbar-thin">
+        <noscript>
+          <iframe
+            src="https://www.googletagmanager.com/ns.html?id=GTM-N3GV4T4M"
+            height="0"
+            width="0"
+            style={{ display: "none", visibility: "hidden" }}
+            title="Google Tag Manager"
+          ></iframe>
+        </noscript>
+
         <AuthProvider>
           <AppWrapper>{children}</AppWrapper>
         </AuthProvider>

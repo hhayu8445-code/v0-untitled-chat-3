@@ -8,16 +8,24 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   images: {
-    unoptimized: true,
+    unoptimized: false,
     formats: ['image/avif', 'image/webp'],
-    deviceSizes: [640, 750, 828, 1080, 1200, 1920],
-    imageSizes: [16, 32, 48, 64, 96, 128, 256],
-    minimumCacheTTL: 60,
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+    minimumCacheTTL: 86400, // 24 hours
     dangerouslyAllowSVG: true,
-    contentDispositionType: 'attachment',
+    contentDispositionType: 'inline',
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
     remotePatterns: [
-      { protocol: 'https', hostname: '**' }, // Allow all HTTPS images
+      { protocol: 'https', hostname: 'cdn3d.iconscout.com' },
+      { protocol: 'https', hostname: 'r2.fivemanage.com' },
+      { protocol: 'https', hostname: 'sluijfrtqgieucrk.public.blob.vercel-storage.com' },
+      { protocol: 'https', hostname: 'static.vecteezy.com' },
+      { protocol: 'https', hostname: 'www.qbox.re' },
+      { protocol: 'https', hostname: 'docs.esx-framework.org' },
+      { protocol: 'https', hostname: 'avatars.githubusercontent.com' },
+      { protocol: 'https', hostname: 'cdn.discordapp.com' },
+      { protocol: 'https', hostname: '**' },
     ],
   },
   compress: true,
@@ -29,6 +37,14 @@ const nextConfig = {
   experimental: {
     optimizePackageImports: ['lucide-react', '@radix-ui/react-icons', '@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu'],
     scrollRestoration: true,
+    turbo: {
+      rules: {
+        '*.svg': {
+          loaders: ['@svgr/webpack'],
+          as: '*.js',
+        },
+      },
+    },
   },
   headers: async () => [
     {
@@ -53,6 +69,12 @@ const nextConfig = {
       source: '/_next/static/:path*',
       headers: [
         { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
+      ],
+    },
+    {
+      source: '/_next/image',
+      headers: [
+        { key: 'Cache-Control', value: 'public, max-age=86400, s-maxage=86400, stale-while-revalidate' },
       ],
     },
   ],
