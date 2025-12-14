@@ -45,10 +45,10 @@ const Icon3D = ({ src, alt, className }: { src: string; alt: string; className?:
 const navItems = [
   { label: "Community Forum", href: "/forum", icon: ICONS_3D.forum, badge: "HOT" },
   { label: "Discover", href: "/", icon: ICONS_3D.discover },
-  { label: "Scripts", href: "/scripts", icon: ICONS_3D.script },
-  { label: "Maps & MLO", href: "/mlo", icon: ICONS_3D.map },
-  { label: "Vehicles", href: "/vehicles", icon: ICONS_3D.car },
-  { label: "EUP & Clothing", href: "/clothing", icon: ICONS_3D.clothing },
+  { label: "Scripts", href: "/assets?category=scripts", icon: ICONS_3D.script },
+  { label: "Maps & MLO", href: "/assets?category=mlo", icon: ICONS_3D.map },
+  { label: "Vehicles", href: "/assets?category=vehicles", icon: ICONS_3D.car },
+  { label: "EUP & Clothing", href: "/assets?category=clothing", icon: ICONS_3D.clothing },
   { label: "Lucky Spin", href: "/spin-wheel", icon: ICONS_3D.ticket, badge: "NEW" },
   { label: "Messages", href: "/messages", icon: ICONS_3D.message },
   { label: "Membership", href: "/membership", icon: ICONS_3D.crown },
@@ -118,7 +118,7 @@ export function Sidebar() {
     item: (typeof navItems)[0] | (typeof userItems)[0]
     isMobile?: boolean
   }) => {
-    const isActive = pathname === item.href
+    const isActive = pathname === item.href || (item.href.startsWith("/assets") && pathname === "/assets")
 
     return (
       <Link

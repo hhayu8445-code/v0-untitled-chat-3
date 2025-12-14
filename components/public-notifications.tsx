@@ -20,16 +20,22 @@ export function PublicNotifications() {
   const [notifications, setNotifications] = useState<PublicNotification[]>([])
   const [dismissedIds, setDismissedIds] = useState<string[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [isMounted, setIsMounted] = useState(false)
 
   useEffect(() => {
+    setIsMounted(true)
+  }, [])
+
+  useEffect(() => {
+    if (!isMounted) return
+
     const dismissed = JSON.parse(localStorage.getItem("dismissedNotifications") || "[]")
     setDismissedIds(dismissed)
     fetchNotifications()
 
-    // Poll for new notifications every 30 seconds
     const interval = setInterval(fetchNotifications, 30000)
     return () => clearInterval(interval)
-  }, [])
+  }, [isMounted])
 
   const fetchNotifications = async () => {
     try {
@@ -39,7 +45,7 @@ export function PublicNotifications() {
         setNotifications(data.notifications || [])
       }
     } catch (error) {
-      console.error("Failed to fetch notifications:", error)
+      // Silent fail
     } finally {
       setIsLoading(false)
     }
@@ -48,12 +54,14 @@ export function PublicNotifications() {
   const dismissNotification = (id: string) => {
     const newDismissed = [...dismissedIds, id]
     setDismissedIds(newDismissed)
-    localStorage.setItem("dismissedNotifications", JSON.stringify(newDismissed))
+    if (typeof window !== "undefined") {
+      localStorage.setItem("dismissedNotifications", JSON.stringify(newDismissed))
+    }
   }
 
   const visibleNotifications = notifications.filter((n) => !dismissedIds.includes(n.id))
 
-  if (isLoading || visibleNotifications.length === 0) return null
+  if (!isMounted || isLoading || visibleNotifications.length === 0) return null
 
   const getIcon = (type: string) => {
     switch (type) {

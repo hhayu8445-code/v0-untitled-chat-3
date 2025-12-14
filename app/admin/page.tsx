@@ -200,10 +200,8 @@ const COLOR_PRESETS = [
 
 export default function AdminPage() {
   // Use useSession and manage isAdmin state
-  const { user, isAdmin: userIsAdmin, isLoading: authLoading } = useAuth()
+  const { user: authUser, isLoading: authLoading } = useAuth()
   const router = useRouter()
-  // Removed isAdmin and loading states, replaced with useAuth hook
-  // const { user: authUser, isAdmin: authIsAdmin, isLoading: authIsLoading } = useAuth() // Not used in merged code, using local isAdmin state
   const [loading, setLoading] = useState(true) // Keep original loading for session check
   const [isAdmin, setIsAdmin] = useState(false) // Added from updates
 
@@ -425,7 +423,7 @@ export default function AdminPage() {
   useEffect(() => {
     const checkAdmin = async () => {
       if (authLoading) return
-      if (!user) {
+      if (!authUser) {
         router.push("/")
         return
       }
@@ -453,7 +451,7 @@ export default function AdminPage() {
     }
 
     checkAdmin()
-  }, [user, authLoading, router, fetchPrizes, fetchSpinStats]) // Added fetchSpinStats to dependencies
+  }, [authUser, authLoading, router, fetchPrizes, fetchSpinStats]) // Added fetchSpinStats to dependencies
 
   // Fetch data when panels open
   useEffect(() => {
@@ -741,7 +739,10 @@ export default function AdminPage() {
     )
   }
 
-  if (!isAdmin) {
+  // Check if the authenticated user is an admin
+  const userIsAdmin = authUser && authUser.isAdmin
+
+  if (!userIsAdmin) {
     // Show access denied message instead of redirecting directly
     return (
       <div className="flex min-h-screen items-center justify-center bg-black">
