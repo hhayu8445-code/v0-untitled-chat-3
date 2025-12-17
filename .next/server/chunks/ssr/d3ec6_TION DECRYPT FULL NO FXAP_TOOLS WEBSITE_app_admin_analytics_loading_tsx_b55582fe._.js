@@ -1,3 +1,0 @@
-module.exports=[379,a=>{"use strict";var b=a.i(15741);function c(){return(0,b.jsx)("div",{className:"min-h-screen bg-background flex items-center justify-center",children:(0,b.jsxs)("div",{className:"text-center",children:[(0,b.jsx)("div",{className:"h-12 w-12 border-4 border-chart-1 border-t-transparent rounded-full animate-spin mx-auto mb-4"}),(0,b.jsx)("p",{className:"text-muted-foreground",children:"Loading Analytics..."})]})})}a.s(["default",()=>c])}];
-
-//# sourceMappingURL=d3ec6_TION%20DECRYPT%20FULL%20NO%20FXAP_TOOLS%20WEBSITE_app_admin_analytics_loading_tsx_b55582fe._.js.map
