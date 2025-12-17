@@ -1,0 +1,12 @@
+var R=require("../../../../chunks/[turbopack]_runtime.js")("server/app/api/user/coins/route.js")
+R.c("server/chunks/[root-of-the-server]__fb0da98c._.js")
+R.c("server/chunks/bb670_@supabase_ssr_19b14881._.js")
+R.c("server/chunks/bb670_next_327ca0f4._.js")
+R.c("server/chunks/bb670_next_aa2857e6._.js")
+R.c("server/chunks/[root-of-the-server]__3783ef0f._.js")
+R.c("server/chunks/bb670_555fc600._.js")
+R.c("server/chunks/[root-of-the-server]__77711200._.js")
+R.c("server/chunks/bb670_next_dist_b82064ce._.js")
+R.c("server/chunks/bb697_TOOLS WEBSITE__next-internal_server_app_api_user_coins_route_actions_3070b563.js")
+R.m(57908)
+module.exports=R.m(57908).exports

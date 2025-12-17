@@ -1,0 +1,7 @@
+1:"$Sreact.fragment"
+2:I[59571,["/_next/static/chunks/990144b8d0ade2ad.js","/_next/static/chunks/74b9d3e16949df33.js"],"ClientSegmentRoot"]
+3:I[27186,["/_next/static/chunks/d8e187a13c642dd4.js","/_next/static/chunks/56c1d3f734cf2454.js","/_next/static/chunks/95d9829c708bcacd.js","/_next/static/chunks/5930ca42574b7079.js","/_next/static/chunks/5e19075ee03597c3.js"],"default"]
+4:I[57061,["/_next/static/chunks/990144b8d0ade2ad.js","/_next/static/chunks/74b9d3e16949df33.js"],"default"]
+5:I[18919,["/_next/static/chunks/990144b8d0ade2ad.js","/_next/static/chunks/74b9d3e16949df33.js"],"default"]
+0:{"buildId":"oKI_6qapTgiCEU-V5zYXt","rsc":["$","$1","c",{"children":[[["$","script","script-0",{"src":"/_next/static/chunks/5e19075ee03597c3.js","async":true}]],["$","$L2",null,{"Component":"$3","slots":{"children":["$","$L4",null,{"parallelRouterKey":"children","template":["$","$L5",null,{}]}]},"serverProvidedParams":{"params":{},"promises":["$@6"]}}]]}],"loading":[["$","div","l",{"className":"min-h-screen bg-background flex items-center justify-center","children":["$","div",null,{"className":"text-center","children":[["$","div",null,{"className":"h-12 w-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"}],["$","p",null,{"className":"text-muted-foreground","children":"Loading Admin Panel..."}]]}]}],[],[]],"isPartial":false}
+6:"$0:rsc:props:children:1:props:serverProvidedParams:params"

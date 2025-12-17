@@ -1,0 +1,3 @@
+{
+  "/api/database/migrate-old-data/route": "app/api/database/migrate-old-data/route.js"
+}

@@ -1,0 +1,12 @@
+var R=require("../../../../chunks/[turbopack]_runtime.js")("server/app/api/users/heartbeat/route.js")
+R.c("server/chunks/[root-of-the-server]__806d1f0c._.js")
+R.c("server/chunks/bb670_@supabase_ssr_19b14881._.js")
+R.c("server/chunks/bb670_next_aa2857e6._.js")
+R.c("server/chunks/bb670_next_dist_b82064ce._.js")
+R.c("server/chunks/[root-of-the-server]__3783ef0f._.js")
+R.c("server/chunks/[root-of-the-server]__77711200._.js")
+R.c("server/chunks/bb670_555fc600._.js")
+R.c("server/chunks/bb670_next_327ca0f4._.js")
+R.c("server/chunks/4d8d3__next-internal_server_app_api_users_heartbeat_route_actions_582852e3.js")
+R.m(51046)
+module.exports=R.m(51046).exports

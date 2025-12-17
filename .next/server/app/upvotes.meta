@@ -1,0 +1,15 @@
+{
+  "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
+    "x-next-cache-tags": "_N_T_/layout,_N_T_/upvotes/layout,_N_T_/upvotes/page,_N_T_/upvotes"
+  },
+  "segmentPaths": [
+    "/_tree",
+    "/_full",
+    "/upvotes/__PAGE__",
+    "/upvotes",
+    "/_index",
+    "/_head"
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
+    "x-next-cache-tags": "_N_T_/layout,_N_T_/decrypt/layout,_N_T_/decrypt/page,_N_T_/decrypt"
+  },
+  "segmentPaths": [
+    "/_tree",
+    "/_full",
+    "/decrypt/__PAGE__",
+    "/decrypt",
+    "/_index",
+    "/_head"
+  ]
+}

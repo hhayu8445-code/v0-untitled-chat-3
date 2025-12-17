@@ -1,0 +1,3 @@
+{
+  "/api/coins/daily/route": "app/api/coins/daily/route.js"
+}

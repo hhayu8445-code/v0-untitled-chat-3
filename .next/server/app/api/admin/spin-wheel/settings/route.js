@@ -1,0 +1,12 @@
+var R=require("../../../../../chunks/[turbopack]_runtime.js")("server/app/api/admin/spin-wheel/settings/route.js")
+R.c("server/chunks/[root-of-the-server]__0f25047d._.js")
+R.c("server/chunks/bb670_@supabase_ssr_19b14881._.js")
+R.c("server/chunks/bb670_next_aa2857e6._.js")
+R.c("server/chunks/bb670_next_327ca0f4._.js")
+R.c("server/chunks/[root-of-the-server]__77711200._.js")
+R.c("server/chunks/bb670_next_dist_b82064ce._.js")
+R.c("server/chunks/bb670_555fc600._.js")
+R.c("server/chunks/[root-of-the-server]__3783ef0f._.js")
+R.c("server/chunks/4d8d3__next-internal_server_app_api_admin_spin-wheel_settings_route_actions_0674b136.js")
+R.m(19599)
+module.exports=R.m(19599).exports
