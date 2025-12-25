@@ -21,15 +21,21 @@ async function verifyAdmin() {
 
 export async function GET() {
   try {
+    console.log('[API] GET /api/admin/spin-wheel/prizes called')
     const auth = await verifyAdmin()
     if ("error" in auth) {
+      console.log('[API] Auth failed:', auth.error)
       return NextResponse.json({ error: auth.error }, { status: auth.status })
     }
 
     const { data: prizes, error } = await auth.supabase.from("spin_wheel_prizes").select("*").order("sort_order")
 
-    if (error) throw error
+    if (error) {
+      console.error('[API] Database error:', error)
+      throw error
+    }
 
+    console.log('[API] Prizes found:', prizes?.length || 0)
     return NextResponse.json({ prizes: prizes || [] })
   } catch (error) {
     console.error("Error fetching prizes:", error)

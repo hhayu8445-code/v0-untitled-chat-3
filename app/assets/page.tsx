@@ -21,6 +21,8 @@ import {
   Star,
   X,
   ChevronDown,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react"
 import {
   DropdownMenu,
@@ -58,6 +60,9 @@ export default function AssetsPage() {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
   const [sortBy, setSortBy] = useState("newest")
   const [showFilters, setShowFilters] = useState(false)
+  const [page, setPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
+  const ITEMS_PER_PAGE = 12
 
   // Stats
   const [stats, setStats] = useState({ total: 0, free: 0, premium: 0 })
@@ -73,6 +78,8 @@ export default function AssetsPage() {
         if (price !== "all") params.set("price", price)
         if (search) params.set("search", search)
         params.set("sort", sortBy)
+        params.set("page", page.toString())
+        params.set("limit", ITEMS_PER_PAGE.toString())
 
         const res = await fetch(`/api/assets?${params}`)
 
@@ -84,13 +91,14 @@ export default function AssetsPage() {
         const assetItems = data?.items || data?.assets || []
         const assetArray = Array.isArray(assetItems) ? assetItems : []
         setAssets(assetArray)
+        setTotalPages(data.totalPages || 1)
 
         // Calculate stats
         const freeCount = assetArray.filter(
           (a: Asset) => a.price === "free" || a.coinPrice === 0 || a.coin_price === 0,
         ).length
         setStats({
-          total: assetArray.length,
+          total: data.total || assetArray.length,
           free: freeCount,
           premium: assetArray.length - freeCount,
         })
@@ -105,7 +113,7 @@ export default function AssetsPage() {
 
     const debounce = setTimeout(fetchAssets, 300)
     return () => clearTimeout(debounce)
-  }, [framework, price, category, search, sortBy])
+  }, [framework, price, category, search, sortBy, page])
 
   const activeFiltersCount = (framework !== "all" ? 1 : 0) + (price !== "all" ? 1 : 0) + (category !== "all" ? 1 : 0)
 
@@ -410,6 +418,59 @@ export default function AssetsPage() {
           {!isLoading && !error && assets.length > 0 && (
             <div className="mt-6 text-center text-sm text-muted-foreground">
               Showing {assets.length} {assets.length === 1 ? "asset" : "assets"}
+            </div>
+          )}
+
+          {/* Pagination */}
+          {!isLoading && !error && assets.length > 0 && totalPages > 1 && (
+            <div className="flex items-center justify-center gap-2 mt-6">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPage(p => Math.max(1, p - 1))}
+                disabled={page === 1}
+                className="gap-2"
+              >
+                <ChevronLeft className="h-4 w-4" />
+                Previous
+              </Button>
+              <div className="flex items-center gap-1">
+                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                  const pageNum = i + 1
+                  return (
+                    <Button
+                      key={pageNum}
+                      variant={page === pageNum ? "secondary" : "ghost"}
+                      size="sm"
+                      onClick={() => setPage(pageNum)}
+                      className="w-9 h-9"
+                    >
+                      {pageNum}
+                    </Button>
+                  )
+                })}
+                {totalPages > 5 && <span className="text-muted-foreground px-2">...</span>}
+                {totalPages > 5 && (
+                  <Button
+                    variant={page === totalPages ? "secondary" : "ghost"}
+                    size="sm"
+                    onClick={() => setPage(totalPages)}
+                    className="w-9 h-9"
+                  >
+                    {totalPages}
+                  </Button>
+                )}
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                disabled={page === totalPages}
+                className="gap-2"
+              >
+                Next
+                <ChevronRight className="h-4 w-4" />
+              </Button>
             </div>
           )}
         </div>

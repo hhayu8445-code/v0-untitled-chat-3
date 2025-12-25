@@ -5,6 +5,7 @@ import { Analytics } from "@vercel/analytics/next"
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import { AuthProvider } from "@/components/auth-provider"
 import { AppWrapper } from "@/components/app-wrapper"
+import { SpinWinNotifications } from "@/components/spin-win-notifications"
 import { SITE_NAME, SITE_DESCRIPTION, SITE_URL, SITE_LOGO, SEO_KEYWORDS } from "@/lib/constants"
 import Script from "next/script"
 import "./globals.css"
@@ -454,7 +455,10 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         </noscript>
 
         <AuthProvider>
-          <AppWrapper>{children}</AppWrapper>
+          <AppWrapper>
+            {children}
+            <SpinWinNotifications />
+          </AppWrapper>
         </AuthProvider>
         <Analytics />
         <SpeedInsights />

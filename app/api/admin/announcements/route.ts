@@ -3,6 +3,16 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { createAdminClient } from "@/lib/supabase/server"
 
+async function verifyAdmin(session: any, supabase: any) {
+  const { data: user } = await supabase
+    .from("users")
+    .select("is_admin, membership, role")
+    .eq("discord_id", session.user.id)
+    .single()
+
+  return user?.is_admin === true || user?.membership === "admin" || user?.role === "admin"
+}
+
 // GET - Fetch all announcements for admin
 export async function GET(request: Request) {
   try {
@@ -13,13 +23,7 @@ export async function GET(request: Request) {
 
     const supabase = await createAdminClient()
 
-    const { data: user } = await supabase
-      .from("users")
-      .select("role")
-      .eq("discord_id", (session.user as any).discord_id || session.user.id)
-      .single()
-
-    if (!user || user.role !== "admin") {
+    if (!(await verifyAdmin(session, supabase))) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 })
     }
 
@@ -38,7 +42,8 @@ export async function GET(request: Request) {
 
     return NextResponse.json({ announcements: announcements || [] })
   } catch (error) {
-    return NextResponse.json({ announcements: [], error: String(error) })
+    console.error("GET announcements error:", error)
+    return NextResponse.json({ announcements: [], error: String(error) }, { status: 500 })
   }
 }
 
@@ -52,13 +57,7 @@ export async function POST(request: Request) {
 
     const supabase = await createAdminClient()
 
-    const { data: user } = await supabase
-      .from("users")
-      .select("role")
-      .eq("discord_id", (session.user as any).discord_id || session.user.id)
-      .single()
-
-    if (!user || user.role !== "admin") {
+    if (!(await verifyAdmin(session, supabase))) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 })
     }
 
@@ -81,7 +80,7 @@ export async function POST(request: Request) {
         link: link || null,
         start_date: start_date || null,
         end_date: end_date || null,
-        created_by: (session.user as any).discord_id || session.user.id,
+        created_by: session.user.id,
       })
       .select()
       .single()
@@ -90,7 +89,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ announcement: data, success: true })
   } catch (error) {
-    console.error("Error creating announcement:", error)
+    console.error("POST announcement error:", error)
     return NextResponse.json({ error: "Failed to create announcement" }, { status: 500 })
   }
 }
@@ -105,13 +104,7 @@ export async function PUT(request: Request) {
 
     const supabase = await createAdminClient()
 
-    const { data: user } = await supabase
-      .from("users")
-      .select("role")
-      .eq("discord_id", (session.user as any).discord_id || session.user.id)
-      .single()
-
-    if (!user || user.role !== "admin") {
+    if (!(await verifyAdmin(session, supabase))) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 })
     }
 
@@ -133,7 +126,7 @@ export async function PUT(request: Request) {
 
     return NextResponse.json({ announcement: data, success: true })
   } catch (error) {
-    console.error("Error updating announcement:", error)
+    console.error("PUT announcement error:", error)
     return NextResponse.json({ error: "Failed to update announcement" }, { status: 500 })
   }
 }
@@ -148,13 +141,7 @@ export async function DELETE(request: Request) {
 
     const supabase = await createAdminClient()
 
-    const { data: user } = await supabase
-      .from("users")
-      .select("role")
-      .eq("discord_id", (session.user as any).discord_id || session.user.id)
-      .single()
-
-    if (!user || user.role !== "admin") {
+    if (!(await verifyAdmin(session, supabase))) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 })
     }
 
@@ -171,7 +158,7 @@ export async function DELETE(request: Request) {
 
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error("Error deleting announcement:", error)
+    console.error("DELETE announcement error:", error)
     return NextResponse.json({ error: "Failed to delete announcement" }, { status: 500 })
   }
 }

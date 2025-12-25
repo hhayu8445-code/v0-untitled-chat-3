@@ -4,17 +4,31 @@ import { authOptions } from "@/lib/auth"
 import { getSupabaseAdminClient } from "@/lib/supabase/server"
 import { logger } from "@/lib/logger"
 
+async function verifyAdmin(session: any, supabase: any) {
+  const { data: user } = await supabase
+    .from("users")
+    .select("is_admin, membership, role")
+    .eq("discord_id", session.user.id)
+    .single()
+
+  return user?.is_admin === true || user?.membership === "admin" || user?.role === "admin"
+}
+
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
-    if (!session?.user?.isAdmin) {
+    if (!session?.user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
+    const supabase = await getSupabaseAdminClient()
+
+    if (!(await verifyAdmin(session, supabase))) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 })
     }
 
     const { searchParams } = new URL(request.url)
     const status = searchParams.get("status") || "all"
-
-    const supabase = await getSupabaseAdminClient()
 
     let query = supabase.from("assets").select("*").order("created_at", { ascending: false }).limit(100)
 
@@ -74,13 +88,17 @@ export async function GET(request: NextRequest) {
 export async function PATCH(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
-    if (!session?.user?.isAdmin) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+    if (!session?.user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
     const { assetId, status } = await request.json()
 
     const supabase = await getSupabaseAdminClient()
+
+    if (!(await verifyAdmin(session, supabase))) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+    }
 
     const { data: asset, error } = await supabase.from("assets").update({ status }).eq("id", assetId).select().single()
 

@@ -147,17 +147,16 @@ export default function SpinWheelPage() {
       const prizeIndex = activePrizes.findIndex((p) => p.id === data.prize.id)
       const segmentAngle = 360 / activePrizes.length
 
-      // Calculate target rotation
-      // The wheel spins clockwise, and pointer is at the right (3 o'clock position)
-      // We need to land with the winning segment at the pointer
-      const targetSegmentCenter = prizeIndex * segmentAngle + segmentAngle / 2
-      const fullRotations = 360 * (5 + Math.floor(Math.random() * 3)) // 5-7 full rotations
-      const targetRotation = baseRotation + fullRotations + (360 - targetSegmentCenter)
+      // Pointer is at RIGHT (0 degrees / 3 o'clock position)
+      // Calculate rotation to land winning segment at pointer
+      const targetAngle = prizeIndex * segmentAngle
+      const fullRotations = 360 * (5 + Math.floor(Math.random() * 3)) // 5-7 full spins
+      const finalRotation = fullRotations - targetAngle // Rotate counter to target
 
-      setRotation(targetRotation)
+      setRotation(finalRotation)
 
       setTimeout(() => {
-        setBaseRotation(targetRotation % 360)
+        setBaseRotation(finalRotation % 360)
         setResult(data.prize)
         setShowResult(true)
         setSpinning(false)

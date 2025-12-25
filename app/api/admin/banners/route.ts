@@ -3,6 +3,16 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { createAdminClient } from "@/lib/supabase/server"
 
+async function verifyAdmin(session: any, supabase: any) {
+  const { data: user } = await supabase
+    .from("users")
+    .select("role, is_admin, membership")
+    .eq("discord_id", (session.user as any).discord_id || session.user.id)
+    .single()
+
+  return user?.is_admin === true || user?.role === "admin" || user?.membership === "admin"
+}
+
 // GET - Fetch all banners for admin
 export async function GET(request: Request) {
   try {
@@ -13,14 +23,7 @@ export async function GET(request: Request) {
 
     const supabase = await createAdminClient()
 
-    // Check admin
-    const { data: user } = await supabase
-      .from("users")
-      .select("role")
-      .eq("discord_id", (session.user as any).discord_id || session.user.id)
-      .single()
-
-    if (!user || user.role !== "admin") {
+    if (!(await verifyAdmin(session, supabase))) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 })
     }
 
@@ -58,13 +61,7 @@ export async function POST(request: Request) {
 
     const supabase = await createAdminClient()
 
-    const { data: user } = await supabase
-      .from("users")
-      .select("role")
-      .eq("discord_id", (session.user as any).discord_id || session.user.id)
-      .single()
-
-    if (!user || user.role !== "admin") {
+    if (!(await verifyAdmin(session, supabase))) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 })
     }
 
@@ -111,13 +108,7 @@ export async function PUT(request: Request) {
 
     const supabase = await createAdminClient()
 
-    const { data: user } = await supabase
-      .from("users")
-      .select("role")
-      .eq("discord_id", (session.user as any).discord_id || session.user.id)
-      .single()
-
-    if (!user || user.role !== "admin") {
+    if (!(await verifyAdmin(session, supabase))) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 })
     }
 
@@ -154,13 +145,7 @@ export async function DELETE(request: Request) {
 
     const supabase = await createAdminClient()
 
-    const { data: user } = await supabase
-      .from("users")
-      .select("role")
-      .eq("discord_id", (session.user as any).discord_id || session.user.id)
-      .single()
-
-    if (!user || user.role !== "admin") {
+    if (!(await verifyAdmin(session, supabase))) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 })
     }
 

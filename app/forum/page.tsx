@@ -31,6 +31,8 @@ import {
   Filter,
   ShoppingBag,
   AlertCircle,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react"
 import Link from "next/link"
 
@@ -93,6 +95,9 @@ export default function ForumPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState("")
   const [categoriesWithCounts, setCategoriesWithCounts] = useState<any[]>([])
+  const [page, setPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
+  const ITEMS_PER_PAGE = 10
 
   const [onlineUsers, setOnlineUsers] = useState<OnlineUser[]>([])
   const [topContributors, setTopContributors] = useState<TopContributor[]>([])
@@ -101,7 +106,7 @@ export default function ForumPage() {
     const fetchThreads = async () => {
       setIsLoading(true)
       try {
-        const res = await fetch("/api/forum/threads")
+        const res = await fetch(`/api/forum/threads?page=${page}&limit=${ITEMS_PER_PAGE}`)
         const data = await res.json()
         if (data.threads) {
           setThreads(
@@ -122,6 +127,7 @@ export default function ForumPage() {
               createdAt: t.createdAt,
             })),
           )
+          setTotalPages(data.totalPages || 1)
         }
       } catch (error) {
         console.error("Failed to fetch threads:", error)
@@ -130,7 +136,7 @@ export default function ForumPage() {
       }
     }
     fetchThreads()
-  }, [])
+  }, [page])
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -469,6 +475,59 @@ export default function ForumPage() {
                         </div>
                       </Link>
                     ))}
+                  </div>
+                )}
+                
+                {/* Pagination */}
+                {!isLoading && regularThreads.length > 0 && totalPages > 1 && (
+                  <div className="flex items-center justify-center gap-2 mt-6 pt-6 border-t border-border/50">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setPage(p => Math.max(1, p - 1))}
+                      disabled={page === 1}
+                      className="gap-2"
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                      Previous
+                    </Button>
+                    <div className="flex items-center gap-1">
+                      {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                        const pageNum = i + 1
+                        return (
+                          <Button
+                            key={pageNum}
+                            variant={page === pageNum ? "secondary" : "ghost"}
+                            size="sm"
+                            onClick={() => setPage(pageNum)}
+                            className="w-9 h-9"
+                          >
+                            {pageNum}
+                          </Button>
+                        )
+                      })}
+                      {totalPages > 5 && <span className="text-muted-foreground px-2">...</span>}
+                      {totalPages > 5 && (
+                        <Button
+                          variant={page === totalPages ? "secondary" : "ghost"}
+                          size="sm"
+                          onClick={() => setPage(totalPages)}
+                          className="w-9 h-9"
+                        >
+                          {totalPages}
+                        </Button>
+                      )}
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                      disabled={page === totalPages}
+                      className="gap-2"
+                    >
+                      Next
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
                   </div>
                 )}
               </div>

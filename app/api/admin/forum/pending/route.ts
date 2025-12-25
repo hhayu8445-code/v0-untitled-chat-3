@@ -4,6 +4,16 @@ import { authOptions } from "@/lib/auth"
 import { getSupabaseAdminClient } from "@/lib/supabase/server"
 import { logger } from "@/lib/logger"
 
+async function verifyAdmin(session: any, supabase: any) {
+  const { data: user } = await supabase
+    .from("users")
+    .select("is_admin, membership, role")
+    .eq("discord_id", session.user.id)
+    .single()
+
+  return user?.is_admin === true || user?.membership === "admin" || user?.role === "admin"
+}
+
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
@@ -13,13 +23,7 @@ export async function GET(request: NextRequest) {
 
     const supabase = await getSupabaseAdminClient()
 
-    const { data: user } = await supabase
-      .from("users")
-      .select("is_admin, membership")
-      .eq("discord_id", session.user.id)
-      .single()
-
-    if (!user?.is_admin && user?.membership !== "admin") {
+    if (!(await verifyAdmin(session, supabase))) {
       return NextResponse.json({ error: "Admin access required" }, { status: 403 })
     }
 
@@ -94,13 +98,7 @@ export async function POST(request: NextRequest) {
 
     const supabase = await getSupabaseAdminClient()
 
-    const { data: user } = await supabase
-      .from("users")
-      .select("is_admin, membership")
-      .eq("discord_id", session.user.id)
-      .single()
-
-    if (!user?.is_admin && user?.membership !== "admin") {
+    if (!(await verifyAdmin(session, supabase))) {
       return NextResponse.json({ error: "Admin access required" }, { status: 403 })
     }
 

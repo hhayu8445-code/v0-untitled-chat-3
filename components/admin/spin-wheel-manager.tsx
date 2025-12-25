@@ -87,8 +87,11 @@ export function SpinWheelManager() {
 
   const fetchPrizes = useCallback(async () => {
     try {
+      console.log('[SpinWheel] Fetching prizes...')
       const res = await fetch("/api/admin/spin-wheel/prizes")
+      console.log('[SpinWheel] Response status:', res.status)
       const data = await res.json()
+      console.log('[SpinWheel] Prizes data:', data)
       setPrizes(data.prizes || [])
     } catch (error) {
       console.error("Failed to fetch prizes:", error)
