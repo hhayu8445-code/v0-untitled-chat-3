@@ -13,6 +13,7 @@ import { ScrollToTop } from "@/components/scroll-to-top"
 import { FloatingParticles } from "@/components/floating-particles"
 import { AudioVisualizer } from "@/components/audio-visualizer"
 import { PerformanceMonitor } from "@/components/performance-monitor"
+import { RotatingBackground } from "@/components/rotating-background"
 
 export const metadata: Metadata = {
   title: "FiveM Tools V7 - Free Scripts, MLO, Vehicles, Decrypt CFX, Upvotes Bot",
@@ -44,15 +45,8 @@ export const metadata: Metadata = {
 export default function HomePage() {
   return (
     <div className="min-h-screen relative">
-      {/* Background Image with Overlay */}
-      <div className="fixed inset-0 z-0">
-        <div 
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-          style={{ backgroundImage: 'url(/back1.png)' }}
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-background/95 via-background/90 to-background/95" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/10 via-transparent to-transparent" />
-      </div>
+      {/* Rotating Background Images (1.png - 6.png) */}
+      <RotatingBackground />
 
       {/* Visual Effects */}
       <FloatingParticles />
