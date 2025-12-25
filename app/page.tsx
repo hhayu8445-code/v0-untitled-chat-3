@@ -9,6 +9,10 @@ import { CategoriesSection } from "@/components/categories-section"
 import { RecentAssets } from "@/components/recent-assets"
 import { ActivityFeed } from "@/components/activity-feed"
 import { SponsorBanner } from "@/components/sponsor-banner"
+import { ScrollToTop } from "@/components/scroll-to-top"
+import { FloatingParticles } from "@/components/floating-particles"
+import { AudioVisualizer } from "@/components/audio-visualizer"
+import { PerformanceMonitor } from "@/components/performance-monitor"
 
 export const metadata: Metadata = {
   title: "FiveM Tools V7 - Free Scripts, MLO, Vehicles, Decrypt CFX, Upvotes Bot",
@@ -39,9 +43,23 @@ export const metadata: Metadata = {
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen relative">
+      {/* Background Image with Overlay */}
+      <div className="fixed inset-0 z-0">
+        <div 
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          style={{ backgroundImage: 'url(/back1.png)' }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-background/95 via-background/90 to-background/95" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/10 via-transparent to-transparent" />
+      </div>
+
+      {/* Visual Effects */}
+      <FloatingParticles />
+      <AudioVisualizer />
+
       <Sidebar />
-      <main className="md:ml-72 transition-all duration-300">
+      <main className="md:ml-72 transition-all duration-300 relative z-10">
         <AnnouncementBar />
         <Header />
         <div className="p-6">
@@ -60,6 +78,10 @@ export default function HomePage() {
           </div>
         </div>
       </main>
+      
+      {/* UI Enhancements */}
+      <ScrollToTop />
+      <PerformanceMonitor />
     </div>
   )
 }

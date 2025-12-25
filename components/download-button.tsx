@@ -4,10 +4,11 @@ import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent } from "@/components/ui/dialog"
 import { useAuth } from "@/components/auth-provider"
-import { Download, AlertTriangle, CheckCircle, Loader2, XCircle, Sparkles } from "lucide-react"
+import { Download, AlertTriangle, CheckCircle, Loader2, XCircle, Sparkles, Zap } from "lucide-react"
 import { CoinIcon } from "@/components/coin-icon"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
+import { motion, AnimatePresence } from "framer-motion"
 
 interface DownloadButtonProps {
   assetId: string
@@ -132,7 +133,7 @@ export function DownloadButton({ assetId, price, coinPrice = 0, downloadLink, cl
 
   if (isCheckingPurchase) {
     return (
-      <Button disabled className={cn("w-full rounded-xl h-12 text-base", className)}>
+      <Button disabled className={cn("w-full rounded-xl h-12 text-base glass", className)}>
         <Loader2 className="h-5 w-5 animate-spin mr-2" />
         Checking...
       </Button>
@@ -143,140 +144,187 @@ export function DownloadButton({ assetId, price, coinPrice = 0, downloadLink, cl
 
   return (
     <>
-      <Button
-        onClick={handleDownload}
-        disabled={isDownloading}
-        className={cn(
-          "w-full gap-2 rounded-xl h-12 text-base transition-all",
-          isPurchased
-            ? "bg-success hover:bg-success/90 text-white"
-            : insufficientCoins
-              ? "bg-destructive/20 hover:bg-destructive/30 text-destructive border border-destructive/50"
-              : "bg-primary hover:bg-primary/90 glow-sm",
-          className,
-        )}
-        size="lg"
-      >
-        {isDownloading ? (
-          <>
-            <Loader2 className="h-5 w-5 animate-spin" />
-            Downloading...
-          </>
-        ) : isPurchased ? (
-          <>
-            <CheckCircle className="h-5 w-5" />
-            Download Again (Owned)
-          </>
-        ) : isFree ? (
-          <>
-            <Download className="h-5 w-5" />
-            Download Free
-          </>
-        ) : insufficientCoins ? (
-          <>
-            <XCircle className="h-5 w-5" />
-            <span className="flex items-center gap-1">
-              Need <CoinIcon size="sm" /> {coinPrice} (You: {user?.coins || 0})
-            </span>
-          </>
-        ) : (
-          <>
-            <Sparkles className="h-5 w-5" />
-            <span className="flex items-center gap-1">
-              Purchase <CoinIcon size="sm" /> {coinPrice}
-            </span>
-          </>
-        )}
-      </Button>
+      <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+        <Button
+          onClick={handleDownload}
+          disabled={isDownloading}
+          className={cn(
+            "w-full gap-2 rounded-xl h-12 text-base transition-all relative overflow-hidden group",
+            isPurchased
+              ? "bg-success hover:bg-success/90 text-white glow-sm"
+              : insufficientCoins
+                ? "bg-destructive/20 hover:bg-destructive/30 text-destructive border border-destructive/50"
+                : "bg-primary hover:bg-primary/90 glow",
+            className,
+          )}
+          size="lg"
+        >
+          <div className="absolute inset-0 bg-gradient-to-r from-primary/20 via-accent/20 to-primary/20 opacity-0 group-hover:opacity-100 transition-opacity animate-shimmer" />
+          {isDownloading ? (
+            <>
+              <Loader2 className="h-5 w-5 animate-spin relative z-10" />
+              <span className="relative z-10">Downloading...</span>
+            </>
+          ) : isPurchased ? (
+            <>
+              <CheckCircle className="h-5 w-5 relative z-10" />
+              <span className="relative z-10">Download Again (Owned)</span>
+            </>
+          ) : isFree ? (
+            <>
+              <Zap className="h-5 w-5 relative z-10" />
+              <span className="relative z-10">Download Free</span>
+            </>
+          ) : insufficientCoins ? (
+            <>
+              <XCircle className="h-5 w-5 relative z-10" />
+              <span className="flex items-center gap-1 relative z-10">
+                Need <CoinIcon size="sm" /> {coinPrice} (You: {user?.coins || 0})
+              </span>
+            </>
+          ) : (
+            <>
+              <Sparkles className="h-5 w-5 relative z-10" />
+              <span className="flex items-center gap-1 relative z-10">
+                Purchase <CoinIcon size="sm" /> {coinPrice}
+              </span>
+            </>
+          )}
+        </Button>
+      </motion.div>
 
-      <Dialog open={showModal} onOpenChange={setShowModal}>
-        <DialogContent className="max-w-md glass border-2 border-primary/30">
-          <div className="p-6 space-y-4">
-            {error ? (
-              <>
-                <div className="text-center">
-                  <AlertTriangle className="h-16 w-16 text-destructive mx-auto mb-4" />
-                  <h2 className="text-2xl font-bold text-foreground mb-2">Error</h2>
-                  <p className="text-muted-foreground">{error}</p>
-                </div>
-                <Button onClick={() => setShowModal(false)} variant="outline" className="w-full rounded-xl">
-                  Close
-                </Button>
-              </>
-            ) : (
-              <>
-                <div className="text-center">
-                  <div className="h-16 w-16 rounded-2xl bg-warning/20 flex items-center justify-center mx-auto mb-4">
-                    <CoinIcon size="lg" />
-                  </div>
-                  <h2 className="text-2xl font-bold text-foreground mb-2">Confirm Purchase</h2>
-                  <p className="text-muted-foreground mb-4 flex items-center justify-center gap-1">
-                    This asset costs <CoinIcon size="sm" /> {coinPrice} coins
-                  </p>
-                  <div className="glass rounded-xl p-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-muted-foreground">Your Balance:</span>
-                      <span className="text-lg font-bold text-foreground flex items-center gap-1">
-                        <CoinIcon size="sm" />
-                        {user?.coins || 0}
-                      </span>
+      <AnimatePresence>
+        {showModal && (
+          <Dialog open={showModal} onOpenChange={setShowModal}>
+            <DialogContent className="max-w-md glass border-2 border-primary/30">
+              <motion.div 
+                className="p-6 space-y-4"
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                transition={{ duration: 0.2 }}
+              >
+                {error ? (
+                  <>
+                    <div className="text-center">
+                      <motion.div
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={{ type: "spring", stiffness: 200 }}
+                      >
+                        <AlertTriangle className="h-16 w-16 text-destructive mx-auto mb-4" />
+                      </motion.div>
+                      <h2 className="text-2xl font-bold text-foreground mb-2">Error</h2>
+                      <p className="text-muted-foreground">{error}</p>
                     </div>
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-muted-foreground">Cost:</span>
-                      <span className="text-lg font-bold text-destructive flex items-center gap-1">
-                        -<CoinIcon size="sm" /> {coinPrice}
-                      </span>
-                    </div>
-                    <div className="border-t border-border/50 pt-2 mt-2">
-                      <div className="flex items-center justify-between">
-                        <span className="font-medium text-foreground">After Purchase:</span>
-                        <span
-                          className={`text-lg font-bold flex items-center gap-1 ${(user?.coins || 0) - coinPrice >= 0 ? "text-success" : "text-destructive"}`}
+                    <Button onClick={() => setShowModal(false)} variant="outline" className="w-full rounded-xl glass-hover">
+                      Close
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <div className="text-center">
+                      <motion.div 
+                        className="h-16 w-16 rounded-2xl bg-warning/20 flex items-center justify-center mx-auto mb-4"
+                        animate={{ rotate: [0, 5, -5, 0] }}
+                        transition={{ duration: 2, repeat: Infinity }}
+                      >
+                        <CoinIcon size="lg" />
+                      </motion.div>
+                      <h2 className="text-2xl font-bold text-foreground mb-2">Confirm Purchase</h2>
+                      <p className="text-muted-foreground mb-4 flex items-center justify-center gap-1">
+                        This asset costs <CoinIcon size="sm" /> {coinPrice} coins
+                      </p>
+                      <div className="glass rounded-xl p-4 space-y-3">
+                        <motion.div 
+                          className="flex items-center justify-between"
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: 0.1 }}
                         >
-                          <CoinIcon size="sm" /> {(user?.coins || 0) - coinPrice}
-                        </span>
+                          <span className="text-muted-foreground">Your Balance:</span>
+                          <span className="text-lg font-bold text-foreground flex items-center gap-1">
+                            <CoinIcon size="sm" />
+                            {user?.coins || 0}
+                          </span>
+                        </motion.div>
+                        <motion.div 
+                          className="flex items-center justify-between"
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: 0.2 }}
+                        >
+                          <span className="text-muted-foreground">Cost:</span>
+                          <span className="text-lg font-bold text-destructive flex items-center gap-1">
+                            -<CoinIcon size="sm" /> {coinPrice}
+                          </span>
+                        </motion.div>
+                        <div className="border-t border-border/50 pt-2">
+                          <motion.div 
+                            className="flex items-center justify-between"
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.3 }}
+                          >
+                            <span className="font-medium text-foreground">After Purchase:</span>
+                            <span
+                              className={`text-lg font-bold flex items-center gap-1 ${(user?.coins || 0) - coinPrice >= 0 ? "text-success" : "text-destructive"}`}
+                            >
+                              <CoinIcon size="sm" /> {(user?.coins || 0) - coinPrice}
+                            </span>
+                          </motion.div>
+                        </div>
                       </div>
-                    </div>
-                  </div>
 
-                  {(user?.coins || 0) - coinPrice < 50 && (user?.coins || 0) - coinPrice >= 0 && (
-                    <p className="text-xs text-warning mt-3 flex items-center justify-center gap-1">
-                      <AlertTriangle className="h-3 w-3" />
-                      Your balance will be low after this purchase
-                    </p>
-                  )}
-                </div>
-                <div className="flex gap-3">
-                  <Button
-                    onClick={() => setShowModal(false)}
-                    variant="outline"
-                    className="flex-1 rounded-xl bg-transparent"
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    onClick={processDownload}
-                    disabled={isDownloading || (user?.coins || 0) < coinPrice}
-                    className="flex-1 bg-primary hover:bg-primary/90 rounded-xl"
-                  >
-                    {isDownloading ? (
-                      <>
-                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                        Processing...
-                      </>
-                    ) : (
-                      <>
-                        <CheckCircle className="h-4 w-4 mr-2" />
-                        Confirm Purchase
-                      </>
-                    )}
-                  </Button>
-                </div>
-              </>
-            )}
-          </div>
-        </DialogContent>
-      </Dialog>
+                      {(user?.coins || 0) - coinPrice < 50 && (user?.coins || 0) - coinPrice >= 0 && (
+                        <motion.p 
+                          className="text-xs text-warning mt-3 flex items-center justify-center gap-1"
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          transition={{ delay: 0.4 }}
+                        >
+                          <AlertTriangle className="h-3 w-3" />
+                          Your balance will be low after this purchase
+                        </motion.p>
+                      )}
+                    </div>
+                    <div className="flex gap-3">
+                      <motion.div className="flex-1" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                        <Button
+                          onClick={() => setShowModal(false)}
+                          variant="outline"
+                          className="w-full rounded-xl glass-hover"
+                        >
+                          Cancel
+                        </Button>
+                      </motion.div>
+                      <motion.div className="flex-1" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                        <Button
+                          onClick={processDownload}
+                          disabled={isDownloading || (user?.coins || 0) < coinPrice}
+                          className="w-full bg-primary hover:bg-primary/90 rounded-xl glow-sm"
+                        >
+                          {isDownloading ? (
+                            <>
+                              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                              Processing...
+                            </>
+                          ) : (
+                            <>
+                              <CheckCircle className="h-4 w-4 mr-2" />
+                              Confirm Purchase
+                            </>
+                          )}
+                        </Button>
+                      </motion.div>
+                    </div>
+                  </>
+                )}
+              </motion.div>
+            </DialogContent>
+          </Dialog>
+        )}
+      </AnimatePresence>
     </>
   )
 }

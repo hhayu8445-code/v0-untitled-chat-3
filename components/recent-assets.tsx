@@ -5,6 +5,7 @@ import { AssetCard } from "./asset-card"
 import { Clock, ChevronRight } from "lucide-react"
 import Link from "next/link"
 import type { Asset } from "@/lib/types"
+import { motion } from "framer-motion"
 
 export function RecentAssets() {
   const [assets, setAssets] = useState<Asset[]>([])
@@ -29,11 +30,20 @@ export function RecentAssets() {
 
   return (
     <section>
-      <div className="mb-5 flex items-center justify-between">
+      <motion.div 
+        className="mb-5 flex items-center justify-between"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
         <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-xl bg-info/20 flex items-center justify-center">
+          <motion.div 
+            className="h-10 w-10 rounded-xl bg-info/20 flex items-center justify-center glow-sm"
+            animate={{ scale: [1, 1.1, 1] }}
+            transition={{ duration: 2, repeat: Infinity }}
+          >
             <Clock className="h-5 w-5 text-info" />
-          </div>
+          </motion.div>
           <div>
             <h2 className="text-xl font-bold text-foreground">Recently Added</h2>
             <p className="text-sm text-muted-foreground">Latest uploads to the platform</p>
@@ -46,24 +56,37 @@ export function RecentAssets() {
           View all
           <ChevronRight className="h-4 w-4" />
         </Link>
-      </div>
+      </motion.div>
 
       {isLoading ? (
         <div className="grid gap-5 sm:grid-cols-2">
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="glass rounded-2xl overflow-hidden">
+            <motion.div 
+              key={i} 
+              className="glass rounded-2xl overflow-hidden"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.3, delay: i * 0.1 }}
+            >
               <div className="aspect-[16/10] bg-secondary/50 animate-pulse" />
               <div className="p-4 space-y-3">
                 <div className="h-4 w-1/3 bg-secondary/50 rounded animate-pulse" />
                 <div className="h-5 w-2/3 bg-secondary/50 rounded animate-pulse" />
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
       ) : (
         <div className="grid gap-5 sm:grid-cols-2">
-          {assets.map((asset) => (
-            <AssetCard key={asset.id} asset={asset} />
+          {assets.map((asset, i) => (
+            <motion.div
+              key={asset.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: i * 0.1 }}
+            >
+              <AssetCard asset={asset} />
+            </motion.div>
           ))}
         </div>
       )}
