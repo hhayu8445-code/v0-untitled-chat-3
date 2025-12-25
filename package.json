@@ -1,6 +1,14 @@
 {
-  "name": "v0-integration",
-  "version": "1.0.0",
+  "name": "fivem-tools-v7",
+  "version": "7.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --turbopack",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "optimize": "next build && next-bundle-analyzer"
+  },
   "dependencies": {
     "dotenv": "^16.0.0",
     "pg": "^8.16.3",

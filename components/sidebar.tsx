@@ -55,6 +55,8 @@ const navItems = [
   { label: "Decrypt CFX V7", href: "/decrypt", icon: ICONS_3D.decrypt },
   { label: "Upvotes Server", href: "/upvotes", icon: ICONS_3D.rocket },
   { label: "Upload Asset", href: "/upload", icon: ICONS_3D.upload },
+  { label: "Fixer V2.5", href: "/fixer", icon: ICONS_3D.decrypt, badge: "NEW" },
+  { label: "Dump Server", href: "/dump-server", icon: ICONS_3D.admin, badge: "NEW" },
 ]
 
 export function Sidebar() {
