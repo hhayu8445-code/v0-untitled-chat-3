@@ -1,11 +1,31 @@
 "use client";
 
 import { useEffect } from "react";
+import { useAuth } from "@/components/auth-provider";
+import { useRouter } from "next/navigation";
 
 export default function FixerPage() {
+  const { user } = useAuth();
+  const router = useRouter();
+
   useEffect(() => {
+    if (!user) {
+      router.push("/");
+      return;
+    }
     window.location.replace("https://fixer.boostfivem.com/");
-  }, []);
+  }, [user, router]);
+
+  if (!user) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold mb-4">🔒 Login Required</h1>
+          <p className="text-muted-foreground">Please login to access FIXER V 2.5</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex items-center justify-center min-h-screen">
