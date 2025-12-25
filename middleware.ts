@@ -1,8 +1,30 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
+const languages = ['en', 'id', 'es', 'pt', 'de', 'fr', 'ru', 'zh', 'ja', 'ko', 'tr', 'ar']
+
 export function middleware(request: NextRequest) {
+  const pathname = request.nextUrl.pathname
   const response = NextResponse.next()
+
+  // Check if pathname starts with a language code
+  const pathnameHasLocale = languages.some(
+    (locale) => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`
+  )
+
+  if (pathnameHasLocale) {
+    const locale = pathname.split('/')[1]
+    response.cookies.set('NEXT_LOCALE', locale)
+    
+    // Redirect to home with language set
+    if (pathname === `/${locale}`) {
+      const url = request.nextUrl.clone()
+      url.pathname = '/'
+      const redirectResponse = NextResponse.redirect(url)
+      redirectResponse.cookies.set('NEXT_LOCALE', locale)
+      return redirectResponse
+    }
+  }
 
   // Security Headers
   response.headers.set('X-DNS-Prefetch-Control', 'on')
@@ -14,7 +36,7 @@ export function middleware(request: NextRequest) {
   response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()')
 
   // CORS for API routes
-  if (request.nextUrl.pathname.startsWith('/api/')) {
+  if (pathname.startsWith('/api/')) {
     response.headers.set('Access-Control-Allow-Origin', '*')
     response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
     response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization')
