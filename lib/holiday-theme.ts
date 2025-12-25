@@ -23,9 +23,9 @@ export const HOLIDAYS: Holiday[] = [
       secondary: "oklch(0.7 0.18 320)",
       accent: "oklch(0.8 0.15 80)",
       bg: "from-purple-500/20 via-pink-500/20 to-yellow-500/20",
-      text: "New Year 2025 🎆"
+      text: "New Year 2025"
     },
-    effects: ["✨", "🎉", "🎊", "🎆"]
+    effects: ["star", "sparkle", "confetti", "firework"]
   },
   {
     name: "Valentine",
