@@ -4,6 +4,7 @@ import { Geist, Geist_Mono } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import { AuthProvider } from "@/components/auth-provider"
+import { ModernLayout } from "@/components/modern-layout"
 import { AppWrapper } from "@/components/app-wrapper"
 import { SpinWinNotifications } from "@/components/spin-win-notifications"
 import { ToastContainer } from "@/components/modern-toast"
@@ -143,7 +144,6 @@ export const viewport: Viewport = {
   maximumScale: 5,
   userScalable: true,
   colorScheme: "dark",
-  viewportFit: "cover"
 }
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
@@ -450,7 +450,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           }}
         />
       </head>
-      <body className="font-sans antialiased scrollbar-thin bg-gradient-to-br from-gray-900 via-gray-900 to-black">
+      <body className="font-sans antialiased scrollbar-thin">
         <noscript>
           <iframe
             src="https://www.googletagmanager.com/ns.html?id=GTM-N3GV4T4M"
@@ -466,12 +466,14 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
             <ErrorBoundary>
               <SeasonalWrapper>
                 <HolidayBanner />
-                <AppWrapper>
-                  {children}
-                  <SpinWinNotifications />
-                  <ToastContainer />
-                  <ModernParticles />
-                </AppWrapper>
+                <ModernLayout>
+                  <AppWrapper>
+                    {children}
+                    <SpinWinNotifications />
+                    <ToastContainer />
+                    <ModernParticles />
+                  </AppWrapper>
+                </ModernLayout>
               </SeasonalWrapper>
             </ErrorBoundary>
           </LanguageProvider>

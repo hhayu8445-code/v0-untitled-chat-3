@@ -1,33 +1,55 @@
-"use client";
+"use client"
 
-import { useEffect } from 'react';
-import { createClient } from '@/lib/supabase/server';
+import { useEffect, useRef, useState } from "react"
 
-/**
- * Database initialization component
- * This component initializes the Supabase client and ensures proper connection
- */
-export default function DatabaseInit() {
+export function DatabaseInit() {
+  const initialized = useRef(false)
+  const [status, setStatus] = useState<string>("")
+
   useEffect(() => {
-    const initDatabase = async () => {
+    // Only run once
+    if (initialized.current) return
+    initialized.current = true
+
+    const initDb = async () => {
       try {
-        const supabase = await createClient();
-        
-        // Test the connection
-        const { error } = await supabase.from('profiles').select('id').limit(1);
-        
-        if (error) {
-          console.error('Database connection error:', error);
+        console.log("[v0] Starting database auto-initialization...")
+        setStatus("Initializing database...")
+
+        const response = await fetch("/api/auto-setup-db")
+        const data = await response.json()
+
+        if (data.success) {
+          console.log("[v0] Database initialized successfully:", data.message)
+          setStatus("")
         } else {
-          console.log('Database connection successful');
+          console.log("[v0] Database initialization note:", data.message)
+          if (data.instructions) {
+            console.log("[v0] Instructions:", data.instructions)
+          }
+          setStatus("")
         }
-      } catch (err) {
-        console.error('Error initializing database:', err);
+      } catch (error) {
+        console.error("[v0] Database init error:", error)
+        setStatus("")
       }
-    };
+    }
 
-    initDatabase();
-  }, []);
+    // Run with small delay to ensure app is ready
+    setTimeout(initDb, 1000)
+  }, [])
 
-  return null; // This component doesn't render anything
+  // Show loading indicator only briefly
+  if (status) {
+    return (
+      <div className="fixed bottom-4 right-4 z-50 bg-background/80 backdrop-blur-sm border rounded-lg p-3 shadow-lg">
+        <div className="flex items-center gap-2 text-sm">
+          <div className="animate-spin h-4 w-4 border-2 border-primary border-t-transparent rounded-full" />
+          <span>{status}</span>
+        </div>
+      </div>
+    )
+  }
+
+  return null
 }

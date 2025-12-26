@@ -20,7 +20,3 @@ export function Toaster() {
     />
   )
 }
-
-// This file is now deprecated. Use the modern-toast.tsx component instead.
-// This file is kept for backward compatibility.
-export { ToastContainer as Toaster } from './modern-toast';

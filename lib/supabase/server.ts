@@ -1,6 +1,6 @@
 import { createServerClient } from "@supabase/ssr"
 import { cookies } from "next/headers"
-import { SUPABASE_CONFIG, validateSupabaseConfig } from "./config"
+import { SUPABASE_CONFIG } from "./config"
 import { createClient as createSupabaseClient } from "@supabase/supabase-js"
 
 function getSupabaseUrl(): string {
@@ -48,66 +48,9 @@ export function createAdminClient() {
       autoRefreshToken: false,
       persistSession: false,
     },
-    global: {
-      headers: {
-        'X-Client-Info': 'FiveM-Tools-V7'
-      }
-    },
-    db: {
-      schema: 'public'
-    }
   })
-}
-
-/**
- * Optimized function to get user session data
- */
-export async function getCurrentUser() {
-  const supabase = await createClient();
-  
-  const {
-    data: { user },
-    error
-  } = await supabase.auth.getUser();
-  
-  if (error) {
-    console.error('Error getting current user:', error);
-    return { user: null, error };
-  }
-  
-  return { user, error: null };
-}
-
-/**
- * Optimized function to get user profile data
- */
-export async function getCurrentUserProfile() {
-  const supabase = await createClient();
-  const { user, error } = await getCurrentUser();
-  
-  if (error || !user) {
-    return { profile: null, error: error || new Error('No authenticated user') };
-  }
-  
-  const { data: profile, error: profileError } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('id', user.id)
-    .single();
-  
-  if (profileError) {
-    console.error('Error getting user profile:', profileError);
-    return { profile: null, error: profileError };
-  }
-  
-  return { profile, error: null };
 }
 
 // Aliases for backward compatibility
 export const getSupabaseServerClient = createClient
 export const getSupabaseAdminClient = createAdminClient
-
-// Run validation in development
-if (process.env.NODE_ENV !== 'production') {
-  validateSupabaseConfig();
-}

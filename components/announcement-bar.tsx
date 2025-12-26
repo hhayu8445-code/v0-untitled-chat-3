@@ -80,15 +80,15 @@ export function AnnouncementBar() {
     switch (type) {
       case "success":
         return {
-          bg: "from-emerald-600/90 via-teal-600/90 to-cyan-600/90",
+          bg: "from-pink-600/90 via-rose-600/90 to-fuchsia-600/90",
           icon: CheckCircle,
-          iconColor: "text-emerald-200",
+          iconColor: "text-pink-200",
         }
       case "warning":
         return {
-          bg: "from-amber-600/90 via-orange-600/90 to-yellow-600/90",
+          bg: "from-rose-600/90 via-pink-600/90 to-purple-600/90",
           icon: AlertTriangle,
-          iconColor: "text-amber-200",
+          iconColor: "text-rose-200",
         }
       case "error":
         return {
@@ -98,15 +98,15 @@ export function AnnouncementBar() {
         }
       case "promo":
         return {
-          bg: "from-cyan-600/90 via-teal-500/90 to-emerald-500/90",
+          bg: "from-fuchsia-600/90 via-purple-600/90 to-pink-600/90",
           icon: Sparkles,
-          iconColor: "text-cyan-200",
+          iconColor: "text-fuchsia-200",
         }
       default:
         return {
-          bg: "from-cyan-600/90 via-teal-600/90 to-cyan-700/90",
+          bg: "from-pink-600/90 via-rose-600/90 to-purple-600/90",
           icon: Info,
-          iconColor: "text-cyan-200",
+          iconColor: "text-pink-200",
         }
     }
   }

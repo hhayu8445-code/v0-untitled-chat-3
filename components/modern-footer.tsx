@@ -6,7 +6,7 @@ import Link from "next/link"
 
 export function ModernFooter() {
   return (
-    <footer className="mt-20 border-t border-white/10 glass-effect neon-border bg-seasonal">
+    <footer className="mt-20 border-t border-white/10 glass">
       <div className="container mx-auto px-4 py-12">
         <div className="grid md:grid-cols-4 gap-8">
           <div className="space-y-4">
@@ -14,7 +14,7 @@ export function ModernFooter() {
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center glow-sm">
                 <span className="text-xl font-bold">FT</span>
               </div>
-              <span className="font-bold text-seasonal">FiveM Tools V7</span>
+              <span className="font-bold gradient-text">FiveM Tools V7</span>
             </div>
             <p className="text-sm text-muted-foreground">
               #1 FiveM Resource Hub for Scripts, MLO, Vehicles & More
@@ -26,7 +26,7 @@ export function ModernFooter() {
             <ul className="space-y-2 text-sm text-muted-foreground">
               {["Scripts", "MLO Maps", "Vehicles", "Clothing"].map((item) => (
                 <li key={item}>
-                  <Link href={`/${item.toLowerCase().replace(" ", "-")}`} className="hover:text-seasonal transition-colors">
+                  <Link href={`/${item.toLowerCase().replace(" ", "-")}`} className="hover:text-primary transition-colors">
                     {item}
                   </Link>
                 </li>
@@ -39,7 +39,7 @@ export function ModernFooter() {
             <ul className="space-y-2 text-sm text-muted-foreground">
               {["Forum", "Discord", "Testimonials", "Support"].map((item) => (
                 <li key={item}>
-                  <Link href={`/${item.toLowerCase()}`} className="hover:text-seasonal transition-colors">
+                  <Link href={`/${item.toLowerCase()}`} className="hover:text-primary transition-colors">
                     {item}
                   </Link>
                 </li>
@@ -60,7 +60,7 @@ export function ModernFooter() {
                   target="_blank"
                   whileHover={{ scale: 1.1, rotate: 5 }}
                   whileTap={{ scale: 0.9 }}
-                  className="w-10 h-10 rounded-xl glass-effect glass-hover flex items-center justify-center neon-border"
+                  className="w-10 h-10 rounded-xl glass glass-hover flex items-center justify-center"
                 >
                   <social.icon className="h-5 w-5 text-muted-foreground" />
                 </motion.a>

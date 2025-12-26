@@ -19,7 +19,7 @@ export function HolidayBanner() {
       animate={{ y: 0 }}
       className={`w-full py-3 px-4 text-center bg-gradient-to-r ${holiday.theme.bg} backdrop-blur-xl border-b border-white/10`}
     >
-      <p className="text-sm font-medium text-seasonal">
+      <p className="text-sm font-medium gradient-text text-glow">
         {holiday.theme.text}
       </p>
     </motion.div>

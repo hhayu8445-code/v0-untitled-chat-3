@@ -104,38 +104,6 @@ export const SEO_KEYWORDS = [
   "rockstar games",
 ]
 
-// Modern UI Configuration
-export const MODERN_UI_CONFIG = {
-  animation: {
-    defaultDuration: "0.4s",
-    easingFunction: "cubic-bezier(0.16, 1, 0.3, 1)",
-    glowIntensity: "0 0 15px rgba(102, 126, 234, 0.5)",
-  },
-  colors: {
-    primaryGradient: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-    secondaryGradient: "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)",
-    accent: "#667eea",
-    background: "#0d1117",
-    cardBg: "rgba(255, 255, 255, 0.05)",
-    border: "rgba(255, 255, 255, 0.1)",
-  },
-  effects: {
-    glass: {
-      background: "rgba(255, 255, 255, 0.05)",
-      backdropFilter: "blur(12px)",
-      border: "1px solid rgba(255, 255, 255, 0.1)",
-    },
-    neon: {
-      shadow: "0 0 15px rgba(102, 126, 234, 0.5)",
-    },
-  },
-  performance: {
-    optimizeImages: true,
-    lazyLoadComponents: true,
-    reduceMotion: false,
-  }
-}
-
 // Discord Links
 export const DISCORD_LINKS = {
   COMMUNITY: "https://discord.gg/tZXg4GVRM5",

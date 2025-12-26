@@ -1,7 +1,6 @@
 "use client"
 
 import { getCurrentHoliday } from "@/lib/holiday-theme"
-import { motion } from "framer-motion"
 import { useEffect, useState } from "react"
 
 export function GlassButton({ children, onClick, className = "" }: { 
@@ -19,15 +18,13 @@ export function GlassButton({ children, onClick, className = "" }: {
 
   return (
     <>
-      <motion.button 
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
+      <button 
         onClick={onClick}
-        className={`glass-btn ${className} neon-border`}
+        className={`glass-btn ${className}`}
         style={{ "--btn-color": color } as any}
       >
         {children}
-      </motion.button>
+      </button>
 
       <style jsx>{`
         .glass-btn {
@@ -48,7 +45,6 @@ export function GlassButton({ children, onClick, className = "" }: {
           border: none;
           cursor: pointer;
           overflow: hidden;
-          backdrop-filter: blur(10px);
         }
 
         .glass-btn:hover {
@@ -97,28 +93,6 @@ export function GlassButton({ children, onClick, className = "" }: {
 
         .glass-btn:hover::after {
           opacity: 0.2;
-        }
-        
-        .neon-border {
-          position: relative;
-        }
-        
-        .neon-border::after {
-          content: '';
-          position: absolute;
-          top: -1px;
-          left: -1px;
-          right: -1px;
-          bottom: -1px;
-          background: linear-gradient(45deg, #fb0094, #0000ff, #00ff00, #ffff00, #ff0000, #fb0094, #0000ff);
-          border-radius: 15px;
-          z-index: -1;
-          filter: blur(5px);
-          opacity: 0.7;
-        }
-        
-        .neon-border:hover::after {
-          opacity: 1;
         }
       `}</style>
     </>

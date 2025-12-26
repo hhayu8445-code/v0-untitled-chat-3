@@ -50,7 +50,7 @@ export function Card3D({ children, className = "" }: Card3DProps) {
         rotateY,
         transformStyle: "preserve-3d",
       }}
-      className={`relative glass-effect rounded-2xl p-6 neon-border ${className}`}
+      className={`relative glass rounded-2xl p-6 ${className}`}
     >
       <div style={{ transform: "translateZ(50px)" }} className="relative z-10">
         {children}

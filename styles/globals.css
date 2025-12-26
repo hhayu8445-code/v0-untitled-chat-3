@@ -10,19 +10,19 @@
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
+  --primary: hsl(330, 100%, 65%); /* Modern pink color */
   --primary-foreground: oklch(0.985 0 0);
   --secondary: oklch(0.97 0 0);
   --secondary-foreground: oklch(0.205 0 0);
   --muted: oklch(0.97 0 0);
   --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
+  --accent: hsl(330, 100%, 94%); /* Lighter pink */
   --accent-foreground: oklch(0.205 0 0);
   --destructive: oklch(0.577 0.245 27.325);
   --destructive-foreground: oklch(0.577 0.245 27.325);
   --border: oklch(0.922 0 0);
   --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
+  --ring: hsl(330, 100%, 65%); /* Pink ring */
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);
@@ -31,7 +31,7 @@
   --radius: 0.625rem;
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary: hsl(330, 100%, 65%); /* Pink sidebar primary */
   --sidebar-primary-foreground: oklch(0.985 0 0);
   --sidebar-accent: oklch(0.97 0 0);
   --sidebar-accent-foreground: oklch(0.205 0 0);
@@ -40,38 +40,181 @@
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
+  --background: #0a0a0a; /* Dark background as per specification */
   --foreground: oklch(0.985 0 0);
-  --card: oklch(0.145 0 0);
+  --card: #1a1a1a; /* Dark card background */
   --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.145 0 0);
+  --popover: #1a1a1a;
   --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.985 0 0);
+  --primary: hsl(330, 100%, 65%); /* Modern pink color */
   --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
+  --secondary: #2d2d2d; /* Darker secondary */
   --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
+  --muted: #2d2d2d; /* Dark muted */
   --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
+  --accent: hsl(330, 100%, 25%); /* Darker pink accent */
   --accent-foreground: oklch(0.985 0 0);
   --destructive: oklch(0.396 0.141 25.723);
   --destructive-foreground: oklch(0.637 0.237 25.331);
-  --border: oklch(0.269 0 0);
-  --input: oklch(0.269 0 0);
-  --ring: oklch(0.439 0 0);
+  --border: #2d2d2d; /* Darker border */
+  --input: #2d2d2d; /* Darker input */
+  --ring: hsl(330, 100%, 65%); /* Pink ring */
   --chart-1: oklch(0.488 0.243 264.376);
   --chart-2: oklch(0.696 0.17 162.48);
   --chart-3: oklch(0.769 0.188 70.08);
   --chart-4: oklch(0.627 0.265 303.9);
   --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
+  --sidebar: #111111; /* Dark sidebar */
   --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary: hsl(330, 100%, 65%); /* Pink sidebar primary */
   --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent: #2d2d2d; /* Dark sidebar accent */
   --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(0.269 0 0);
-  --sidebar-ring: oklch(0.439 0 0);
+  --sidebar-border: #2d2d2d; /* Dark sidebar border */
+  --sidebar-ring: hsl(330, 100%, 65%); /* Pink sidebar ring */
+}
+
+/* Modern design elements */
+.glass-effect {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.neon-border {
+  position: relative;
+}
+
+.neon-border::after {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(45deg, 
+    hsl(330, 100%, 65%), 
+    hsl(300, 100%, 70%), 
+    hsl(330, 100%, 65%));
+  z-index: -1;
+  border-radius: calc(var(--radius) + 2px);
+}
+
+.neon-glow {
+  box-shadow: 0 0 10px hsl(330, 100%, 65%), 
+              0 0 20px hsl(330, 100%, 40%);
+}
+
+.holographic-2025 {
+  position: relative;
+  overflow: hidden;
+}
+
+.holographic-2025::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: conic-gradient(
+    transparent,
+    hsl(330, 100%, 65%),
+    transparent 30%
+  );
+  animation: rotate 6s linear infinite;
+  z-index: -1;
+}
+
+@keyframes rotate {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.bg-seasonal {
+  background: linear-gradient(135deg, 
+    hsl(330, 100%, 15%), 
+    hsl(330, 100%, 8%));
+}
+
+.text-seasonal {
+  background: linear-gradient(90deg, 
+    hsl(330, 100%, 65%), 
+    hsl(300, 100%, 70%));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.magnetic {
+  transition: transform 0.2s ease;
+}
+
+.shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.shimmer::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -60%;
+  width: 20%;
+  height: 200%;
+  background: rgba(255, 255, 255, 0.3);
+  transform: rotate(25deg);
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    left: -60%;
+  }
+  100% {
+    left: 120%;
+  }
+}
+
+.loading-2025 {
+  position: relative;
+}
+
+.loading-2025::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  margin: -10px 0 0 -10px;
+  border: 2px solid transparent;
+  border-top: 2px solid hsl(330, 100%, 65%);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Modern button styles */
+.modern-button {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius);
+  transition: all 0.3s ease;
+}
+
+.modern-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(236, 72, 153, 0.3);
+}
+
+.modern-button:active {
+  transform: translateY(0);
 }
 
 @theme inline {
@@ -122,4 +265,131 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* Grid background effect */
+.grid-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  background: 
+    linear-gradient(rgba(30, 30, 30, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(30, 30, 30, 0.1) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* Modern blur effect */
+.blur-effect {
+  position: absolute;
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  background: hsl(330, 100%, 65%);
+  filter: blur(100px);
+  opacity: 0.3;
+  z-index: -1;
+}
+
+/* Title styles */
+.modern-title {
+  font-size: clamp(2.5rem, 8vw, 6rem);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.05em;
+  text-align: center;
+  position: relative;
+  margin-bottom: 2rem;
+}
+
+.modern-title span {
+  display: block;
+}
+
+.modern-title .first {
+  color: var(--text);
+  align-self: flex-start;
+}
+
+.modern-title .second {
+  color: hsl(330, 100%, 65%); /* Pink color for emphasis */
+  align-self: flex-end;
+}
+
+.modern-title .third {
+  color: var(--text);
+  align-self: flex-end;
+}
+
+/* Button styles */
+.modern-action-button {
+  position: relative;
+  height: 50px;
+  width: 160px;
+  clip-path: path("M 0 25 C 0 -5, -5 0, 80 0 S 160 -5, 160 25, 165 50 80 50, 0 55, 0 25");
+  border: none;
+  background-color: rgba(236, 72, 153, 0.1);
+  box-shadow: 0px -3px 15px 0px rgba(236, 72, 153, 0.5) inset;
+  color: hsl(330, 100%, 85%);
+  font-family: "Manrope", sans-serif;
+  font-size: 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: visible;
+  transition: all 0.2s ease;
+  margin: 1rem;
+}
+
+.modern-action-button::before {
+  content: '';
+  position: absolute;
+  width: 100px;
+  height: 60px;
+  background-color: rgba(236, 72, 153, 0.6);
+  border-radius: 100%;
+  filter: blur(20px);
+  z-index: -1;
+  transition: all 0.2s ease;
+  bottom: -50%;
+}
+
+.modern-action-button:hover {
+  transform: translateY(5px);
+}
+
+.modern-action-button:hover::before {
+  opacity: 0.6;
+}
+
+.modern-action-button.primary {
+  background-color: rgba(236, 72, 153, 0.1);
+  box-shadow: 0px -3px 15px 0px rgba(236, 72, 153, 0.5) inset;
+  color: hsl(330, 100%, 90%);
+}
+
+.modern-action-button.primary::before {
+  background-color: rgba(236, 72, 153, 0.6);
+}
+
+.modern-action-button.accent {
+  background-color: rgba(236, 72, 153, 0.05);
+  box-shadow: 0px -3px 15px 0px rgba(236, 72, 153, 0.3) inset;
+  color: hsl(330, 100%, 90%);
+}
+
+.modern-action-button.accent::before {
+  background-color: rgba(236, 72, 153, 0.3);
+}
+
+.modern-action-button.secondary {
+  background-color: rgba(100, 100, 100, 0.1);
+  box-shadow: 0px -3px 15px 0px rgba(100, 100, 100, 0.4) inset;
+  color: hsl(0, 0%, 90%);
+}
+
+.modern-action-button.secondary::before {
+  background-color: rgba(100, 100, 100, 0.4);
 }

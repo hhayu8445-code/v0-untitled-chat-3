@@ -1,4 +1,92 @@
+/* Modern Pink Design Styles */
+.grid-bg {
+  background: linear-gradient(to right, #f8f0ff, #ffe6f0);
+  position: absolute;
+  width: 200%;
+  height: 200%;
+  top: -50%;
+  left: -50%;
+  animation: moveGrid 20s linear infinite;
+}
+
+@keyframes moveGrid {
+  0% { transform: translate(0, 0); }
+  100% { transform: translate(25%, 25%); }
+}
+
+.modern-title {
+  font-size: 3rem;
+  line-height: 1.2;
+  font-weight: bold;
+  display: inline-block;
+  position: relative;
+  z-index: 10;
+}
+
+.modern-title span {
+  display: block;
+  opacity: 0;
+  animation: fadeIn 1s forwards;
+}
+
+.modern-title .first {
+  color: #ff6ec7;
+  animation-delay: 0.2s;
+}
+
+.modern-title .second {
+  color: #f72585;
+  animation-delay: 0.4s;
+}
+
+.modern-title .third {
+  color: #7209b7;
+  animation-delay: 0.6s;
+}
+
+@keyframes fadeIn {
+  to { opacity: 1; }
+}
+
+.modern-action-button {
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: all 0.3s ease-in-out;
+  display: inline-block;
+}
+
+.modern-action-button.primary {
+  background-color: #ff6ec7;
+  color: white;
+}
+
+.modern-action-button.accent {
+  background-color: #f72585;
+  color: white;
+}
+
+.modern-action-button.secondary {
+  background-color: transparent;
+  border: 2px solid #7209b7;
+  color: #7209b7;
+}
+
+.modern-action-button:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 20px rgba(247, 37, 133, 0.3);
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(30px, -20px); }
+}
 import type { Metadata } from "next"
+import "@/styles/modern-pink.css"
 import { Sidebar } from "@/components/sidebar"
 import { Header } from "@/components/header"
 import { AnnouncementBar } from "@/components/announcement-bar"
@@ -41,48 +129,30 @@ export const metadata: Metadata = {
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen relative">
-      <div className="fixed inset-0 -z-10 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-gray-900 to-black" />
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-gradient-to-r from-blue-600/20 to-purple-600/20 rounded-full blur-3xl animate-float-2025" />
-        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-gradient-to-r from-purple-600/20 to-pink-600/20 rounded-full blur-3xl animate-float-2025" style={{ animationDelay: "2s" }} />
-      </div>
-
-      <Sidebar />
-      <main className="md:ml-72 transition-all duration-300 relative z-10">
-        <AnnouncementBar />
-        <Header />
-        <div className="p-6 space-y-12">
-          <SeasonalHero />
-          <LinkvertiseAd />
-          <ModernHero />
-          <div className="glass-effect p-6 rounded-2xl backdrop-blur-8 bg-gray-900/30 border border-gray-700/50">
-            <ModernStats />
+    <ModernLayout>
+      <div className="mt-24 text-center">
+        <h1 className="text-4xl font-bold text-primary mb-4">FiveM Tools V7</h1>
+        <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+          Download Free FiveM Scripts, MLO Maps, Vehicles, EUP Clothing. CFX V7 Decrypt Tool, FiveM Upvotes Bot, Leak Scripts. QBCore, ESX, QBox Framework.
+        </p>
+        
+        <div className="mt-12 grid lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2 space-y-8">
+            <TrendingSection />
+            <LinkvertiseAd />
+            <RecentAssets />
           </div>
-          <LinkvertiseAd />
-          <div className="glass-effect p-6 rounded-2xl backdrop-blur-8 bg-gray-900/30 border border-gray-700/50">
-            <ModernFeatures />
-          </div>
-          <div className="grid lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2 space-y-8">
-              <div className="glass-effect p-6 rounded-2xl backdrop-blur-8 bg-gray-900/30 border border-gray-700/50">
-                <TrendingSection />
-              </div>
-              <LinkvertiseAd />
-              <div className="glass-effect p-6 rounded-2xl backdrop-blur-8 bg-gray-900/30 border border-gray-700/50">
-                <RecentAssets />
-              </div>
-            </div>
-            <div className="space-y-6">
-              <div className="glass-effect p-6 rounded-2xl backdrop-blur-8 bg-gray-900/30 border border-gray-700/50 h-full">
-                <ActivityFeed />
-              </div>
-            </div>
+          <div className="space-y-6">
+            <ActivityFeed />
           </div>
         </div>
-      </main>
-      
-      <ScrollToTop />
-    </div>
+        
+        <div className="mt-12">
+          <ModernStats />
+          <LinkvertiseAd />
+          <ModernFeatures />
+        </div>
+      </div>
+    </ModernLayout>
   )
 }

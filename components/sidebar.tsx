@@ -127,10 +127,10 @@ export function Sidebar() {
         href={item.href}
         onClick={() => isMobile && setMobileOpen(false)}
         className={cn(
-          "flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-200 group relative glass-effect neon-border",
+          "flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-200 group relative",
           isActive
-            ? "bg-primary/20 text-primary border border-primary/30 neon-glow"
-            : "text-muted-foreground hover:text-foreground hover:bg-accent/20 hover:neon-glow",
+            ? "bg-[hsl(330,100%,65%)]/20 text-[hsl(330,100%,65%)] border border-[hsl(330,100%,65%)]/30 neon-glow"
+            : "text-muted-foreground hover:text-foreground hover:bg-accent/50",
         )}
       >
         <Icon3D src={item.icon} alt={item.label} className="transition-transform group-hover:scale-110" />
@@ -143,7 +143,7 @@ export function Sidebar() {
                   "ml-auto text-[10px] font-bold px-2 py-0.5 rounded-full",
                   item.badge === "HOT"
                     ? "bg-red-500/20 text-red-400 border border-red-500/30"
-                    : "bg-primary/20 text-primary border border-primary/30",
+                    : "bg-[hsl(330,100%,65%)]/20 text-[hsl(330,100%,65%)] border border-[hsl(330,100%,65%)]/30",
                 )}
               >
                 {item.badge}
@@ -161,7 +161,7 @@ export function Sidebar() {
       <button
         aria-label={mobileOpen ? "Close navigation menu" : "Open navigation menu"}
         onClick={() => setMobileOpen(!mobileOpen)}
-        className="md:hidden fixed top-4 left-4 z-50 p-2.5 rounded-xl glass-effect border border-border neon-border"
+        className="md:hidden fixed top-4 left-4 z-50 p-2.5 rounded-xl glass-effect border border-[hsl(330,100%,65%)]/30"
       >
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
           <path
@@ -180,13 +180,13 @@ export function Sidebar() {
       <aside
         className={cn(
           "fixed top-0 left-0 h-full z-50 transition-all duration-300",
-          "bg-sidebar border-r border-border flex flex-col",
+          "bg-[#111111] border-r border-[hsl(330,100%,65%)]/30 flex flex-col",
           collapsed ? "w-20" : "w-72",
           mobileOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0",
         )}
       >
         {/* Logo */}
-        <div className="p-4 flex items-center gap-3 border-b border-border">
+        <div className="p-4 flex items-center gap-3 border-b border-[hsl(330,100%,65%)]/30">
           <Link href="/" className="flex items-center gap-3">
             <img
               src={SITE_LOGO || "/placeholder.svg"}
@@ -198,15 +198,15 @@ export function Sidebar() {
             />
             {!collapsed && (
               <div>
-                <h1 className="font-bold text-lg text-foreground text-seasonal">{SITE_NAME}</h1>
-                <p className="text-xs text-primary">V7 Premium</p>
+                <h1 className="font-bold text-lg text-foreground">{SITE_NAME}</h1>
+                <p className="text-xs text-[hsl(330,100%,65%)]">V7 Premium</p>
               </div>
             )}
           </Link>
           <button
             aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
             onClick={() => setCollapsed(!collapsed)}
-            className="ml-auto p-1.5 rounded-lg hover:bg-accent/50 transition-colors hidden md:flex glass-effect"
+            className="ml-auto p-1.5 rounded-lg hover:bg-accent/50 transition-colors hidden md:flex"
           >
             <ChevronLeft className={cn("h-4 w-4 transition-transform", collapsed && "rotate-180")} />
           </button>
@@ -220,7 +220,7 @@ export function Sidebar() {
 
           {/* User Section */}
           {user && (
-            <div className="pt-4 mt-4 border-t border-border space-y-1">
+            <div className="pt-4 mt-4 border-t border-[hsl(330,100%,65%)]/30 space-y-1">
               {userItems.map((item) => {
                 if ("requireAuth" in item && item.requireAuth && !user) return null
                 if ("requireAdmin" in item && item.requireAdmin && !isAdmin) return null
@@ -231,11 +231,11 @@ export function Sidebar() {
         </nav>
 
         {/* Live Status */}
-        <div className="p-4 border-t border-border">
-          <div className="glass-effect rounded-xl p-4 neon-border">
+        <div className="p-4 border-t border-[hsl(330,100%,65%)]/30">
+          <div className="glass-effect rounded-xl p-4">
             <div className="flex items-center gap-2 mb-3">
               <div className="relative">
-                <Users className="h-4 w-4 text-primary" />
+                <Users className="h-4 w-4 text-[hsl(330,100%,65%)]" />
                 <span className="absolute -top-1 -right-1 h-2 w-2 bg-green-500 rounded-full animate-pulse" />
               </div>
               {!collapsed && <span className="text-sm font-medium text-foreground">Live Status</span>}
@@ -243,7 +243,7 @@ export function Sidebar() {
             {!collapsed && (
               <div className="grid grid-cols-2 gap-3">
                 <div className="text-center">
-                  <p className="text-xl font-bold text-seasonal transition-all duration-300">{displayOnline}</p>
+                  <p className="text-xl font-bold text-[hsl(330,100%,65%)] transition-all duration-300">{displayOnline}</p>
                   <p className="text-xs text-muted-foreground">Online</p>
                 </div>
                 <div className="text-center">

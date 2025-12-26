@@ -133,7 +133,7 @@ export function DownloadButton({ assetId, price, coinPrice = 0, downloadLink, cl
 
   if (isCheckingPurchase) {
     return (
-      <Button disabled className={cn("w-full rounded-xl h-12 text-base glass-effect", className)}>
+      <Button disabled className={cn("w-full rounded-xl h-12 text-base glass", className)}>
         <Loader2 className="h-5 w-5 animate-spin mr-2" />
         Checking...
       </Button>
@@ -149,12 +149,12 @@ export function DownloadButton({ assetId, price, coinPrice = 0, downloadLink, cl
           onClick={handleDownload}
           disabled={isDownloading}
           className={cn(
-            "w-full gap-2 rounded-xl h-12 text-base transition-all relative overflow-hidden group modern-button",
+            "w-full gap-2 rounded-xl h-12 text-base transition-all relative overflow-hidden group",
             isPurchased
-              ? "bg-success hover:bg-success/90 text-white"
+              ? "bg-success hover:bg-success/90 text-white glow-sm"
               : insufficientCoins
                 ? "bg-destructive/20 hover:bg-destructive/30 text-destructive border border-destructive/50"
-                : "bg-primary hover:bg-primary/90",
+                : "bg-primary hover:bg-primary/90 glow",
             className,
           )}
           size="lg"
@@ -196,7 +196,7 @@ export function DownloadButton({ assetId, price, coinPrice = 0, downloadLink, cl
       <AnimatePresence>
         {showModal && (
           <Dialog open={showModal} onOpenChange={setShowModal}>
-            <DialogContent className="max-w-md glass-effect border-2 border-primary/30 neon-border">
+            <DialogContent className="max-w-md glass border-2 border-primary/30">
               <motion.div 
                 className="p-6 space-y-4"
                 initial={{ opacity: 0, scale: 0.9 }}
@@ -235,7 +235,7 @@ export function DownloadButton({ assetId, price, coinPrice = 0, downloadLink, cl
                       <p className="text-muted-foreground mb-4 flex items-center justify-center gap-1">
                         This asset costs <CoinIcon size="sm" /> {coinPrice} coins
                       </p>
-                      <div className="glass-effect rounded-xl p-4 space-y-3">
+                      <div className="glass rounded-xl p-4 space-y-3">
                         <motion.div 
                           className="flex items-center justify-between"
                           initial={{ opacity: 0, x: -20 }}
@@ -302,7 +302,7 @@ export function DownloadButton({ assetId, price, coinPrice = 0, downloadLink, cl
                         <Button
                           onClick={processDownload}
                           disabled={isDownloading || (user?.coins || 0) < coinPrice}
-                          className="w-full bg-primary hover:bg-primary/90 rounded-xl"
+                          className="w-full bg-primary hover:bg-primary/90 rounded-xl glow-sm"
                         >
                           {isDownloading ? (
                             <>
@@ -310,17 +310,17 @@ export function DownloadButton({ assetId, price, coinPrice = 0, downloadLink, cl
                               Processing...
                             </>
                           ) : (
-                              <>
-                                <CheckCircle className="h-4 w-4 mr-2" />
-                                Confirm Purchase
-                              </>
-                            )}
-                          </Button>
-                        </motion.div>
-                      </div>
-                    </>
-                  )}
-                </motion.div>
+                            <>
+                              <CheckCircle className="h-4 w-4 mr-2" />
+                              Confirm Purchase
+                            </>
+                          )}
+                        </Button>
+                      </motion.div>
+                    </div>
+                  </>
+                )}
+              </motion.div>
             </DialogContent>
           </Dialog>
         )}
