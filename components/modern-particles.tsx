@@ -5,13 +5,15 @@ import { motion } from "framer-motion"
 import { getCurrentHoliday } from "@/lib/holiday-theme"
 
 export function ModernParticles() {
+  const [mounted, setMounted] = useState(false)
   const [holiday, setHoliday] = useState(getCurrentHoliday())
 
   useEffect(() => {
+    setMounted(true)
     setHoliday(getCurrentHoliday())
   }, [])
 
-  if (!holiday) return null
+  if (!mounted || !holiday) return null
 
   const color = holiday.theme.primary
 
@@ -26,13 +28,13 @@ export function ModernParticles() {
             boxShadow: `0 0 10px ${color}`
           }}
           initial={{ 
-            x: Math.random() * (typeof window !== 'undefined' ? window.innerWidth : 1000), 
+            x: Math.random() * window.innerWidth, 
             y: -50,
             opacity: 0.6
           }}
           animate={{
-            y: typeof window !== 'undefined' ? window.innerHeight + 50 : 1000,
-            x: Math.random() * (typeof window !== 'undefined' ? window.innerWidth : 1000),
+            y: window.innerHeight + 50,
+            x: Math.random() * window.innerWidth,
             scale: [1, 1.5, 1],
             opacity: [0.6, 0.8, 0.6]
           }}

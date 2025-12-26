@@ -1,3 +1,9 @@
+// Export postgres queries as db
+export { default as db } from './db/queries'
+export { default as sql } from './db/postgres'
+export * from './db/types'
+
+// Legacy Supabase support
 import { getSupabaseAdminClient } from "./supabase/server"
 
 const globalForPrisma = globalThis as unknown as {
@@ -10,16 +16,13 @@ export async function getDb() {
     throw new Error("DATABASE_URL environment variable is missing")
   }
 
-  // In production, if DATABASE_URL is missing, it will fail at runtime which is expected
   return await getSupabaseAdminClient()
 }
 
-// Export prisma as an alias that throws a helpful error
 export const prisma = new Proxy({} as any, {
   get: () => {
     throw new Error("Prisma has been replaced with Supabase. Use getDb() or getSupabaseAdminClient() instead.")
   },
 })
 
-// For backwards compatibility, maintain the globalForPrisma logic
 if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma
