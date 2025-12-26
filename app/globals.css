@@ -199,6 +199,11 @@
       transform: rotate(360deg);
     }
   }
+  
+  .wheel-idle-spin {
+    animation: spin-slow 60s linear infinite;
+    transform-origin: 1000px 1000px;
+  }
 
   /* Scrollbar */
   .scrollbar-thin::-webkit-scrollbar {

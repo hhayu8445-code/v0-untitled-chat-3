@@ -110,7 +110,7 @@ export default function SpinWheelPage() {
   const wheelRef = useRef<SVGGElement>(null)
   const [prizes, setPrizes] = useState<Prize[]>([])
   const [spinning, setSpinning] = useState(false)
-  const [rotation, setRotation] = useState(0)
+  const [finalRotation, setFinalRotation] = useState(0)
   const [result, setResult] = useState<Prize | null>(null)
   const [showResult, setShowResult] = useState(false)
   const [history, setHistory] = useState<SpinHistoryItem[]>([])
@@ -187,10 +187,6 @@ export default function SpinWheelPage() {
     fetchData()
   }, [fetchData])
 
-  // Auto rotate wheel for visual effect - using CSS animation instead of state updates
-  const autoRotateStyle = !spinning ? {
-    animation: 'spin-slow 60s linear infinite'
-  } : {}
 
   const claimDailyTicket = async () => {
     if (claiming || !canClaimDaily) return
@@ -235,46 +231,30 @@ export default function SpinWheelPage() {
       const segmentAngle = 36 // 360 / 10 segments
       const prizeIndex = displayItems.findIndex(item => item.coins === data.prize.coins)
       const targetAngle = prizeIndex * segmentAngle
-      const finalRotation = rotation + (numSpins * 360) + targetAngle + (Math.random() * 20 - 10)
+      const newFinalRotation = finalRotation + (numSpins * 360) + targetAngle + (Math.random() * 20 - 10)
 
-      // Animate the rotation
-      const startRotation = rotation
-      const duration = 4000 + Math.random() * 2000
-      const startTime = Date.now()
+      // Set the final rotation - CSS transition handles the animation
+      setFinalRotation(newFinalRotation)
 
-      const animate = () => {
-        const elapsed = Date.now() - startTime
-        const progress = Math.min(elapsed / duration, 1)
+      // Wait for animation to complete (5 seconds)
+      setTimeout(() => {
+        setResult(data.prize)
+        setShowResult(true)
+        setSpinning(false)
+        setUserTickets(data.newTickets)
+        setUserCoins(data.newBalance)
         
-        // Easing function for smooth deceleration
-        const easeOut = 1 - Math.pow(1 - progress, 4)
-        const currentRotation = startRotation + (finalRotation - startRotation) * easeOut
-        
-        setRotation(currentRotation)
-
-        if (progress < 1) {
-          requestAnimationFrame(animate)
-        } else {
-          setResult(data.prize)
-          setShowResult(true)
-          setSpinning(false)
-          setUserTickets(data.newTickets)
-          setUserCoins(data.newBalance)
-          
-          setHistory((prev) => [
-            {
-              id: Date.now().toString(),
-              prize_name: data.prize.name,
-              coins_won: data.prize.coins,
-              spin_type: "ticket",
-              created_at: new Date().toISOString(),
-            },
-            ...prev.slice(0, 9),
-          ])
-        }
-      }
-
-      requestAnimationFrame(animate)
+        setHistory((prev) => [
+          {
+            id: Date.now().toString(),
+            prize_name: data.prize.name,
+            coins_won: data.prize.coins,
+            spin_type: "ticket",
+            created_at: new Date().toISOString(),
+          },
+          ...prev.slice(0, 9),
+        ])
+      }, 5000)
     } catch (error) {
       console.error("Spin error:", error)
       setSpinning(false)
@@ -349,11 +329,11 @@ export default function SpinWheelPage() {
             {/* Rotating Wheel */}
             <g 
               ref={wheelRef}
+              className={spinning ? '' : 'wheel-idle-spin'}
               style={{ 
-                transform: `rotate(${rotation}deg)`,
+                transform: spinning ? `rotate(${finalRotation}deg)` : undefined,
                 transformOrigin: "1000px 1000px",
-                transition: spinning ? "transform 5s cubic-bezier(0.17, 0.67, 0.12, 0.99)" : "none",
-                ...(spinning ? {} : { animation: 'spin-slow 60s linear infinite' })
+                transition: spinning ? "transform 5s cubic-bezier(0.17, 0.67, 0.12, 0.99)" : undefined
               }}
             >
               <g transform="translate(1000, 1000)">
