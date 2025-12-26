@@ -6,20 +6,21 @@ import { createClient } from '@/lib/supabase/server';
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
   const session = await getServerSession(authOptions);
   if (!session) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
   const hash = req.nextUrl.searchParams.get('hash');
-  const supabase = createClient();
+  const supabase = await createClient();
   
   const { data: asset } = await supabase
     .from('assets')
     .select('*, require_linkvertise')
-    .eq('id', params.id)
+    .eq('id', id)
     .single();
 
   if (!asset) {
@@ -33,10 +34,10 @@ export async function GET(
     const verified = await verifyLinkvertiseHash(hash);
     
     await logDownloadAttempt(
-      params.id,
+      id,
       session.user.id,
       hash,
-      verified,
+      Boolean(verified),
       ipAddress,
       userAgent
     );
@@ -46,7 +47,7 @@ export async function GET(
     }
   } else if (asset.require_linkvertise && !hash) {
     await logDownloadAttempt(
-      params.id,
+      id,
       session.user.id,
       null,
       false,
@@ -56,5 +57,5 @@ export async function GET(
     return NextResponse.json({ error: 'Hash required' }, { status: 403 });
   }
 
-  return NextResponse.redirect(new URL(`/api/download/${params.id}`, req.url));
+  return NextResponse.redirect(new URL(`/api/download/${id}`, req.url));
 }

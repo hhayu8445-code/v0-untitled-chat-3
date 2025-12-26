@@ -4,8 +4,6 @@ import type React from "react"
 import { useState, useCallback, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/components/auth-provider"
-import { Sidebar } from "@/components/sidebar"
-import { Header } from "@/components/header"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent } from "@/components/ui/card"
@@ -742,22 +740,15 @@ export default function UploadPage() {
 
   if (authLoading) {
     return (
-      <div className="flex min-h-screen bg-background">
-        <Sidebar />
-        <div className="flex-1 flex items-center justify-center">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        </div>
+      <div className="flex-1 flex items-center justify-center min-h-[60vh]">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     )
   }
 
   if (!user) {
     return (
-      <div className="flex min-h-screen bg-background">
-        <Sidebar />
-        <div className="flex-1 flex flex-col md:ml-72">
-          <Header />
-          <main className="flex-1 flex items-center justify-center p-6">
+      <div className="flex-1 flex items-center justify-center p-6">
             <Card className="max-w-md w-full border-amber-500/20 bg-gradient-to-b from-amber-500/5 to-transparent">
               <CardContent className="pt-8 pb-8 text-center">
                 <div className="h-20 w-20 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center mx-auto mb-6 shadow-lg shadow-amber-500/20">
@@ -784,19 +775,13 @@ export default function UploadPage() {
                 </div>
               </CardContent>
             </Card>
-          </main>
-        </div>
       </div>
     )
   }
 
   if (uploadSuccess) {
     return (
-      <div className="flex min-h-screen bg-background">
-        <Sidebar />
-        <div className="flex-1 flex flex-col md:ml-72">
-          <Header />
-          <main className="flex-1 flex items-center justify-center p-6">
+      <div className="flex-1 flex items-center justify-center p-6">
             <Card className="max-w-md w-full border-emerald-500/20 bg-gradient-to-b from-emerald-500/5 to-transparent">
               <CardContent className="pt-8 pb-8 text-center">
                 <div className="w-20 h-20 bg-gradient-to-br from-emerald-500 to-green-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg shadow-emerald-500/20">
@@ -812,18 +797,12 @@ export default function UploadPage() {
                 </Button>
               </CardContent>
             </Card>
-          </main>
-        </div>
       </div>
     )
   }
 
   return (
-    <div className="flex min-h-screen bg-background">
-      <Sidebar />
-      <div className="flex-1 flex flex-col md:ml-72">
-        <Header />
-        <main className="flex-1 p-4 md:p-6">
+    <div className="p-4 md:p-6">
           <div className="max-w-4xl mx-auto">
             {/* Header */}
             <div className="mb-8">
@@ -1326,8 +1305,6 @@ export default function UploadPage() {
               )}
             </form>
           </div>
-        </main>
-      </div>
     </div>
   )
 }

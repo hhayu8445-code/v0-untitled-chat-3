@@ -39,26 +39,27 @@ export function TrendingSection() {
       >
         <div className="flex items-center gap-3">
           <motion.div 
-            className="h-10 w-10 rounded-xl bg-chart-5/20 flex items-center justify-center glow-sm relative"
+            className="h-10 w-10 rounded-xl flex items-center justify-center glow-sm relative"
+            style={{ background: "rgba(236, 72, 153, 0.2)" }}
             animate={{ 
               boxShadow: [
-                "0 0 10px rgba(255, 100, 50, 0.3)",
-                "0 0 20px rgba(255, 100, 50, 0.5)",
-                "0 0 10px rgba(255, 100, 50, 0.3)"
+                "0 0 10px var(--primary)",
+                "0 0 20px var(--primary)",
+                "0 0 10px var(--primary)"
               ]
             }}
             transition={{ duration: 2, repeat: Infinity }}
           >
-            <Flame className="h-5 w-5 text-chart-5" />
+            <Flame className="h-5 w-5 text-[var(--primary)]" />
           </motion.div>
           <div>
-            <h2 className="text-xl font-bold text-foreground">Trending this Week</h2>
-            <p className="text-sm text-muted-foreground">Most downloaded resources</p>
+            <h2 className="text-xl font-bold text-[var(--text)]">Trending this Week</h2>
+            <p className="text-sm text-[var(--textDim)]">Most downloaded resources</p>
           </div>
         </div>
         <Link
           href="/scripts"
-          className="flex items-center gap-1 text-sm text-primary hover:text-primary/80 transition-colors"
+          className="flex items-center gap-1 text-sm text-[var(--primary)] hover:text-[var(--primary)]/80 transition-colors"
         >
           View all
           <ChevronRight className="h-4 w-4" />

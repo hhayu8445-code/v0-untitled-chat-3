@@ -1,7 +1,8 @@
 "use client"
 
 import { useState } from "react"
-import { Dialog, DialogContent } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -73,6 +74,9 @@ export function AddAssetModal({ open, onOpenChange }: AddAssetModalProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl glass border-2 border-primary/30 max-h-[90vh] overflow-y-auto">
+        <VisuallyHidden>
+          <DialogTitle>Add New Asset</DialogTitle>
+        </VisuallyHidden>
         {success ? (
           <div className="p-6 text-center space-y-4">
             <CheckCircle className="h-16 w-16 text-success mx-auto" />

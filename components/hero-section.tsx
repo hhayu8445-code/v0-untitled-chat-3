@@ -24,22 +24,24 @@ export function HeroSection() {
   const { stats } = useStatsStore()
 
   return (
-    <section className="relative overflow-hidden rounded-2xl glass border-primary/20 mb-8">
+    <section className="relative overflow-hidden rounded-2xl glass border border-white/10 mb-8" style={{ background: 'rgba(255, 255, 255, 0.05)' }}>
       {/* Animated Background Effects */}
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-accent/10" />
+      <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, rgba(236, 72, 153, 0.1), transparent, rgba(236, 72, 153, 0.05))' }} />
       <motion.div 
-        className="absolute top-0 right-0 w-96 h-96 bg-primary/20 rounded-full blur-3xl"
+        className="absolute top-0 right-0 w-96 h-96 rounded-full blur-3xl"
+        style={{ background: 'var(--primary)', opacity: 0.2 }}
         animate={{ 
           scale: [1, 1.2, 1],
-          opacity: [0.3, 0.5, 0.3]
+          opacity: [0.2, 0.3, 0.2]
         }}
         transition={{ duration: 4, repeat: Infinity }}
       />
       <motion.div 
-        className="absolute bottom-0 left-0 w-64 h-64 bg-accent/20 rounded-full blur-3xl"
+        className="absolute bottom-0 left-0 w-64 h-64 rounded-full blur-3xl"
+        style={{ background: 'var(--accent)', opacity: 0.2 }}
         animate={{ 
           scale: [1, 1.3, 1],
-          opacity: [0.3, 0.6, 0.3]
+          opacity: [0.2, 0.4, 0.2]
         }}
         transition={{ duration: 5, repeat: Infinity, delay: 1 }}
       />
@@ -62,10 +64,10 @@ export function HeroSection() {
                 animate={{ rotate: [0, 5, -5, 0] }}
                 transition={{ duration: 3, repeat: Infinity }}
               />
-              <div className="inline-flex items-center gap-2 rounded-full bg-primary/20 px-4 py-2 text-sm text-primary border border-primary/30 glow-sm">
+              <div className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm border" style={{ background: 'rgba(236, 72, 153, 0.2)', color: 'var(--primary)', borderColor: 'var(--primary)' }}>
                 <Sparkles className="h-4 w-4 animate-pulse" />
                 <span className="font-medium">The #1 FiveM Resource Hub</span>
-                <span className="px-2 py-0.5 text-[10px] font-bold bg-primary text-primary-foreground rounded-full animate-pulse">
+                <span className="px-2 py-0.5 text-[10px] font-bold rounded-full animate-pulse" style={{ background: 'var(--primary)', color: 'white' }}>
                   2025
                 </span>
               </div>
@@ -73,7 +75,7 @@ export function HeroSection() {
 
             {/* Title */}
             <motion.h1 
-              className="text-4xl font-bold leading-tight text-foreground md:text-5xl lg:text-6xl mb-4 text-balance"
+              className="text-4xl font-bold leading-tight text-[var(--text)] md:text-5xl lg:text-6xl mb-4 text-balance"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.1 }}
@@ -83,7 +85,7 @@ export function HeroSection() {
 
             {/* Description */}
             <motion.p 
-              className="text-lg text-muted-foreground md:text-xl max-w-xl mb-6"
+              className="text-lg text-[var(--textDim)] md:text-xl max-w-xl mb-6"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.2 }}
@@ -98,7 +100,7 @@ export function HeroSection() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.3 }}
             >
-              <span className="text-sm text-muted-foreground">Supported:</span>
+              <span className="text-sm text-[var(--textDim)]">Supported:</span>
               <div className="flex items-center gap-3">
                 {FRAMEWORKS.filter((f) => f.id !== "standalone").map((framework, i) => (
                   <motion.div
@@ -115,7 +117,7 @@ export function HeroSection() {
                       alt={framework.name}
                       className="h-6 w-6 object-contain rounded"
                     />
-                    <span className="text-sm font-medium text-foreground hidden sm:inline">{framework.name}</span>
+                    <span className="text-sm font-medium text-[var(--text)] hidden sm:inline">{framework.name}</span>
                   </motion.div>
                 ))}
               </div>
@@ -132,9 +134,10 @@ export function HeroSection() {
                 <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                   <Button
                     size="lg"
-                    className="bg-primary hover:bg-primary/90 text-primary-foreground gap-2 rounded-xl h-12 px-6 glow relative overflow-hidden group"
+                    className="gap-2 rounded-xl h-12 px-6 glow relative overflow-hidden group shimmer"
+                    style={{ background: 'var(--primary)', color: 'white' }}
                   >
-                    <div className="absolute inset-0 bg-gradient-to-r from-primary via-accent to-primary opacity-0 group-hover:opacity-100 transition-opacity animate-shimmer" />
+                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity" style={{ background: 'linear-gradient(90deg, var(--primary), var(--accent), var(--primary))' }} />
                     <Zap className="h-4 w-4 relative z-10" />
                     <span className="relative z-10">Browse All Assets</span>
                     <ArrowRight className="h-4 w-4 relative z-10" />
@@ -177,11 +180,11 @@ export function HeroSection() {
                 whileHover={{ scale: 1.05 }}
               >
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-accent/5 opacity-0 group-hover:opacity-100 transition-opacity" />
-                <stat.icon className={`h-6 w-6 ${stat.color} mx-auto mb-2 relative z-10`} />
-                <p className="text-2xl font-bold text-foreground relative z-10">
+                <stat.icon className={`h-6 w-6 text-[var(--primary)] mx-auto mb-2 relative z-10`} />
+                <p className="text-2xl font-bold text-[var(--text)] relative z-10">
                   {stat.isRating ? stat.value : (stat.value > 0 ? formatStatNumber(stat.value, stat.suffix) : `0${stat.suffix || ""}`)}
                 </p>
-                <p className="text-xs text-muted-foreground relative z-10">{stat.label}</p>
+                <p className="text-xs text-[var(--textDim)] relative z-10">{stat.label}</p>
               </motion.div>
             ))}
           </motion.div>

@@ -9,7 +9,7 @@ export async function GET() {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data } = await supabase
     .from('site_settings')
     .select('*')
@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
   }
 
   const settings = await req.json();
-  const supabase = createClient();
+  const supabase = await createClient();
 
   await supabase
     .from('site_settings')

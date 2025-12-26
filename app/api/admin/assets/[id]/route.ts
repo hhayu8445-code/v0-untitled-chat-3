@@ -4,9 +4,10 @@ import { sendDiscordNotification } from "@/lib/discord-webhook"
 
 export async function PUT(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id: assetId } = await params
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
 
@@ -25,12 +26,12 @@ export async function PUT(
     }
 
     const body = await request.json()
-    const { id, ...updates } = body
+    const updates = body
 
     const { data, error } = await supabase
       .from("assets")
       .update(updates)
-      .eq("id", params.id)
+      .eq("id", assetId)
       .select(`
         *,
         author:profiles!assets_author_id_fkey(username, avatar)
@@ -59,9 +60,10 @@ export async function PUT(
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
 
@@ -82,7 +84,7 @@ export async function DELETE(
     const { error } = await supabase
       .from("assets")
       .delete()
-      .eq("id", params.id)
+      .eq("id", id)
 
     if (error) throw error
 

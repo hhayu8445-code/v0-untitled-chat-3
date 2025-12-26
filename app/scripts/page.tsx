@@ -1,11 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Sidebar } from "@/components/sidebar"
-import { Header } from "@/components/header"
 import { AssetCard } from "@/components/asset-card"
-import { SponsorBanner } from "@/components/sponsor-banner"
-import { LinkvertiseAd } from "@/components/linkvertise-ad"
 import { FrameworkSelector } from "@/components/framework-selector"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -78,12 +74,7 @@ export default function ScriptsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <Sidebar />
-      <main className="md:ml-72 transition-all duration-300">
-        <Header />
-        <div className="p-6 space-y-6">
-          <SponsorBanner />
+    <div className="p-4 md:p-6 space-y-6">
 
           {/* Modern Page Header */}
           <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary/20 via-accent/10 to-background border border-border p-8">
@@ -291,7 +282,6 @@ export default function ScriptsPage() {
           </div>
 
           {/* Scripts Grid/List */}
-          <LinkvertiseAd />
           {isLoading ? (
             <div
               className={viewMode === "grid" ? "grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" : "space-y-4"}
@@ -336,8 +326,6 @@ export default function ScriptsPage() {
               </CardContent>
             </Card>
           )}
-        </div>
-      </main>
     </div>
   )
 }

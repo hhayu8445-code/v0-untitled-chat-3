@@ -1,13 +1,10 @@
 "use client"
 
 import { useState, useEffect, useRef, useCallback } from "react"
-import { Sidebar } from "@/components/sidebar"
-import { Header } from "@/components/header"
-import { LinkvertiseAd } from "@/components/linkvertise-ad"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Progress } from "@/components/ui/progress"
-import { Dialog, DialogContent } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
 import { LoadingSpinner } from "@/components/loading-spinner"
 import { useAuth } from "@/components/auth-provider"
 import { TestimonialsSection } from "@/components/testimonials-section"
@@ -370,12 +367,7 @@ export default function UpvotesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <Sidebar frameworks={FRAMEWORKS} />
-      <main className="md:ml-72 transition-all duration-300">
-        <Header />
-        <div className="p-6 max-w-7xl mx-auto space-y-6">
-          <LinkvertiseAd />
+    <div className="p-4 md:p-6 max-w-7xl mx-auto space-y-6">
           <div className="w-full overflow-hidden rounded-xl border border-border bg-card">
             <div className="relative">
               {UPVOTES_SPONSOR_BANNERS.map((banner, index) => (
@@ -698,6 +690,7 @@ export default function UpvotesPage() {
           {/* UDG License Modal */}
           <Dialog open={showUdgModal} onOpenChange={() => {}}>
             <DialogContent className="max-w-md glass border-2 border-chart-3/30">
+              <DialogTitle className="sr-only">Security Checkpoint</DialogTitle>
               <div className="p-6 space-y-4">
                 <div className="text-center">
                   <div className="relative inline-block">
@@ -740,6 +733,7 @@ export default function UpvotesPage() {
           {/* Pricing Modal */}
           <Dialog open={showPriceModal} onOpenChange={setShowPriceModal}>
             <DialogContent className="max-w-4xl glass border-2 border-warning/30">
+              <DialogTitle className="sr-only">FiveM UDG Pricing</DialogTitle>
               <div className="p-6">
                 <div className="text-center mb-8">
                   <div className="relative inline-block">
@@ -827,8 +821,6 @@ export default function UpvotesPage() {
               </div>
             </DialogContent>
           </Dialog>
-        </div>
-      </main>
     </div>
   )
 }

@@ -117,9 +117,9 @@ export function ReportDialog({
   if (isControlled) {
     return (
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="sm:max-w-md glass">
+        <DialogContent className="sm:max-w-md glass border" style={{ background: 'rgba(0, 0, 0, 0.95)', borderColor: 'var(--primary)' }}>
           <DialogHeader>
-            <DialogTitle className="text-foreground">Report {reportType}</DialogTitle>
+            <DialogTitle className="text-[var(--text)]">Report {reportType}</DialogTitle>
             <DialogDescription>
               Help us understand what's wrong. Reports are reviewed by our moderation team.
             </DialogDescription>
@@ -127,12 +127,12 @@ export function ReportDialog({
 
           <div className="space-y-4 py-4">
             <div className="space-y-3">
-              <Label className="text-foreground">Reason for reporting</Label>
+              <Label className="text-[var(--text)]">Reason for reporting</Label>
               <RadioGroup value={reason} onValueChange={setReason}>
                 {REPORT_REASONS.map((r) => (
                   <div key={r.value} className="flex items-center space-x-2">
                     <RadioGroupItem value={r.value} id={`controlled-${r.value}`} />
-                    <Label htmlFor={`controlled-${r.value}`} className="text-sm text-foreground cursor-pointer">
+                    <Label htmlFor={`controlled-${r.value}`} className="text-sm text-[var(--text)] cursor-pointer">
                       {r.label}
                     </Label>
                   </div>
@@ -141,7 +141,7 @@ export function ReportDialog({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="controlled-description" className="text-foreground">
+              <Label htmlFor="controlled-description" className="text-[var(--text)]">
                 Additional details (optional)
               </Label>
               <Textarea
@@ -149,7 +149,7 @@ export function ReportDialog({
                 placeholder="Provide more context about your report..."
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                className="min-h-[100px] bg-secondary/50 border-border"
+                className="min-h-[100px] border-white/20"
               />
             </div>
           </div>
@@ -179,9 +179,9 @@ export function ReportDialog({
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md glass">
+      <DialogContent className="sm:max-w-md glass border" style={{ background: 'rgba(0, 0, 0, 0.95)', borderColor: 'var(--primary)' }}>
         <DialogHeader>
-          <DialogTitle className="text-foreground">Report {reportType}</DialogTitle>
+          <DialogTitle className="text-[var(--text)]">Report {reportType}</DialogTitle>
           <DialogDescription>
             Help us understand what's wrong. Reports are reviewed by our moderation team.
           </DialogDescription>
@@ -189,12 +189,12 @@ export function ReportDialog({
 
         <div className="space-y-4 py-4">
           <div className="space-y-3">
-            <Label className="text-foreground">Reason for reporting</Label>
+            <Label className="text-[var(--text)]">Reason for reporting</Label>
             <RadioGroup value={reason} onValueChange={setReason}>
               {REPORT_REASONS.map((r) => (
                 <div key={r.value} className="flex items-center space-x-2">
                   <RadioGroupItem value={r.value} id={r.value} />
-                  <Label htmlFor={r.value} className="text-sm text-foreground cursor-pointer">
+                  <Label htmlFor={r.value} className="text-sm text-[var(--text)] cursor-pointer">
                     {r.label}
                   </Label>
                 </div>
@@ -203,7 +203,7 @@ export function ReportDialog({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description" className="text-foreground">
+            <Label htmlFor="description" className="text-[var(--text)]">
               Additional details (optional)
             </Label>
             <Textarea
@@ -211,7 +211,7 @@ export function ReportDialog({
               placeholder="Provide more context about your report..."
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="min-h-[100px] bg-secondary/50 border-border"
+              className="min-h-[100px] border-white/20"
             />
           </div>
         </div>

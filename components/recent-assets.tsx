@@ -38,20 +38,21 @@ export function RecentAssets() {
       >
         <div className="flex items-center gap-3">
           <motion.div 
-            className="h-10 w-10 rounded-xl bg-info/20 flex items-center justify-center glow-sm"
+            className="h-10 w-10 rounded-xl flex items-center justify-center glow-sm"
+            style={{ background: "rgba(236, 72, 153, 0.2)" }}
             animate={{ scale: [1, 1.1, 1] }}
             transition={{ duration: 2, repeat: Infinity }}
           >
-            <Clock className="h-5 w-5 text-info" />
+            <Clock className="h-5 w-5 text-[var(--primary)]" />
           </motion.div>
           <div>
-            <h2 className="text-xl font-bold text-foreground">Recently Added</h2>
-            <p className="text-sm text-muted-foreground">Latest uploads to the platform</p>
+            <h2 className="text-xl font-bold text-[var(--text)]">Recently Added</h2>
+            <p className="text-sm text-[var(--textDim)]">Latest uploads to the platform</p>
           </div>
         </div>
         <Link
           href="/scripts"
-          className="flex items-center gap-1 text-sm text-primary hover:text-primary/80 transition-colors"
+          className="flex items-center gap-1 text-sm text-[var(--primary)] hover:text-[var(--primary)]/80 transition-colors"
         >
           View all
           <ChevronRight className="h-4 w-4" />

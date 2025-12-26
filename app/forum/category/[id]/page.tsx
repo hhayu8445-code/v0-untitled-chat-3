@@ -1,8 +1,6 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Sidebar } from "@/components/sidebar"
-import { Header } from "@/components/header"
 import { Button } from "@/components/ui/button"
 import { ArrowLeft, Plus, MessageSquare, Heart, Eye, Pin, Crown, Shield, Loader2 } from "lucide-react"
 import Link from "next/link"
@@ -50,7 +48,7 @@ export default function CategoryPage() {
         if (catRes.ok) {
           const catData = await catRes.json()
           const categoriesArray = Array.isArray(catData) ? catData : catData.categories || []
-          const foundCategory = categoriesArray.find((c: Category) => c.id === params.id)
+          const foundCategory = categoriesArray.find((c: Category) => c.id === params?.id)
           if (foundCategory) {
             setCategory(foundCategory)
           } else {
@@ -59,7 +57,7 @@ export default function CategoryPage() {
           }
         }
 
-        const threadRes = await fetch(`/api/forum/threads?categoryId=${params.id}`)
+        const threadRes = await fetch(`/api/forum/threads?categoryId=${params?.id}`)
         if (threadRes.ok) {
           const threadData = await threadRes.json()
           setThreads(threadData.threads || [])
@@ -71,21 +69,15 @@ export default function CategoryPage() {
       }
     }
 
-    if (params.id) {
+    if (params?.id) {
       fetchData()
     }
-  }, [params.id, router])
+  }, [params?.id, router])
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background">
-        <Sidebar />
-        <main className="md:ml-72 transition-all duration-300">
-          <Header />
-          <div className="p-6 flex items-center justify-center min-h-[60vh]">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          </div>
-        </main>
+      <div className="p-6 flex items-center justify-center min-h-[60vh]">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     )
   }
@@ -95,11 +87,7 @@ export default function CategoryPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <Sidebar />
-      <main className="md:ml-72 transition-all duration-300">
-        <Header />
-        <div className="p-6">
+    <div className="p-4 md:p-6">
           {/* Back Button */}
           <Link
             href="/forum"
@@ -187,8 +175,6 @@ export default function CategoryPage() {
               </div>
             )}
           </div>
-        </div>
-      </main>
     </div>
   )
 }

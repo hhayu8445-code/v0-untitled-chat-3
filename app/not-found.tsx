@@ -1,18 +1,12 @@
 "use client"
 
-import { Sidebar } from "@/components/sidebar"
-import { Header } from "@/components/header"
 import { Button } from "@/components/ui/button"
 import { ChevronLeft, Home, Zap } from "lucide-react"
 import Link from "next/link"
 
 export default function NotFound() {
   return (
-    <div className="min-h-screen bg-background">
-      <Sidebar />
-      <main className="md:ml-72 transition-all duration-300">
-        <Header />
-        <div className="flex flex-col items-center justify-center min-h-[calc(100vh-4rem)] p-6 relative">
+    <div className="flex flex-col items-center justify-center min-h-[60vh] p-6 relative">
           {/* Background glow */}
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
 
@@ -71,7 +65,5 @@ export default function NotFound() {
             </div>
           </div>
         </div>
-      </main>
-    </div>
   )
 }

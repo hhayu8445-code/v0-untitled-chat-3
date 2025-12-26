@@ -2,8 +2,6 @@
 
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import { Sidebar } from "@/components/sidebar"
-import { Header } from "@/components/header"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
@@ -134,7 +132,7 @@ export default function SettingsPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="flex items-center justify-center min-h-[60vh]">
         <div className="h-12 w-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
       </div>
     )
@@ -143,11 +141,7 @@ export default function SettingsPage() {
   if (!user) return null
 
   return (
-    <div className="min-h-screen bg-background">
-      <Sidebar />
-      <main className="md:ml-72 transition-all duration-300">
-        <Header />
-        <div className="p-6 max-w-4xl">
+    <div className="p-4 md:p-6 max-w-4xl">
           {/* Breadcrumb */}
           <div className="flex items-center gap-2 text-sm text-muted-foreground mb-6">
             <Link href="/dashboard" className="hover:text-foreground transition-colors flex items-center gap-1">
@@ -468,8 +462,6 @@ export default function SettingsPage() {
               </Button>
             </div>
           </div>
-        </div>
-      </main>
     </div>
   )
 }

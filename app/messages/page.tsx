@@ -4,8 +4,6 @@ import type React from "react"
 
 import { useState, useEffect, useRef } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
-import { Sidebar } from "@/components/sidebar"
-import { Header } from "@/components/header"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useAuth } from "@/components/auth-provider"
@@ -313,11 +311,7 @@ export default function MessagesPage() {
   if (!user) return null
 
   return (
-    <div className="min-h-screen bg-background">
-      <Sidebar />
-      <main className="md:ml-72 transition-all duration-300">
-        <Header />
-        <div className="flex h-[calc(100vh-4rem)]">
+    <div className="flex h-[calc(100vh-8rem)]">
           {/* Conversations List */}
           <div className="w-80 border-r border-border glass flex flex-col">
             <div className="p-4 border-b border-border/50">
@@ -575,8 +569,6 @@ export default function MessagesPage() {
               </div>
             )}
           </div>
-        </div>
-      </main>
     </div>
   )
 }

@@ -24,19 +24,33 @@ export const forumQueries = {
   getThreads: async (categoryId?: string, limit = 20, offset = 0) => {
     if (categoryId) {
       return await sql`
-        SELECT * FROM forum_threads 
-        WHERE category_id = ${categoryId} 
-        AND status = 'approved' 
-        AND is_deleted = false
-        ORDER BY is_pinned DESC, created_at DESC
+        SELECT 
+          t.*,
+          u.id as user_id,
+          u.username as author_username,
+          u.avatar as author_avatar,
+          u.membership as author_membership
+        FROM forum_threads t
+        LEFT JOIN users u ON t.author_id::text = u.id::text
+        WHERE t.category_id = ${categoryId} 
+        AND t.status = 'approved' 
+        AND t.is_deleted = false
+        ORDER BY t.is_pinned DESC, t.created_at DESC
         LIMIT ${limit} OFFSET ${offset}
       `
     }
     return await sql`
-      SELECT * FROM forum_threads 
-      WHERE status = 'approved' 
-      AND is_deleted = false
-      ORDER BY is_pinned DESC, created_at DESC
+      SELECT 
+        t.*,
+        u.id as user_id,
+        u.username as author_username,
+        u.avatar as author_avatar,
+        u.membership as author_membership
+      FROM forum_threads t
+      LEFT JOIN users u ON t.author_id::text = u.id::text
+      WHERE t.status = 'approved' 
+      AND t.is_deleted = false
+      ORDER BY t.is_pinned DESC, t.created_at DESC
       LIMIT ${limit} OFFSET ${offset}
     `
   },
@@ -295,7 +309,7 @@ export const assetsQueries = {
     limit?: number
     offset?: number
   }) => {
-    const { category, framework, search, limit = 12, offset = 0 } = filters || {}
+    const { category, framework, search, limit = 100, offset = 0 } = filters || {}
     
     let query = sql`
       SELECT a.*, u.username as author_name, u.avatar as author_avatar, u.membership

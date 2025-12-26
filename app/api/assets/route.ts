@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
     const framework = searchParams.get('framework')
     const search = searchParams.get('search')
     const page = parseInt(searchParams.get('page') || '1')
-    const limit = parseInt(searchParams.get('limit') || '12')
+    const limit = parseInt(searchParams.get('limit') || '50')
     const offset = (page - 1) * limit
 
     const [assets, total] = await Promise.all([

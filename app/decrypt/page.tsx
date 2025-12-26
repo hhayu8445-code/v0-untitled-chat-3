@@ -1,8 +1,6 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Sidebar } from "@/components/sidebar"
-import { Header } from "@/components/header"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import {
@@ -78,11 +76,7 @@ export default function DecryptPage() {
   }, [])
 
   return (
-    <div className="min-h-screen bg-background">
-      <Sidebar />
-      <main className="ml-0 md:ml-72">
-        <Header />
-        <div className="p-4 md:p-6">
+    <div className="p-4 md:p-6">
           {/* Forum Header */}
           <div className="glass rounded-2xl p-4 md:p-6 mb-6">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
@@ -396,8 +390,6 @@ export default function DecryptPage() {
               </div>
             </div>
           </div>
-        </div>
-      </main>
     </div>
   )
 }

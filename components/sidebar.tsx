@@ -8,6 +8,7 @@ import { SITE_LOGO, SITE_NAME } from "@/lib/constants"
 import { useAuth } from "@/components/auth-provider"
 import { useStatsStore } from "@/lib/store"
 import { DailyCoinsButton } from "@/components/daily-coins-button"
+import { SnowPile } from "@/components/snow-pile"
 import { ChevronLeft, Users } from "lucide-react"
 
 const ICONS_3D = {
@@ -127,11 +128,15 @@ export function Sidebar() {
         href={item.href}
         onClick={() => isMobile && setMobileOpen(false)}
         className={cn(
-          "flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-200 group relative",
+          "flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-200 group relative border",
           isActive
-            ? "bg-[hsl(330,100%,65%)]/20 text-[hsl(330,100%,65%)] border border-[hsl(330,100%,65%)]/30 neon-glow"
-            : "text-muted-foreground hover:text-foreground hover:bg-accent/50",
+            ? "text-white shadow-[0_0_20px_rgba(236,72,153,0.3)]"
+            : "text-[var(--textDim)] hover:text-[var(--text)] border-transparent hover:border-white/20",
         )}
+        style={isActive ? { 
+          background: 'rgba(236, 72, 153, 0.2)', 
+          borderColor: 'var(--primary)' 
+        } : {}}
       >
         <Icon3D src={item.icon} alt={item.label} className="transition-transform group-hover:scale-110" />
         {!collapsed && (
@@ -143,8 +148,9 @@ export function Sidebar() {
                   "ml-auto text-[10px] font-bold px-2 py-0.5 rounded-full",
                   item.badge === "HOT"
                     ? "bg-red-500/20 text-red-400 border border-red-500/30"
-                    : "bg-[hsl(330,100%,65%)]/20 text-[hsl(330,100%,65%)] border border-[hsl(330,100%,65%)]/30",
+                    : "text-white border",
                 )}
+                style={item.badge !== "HOT" ? { background: "var(--primaryBg)", borderColor: "var(--primary)" } : {}}
               >
                 {item.badge}
               </span>
@@ -161,7 +167,8 @@ export function Sidebar() {
       <button
         aria-label={mobileOpen ? "Close navigation menu" : "Open navigation menu"}
         onClick={() => setMobileOpen(!mobileOpen)}
-        className="md:hidden fixed top-4 left-4 z-50 p-2.5 rounded-xl glass-effect border border-[hsl(330,100%,65%)]/30"
+        className="md:hidden fixed top-4 left-4 z-50 p-2.5 rounded-xl glass border border-white/10"
+        style={{ background: "rgba(255, 255, 255, 0.05)" }}
       >
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
           <path
@@ -180,13 +187,14 @@ export function Sidebar() {
       <aside
         className={cn(
           "fixed top-0 left-0 h-full z-50 transition-all duration-300",
-          "bg-[#111111] border-r border-[hsl(330,100%,65%)]/30 flex flex-col",
+          "border-r border-white/10 flex flex-col",
           collapsed ? "w-20" : "w-72",
           mobileOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0",
         )}
+        style={{ background: "var(--background)" }}
       >
         {/* Logo */}
-        <div className="p-4 flex items-center gap-3 border-b border-[hsl(330,100%,65%)]/30">
+        <div className="p-4 flex items-center gap-3 border-b border-white/10">
           <Link href="/" className="flex items-center gap-3">
             <img
               src={SITE_LOGO || "/placeholder.svg"}
@@ -198,8 +206,8 @@ export function Sidebar() {
             />
             {!collapsed && (
               <div>
-                <h1 className="font-bold text-lg text-foreground">{SITE_NAME}</h1>
-                <p className="text-xs text-[hsl(330,100%,65%)]">V7 Premium</p>
+                <h1 className="font-bold text-lg text-[var(--text)]">{SITE_NAME}</h1>
+                <p className="text-xs text-[var(--primary)]">V7 Premium</p>
               </div>
             )}
           </Link>
@@ -220,7 +228,7 @@ export function Sidebar() {
 
           {/* User Section */}
           {user && (
-            <div className="pt-4 mt-4 border-t border-[hsl(330,100%,65%)]/30 space-y-1">
+            <div className="pt-4 mt-4 border-t border-white/10 space-y-1">
               {userItems.map((item) => {
                 if ("requireAuth" in item && item.requireAuth && !user) return null
                 if ("requireAdmin" in item && item.requireAdmin && !isAdmin) return null
@@ -231,24 +239,25 @@ export function Sidebar() {
         </nav>
 
         {/* Live Status */}
-        <div className="p-4 border-t border-[hsl(330,100%,65%)]/30">
-          <div className="glass-effect rounded-xl p-4">
-            <div className="flex items-center gap-2 mb-3">
+        <div className="p-4 border-t border-white/10">
+          <div className="glass rounded-xl p-4 relative overflow-hidden" style={{ background: "rgba(255, 255, 255, 0.05)" }}>
+            <SnowPile size="sm" />
+            <div className="flex items-center gap-2 mb-3 relative z-10">
               <div className="relative">
-                <Users className="h-4 w-4 text-[hsl(330,100%,65%)]" />
+                <Users className="h-4 w-4 text-[var(--primary)]" />
                 <span className="absolute -top-1 -right-1 h-2 w-2 bg-green-500 rounded-full animate-pulse" />
               </div>
-              {!collapsed && <span className="text-sm font-medium text-foreground">Live Status</span>}
+              {!collapsed && <span className="text-sm font-medium text-[var(--text)]">Live Status</span>}
             </div>
             {!collapsed && (
               <div className="grid grid-cols-2 gap-3">
                 <div className="text-center">
-                  <p className="text-xl font-bold text-[hsl(330,100%,65%)] transition-all duration-300">{displayOnline}</p>
-                  <p className="text-xs text-muted-foreground">Online</p>
+                  <p className="text-xl font-bold text-[var(--primary)] transition-all duration-300">{displayOnline}</p>
+                  <p className="text-xs text-[var(--textDim)]">Online</p>
                 </div>
                 <div className="text-center">
-                  <p className="text-xl font-bold text-foreground">{formatNumber(stats.totalMembers)}</p>
-                  <p className="text-xs text-muted-foreground">Members</p>
+                  <p className="text-xl font-bold text-[var(--text)]">{formatNumber(stats.totalMembers)}</p>
+                  <p className="text-xs text-[var(--textDim)]">Members</p>
                 </div>
               </div>
             )}

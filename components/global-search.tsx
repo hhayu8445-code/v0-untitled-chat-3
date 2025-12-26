@@ -3,7 +3,8 @@
 import { useState, useEffect, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import { Search, X, FileCode, MessageSquare, Loader2, Command, Sparkles } from "lucide-react"
-import { Dialog, DialogContent } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { useDebounce } from "@/hooks/use-debounce"
@@ -75,7 +76,7 @@ export function GlobalSearch() {
     <>
       <motion.button
         onClick={() => setOpen(true)}
-        className="relative w-full max-w-xl flex items-center gap-2 h-11 px-4 glass border border-border/50 rounded-xl text-muted-foreground hover:border-primary/50 transition-colors"
+        className="relative w-full max-w-xl flex items-center gap-2 h-11 px-4 glass border border-border/50 rounded-xl text-[var(--textDim)] hover:border-[var(--primary)]/50 transition-colors"
         whileHover={{ scale: 1.01 }}
         whileTap={{ scale: 0.99 }}
       >
@@ -92,7 +93,10 @@ export function GlobalSearch() {
       <AnimatePresence>
         {open && (
           <Dialog open={open} onOpenChange={setOpen}>
-            <DialogContent className="max-w-2xl p-0 gap-0 glass border-primary/20">
+            <DialogContent className="max-w-2xl p-0 gap-0 glass border" style={{ background: 'rgba(0, 0, 0, 0.95)', borderColor: 'var(--primary)' }}>
+              <VisuallyHidden>
+                <DialogTitle>Search</DialogTitle>
+              </VisuallyHidden>
               <motion.div
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -100,18 +104,18 @@ export function GlobalSearch() {
                 transition={{ duration: 0.2 }}
               >
                 <div className="flex items-center gap-3 p-4 border-b border-border">
-                  <Search className="h-5 w-5 text-primary" />
+                  <Search className="h-5 w-5 text-[var(--primary)]" />
                   <Input
                     placeholder="Search assets, threads, users..."
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
-                    className="flex-1 border-0 bg-transparent focus-visible:ring-0 text-foreground placeholder:text-muted-foreground"
+                    className="flex-1 border-0 bg-transparent focus-visible:ring-0 text-[var(--text)] placeholder:text-[var(--textDim)]"
                     autoFocus
                   />
                   {query && (
                     <motion.button 
                       onClick={() => setQuery("")} 
-                      className="text-muted-foreground hover:text-foreground"
+                      className="text-[var(--textDim)] hover:text-[var(--text)]"
                       whileHover={{ scale: 1.1 }}
                       whileTap={{ scale: 0.9 }}
                     >
@@ -127,11 +131,11 @@ export function GlobalSearch() {
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                     >
-                      <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                      <Loader2 className="h-6 w-6 animate-spin text-[var(--primary)]" />
                     </motion.div>
                   ) : !hasResults && query.length >= 2 ? (
                     <motion.div 
-                      className="text-center py-8 text-muted-foreground"
+                      className="text-center py-8 text-[var(--textDim)]"
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                     >
@@ -141,7 +145,7 @@ export function GlobalSearch() {
                     <>
                       {results.assets.length > 0 && (
                         <div className="mb-4">
-                          <p className="px-3 py-2 text-xs font-semibold text-primary uppercase flex items-center gap-2">
+                          <p className="px-3 py-2 text-xs font-semibold text-[var(--primary)] uppercase flex items-center gap-2">
                             <Sparkles className="h-3 w-3" />
                             Assets
                           </p>
@@ -163,12 +167,12 @@ export function GlobalSearch() {
                                     className="h-full w-full object-cover"
                                   />
                                 ) : (
-                                  <FileCode className="h-5 w-5 text-primary" />
+                                  <FileCode className="h-5 w-5 text-[var(--primary)]" />
                                 )}
                               </div>
                               <div className="flex-1 min-w-0">
-                                <p className="font-medium text-foreground truncate">{asset.title}</p>
-                                <p className="text-xs text-muted-foreground truncate">{asset.description}</p>
+                                <p className="font-medium text-[var(--text)] truncate">{asset.title}</p>
+                                <p className="text-xs text-[var(--textDim)] truncate">{asset.description}</p>
                               </div>
                               <Badge variant="secondary" className="shrink-0 glass">
                                 {asset.category}
@@ -180,7 +184,7 @@ export function GlobalSearch() {
 
                       {results.threads.length > 0 && (
                         <div className="mb-4">
-                          <p className="px-3 py-2 text-xs font-semibold text-accent uppercase flex items-center gap-2">
+                          <p className="px-3 py-2 text-xs font-semibold text-[var(--primary)] uppercase flex items-center gap-2">
                             <MessageSquare className="h-3 w-3" />
                             Forum Threads
                           </p>
@@ -195,11 +199,11 @@ export function GlobalSearch() {
                               whileHover={{ x: 5 }}
                             >
                               <div className="h-10 w-10 rounded-lg glass flex items-center justify-center">
-                                <MessageSquare className="h-5 w-5 text-accent" />
+                                <MessageSquare className="h-5 w-5 text-[var(--primary)]" />
                               </div>
                               <div className="flex-1 min-w-0">
-                                <p className="font-medium text-foreground truncate">{thread.title}</p>
-                                <p className="text-xs text-muted-foreground">
+                                <p className="font-medium text-[var(--text)] truncate">{thread.title}</p>
+                                <p className="text-xs text-[var(--textDim)]">
                                   {thread.author?.username || "Unknown"} • {thread.replies_count} replies
                                 </p>
                               </div>
@@ -210,7 +214,7 @@ export function GlobalSearch() {
 
                       {results.users.length > 0 && (
                         <div>
-                          <p className="px-3 py-2 text-xs font-semibold text-chart-5 uppercase">Users</p>
+                          <p className="px-3 py-2 text-xs font-semibold text-[var(--primary)] uppercase">Users</p>
                           {results.users.map((user, i) => (
                             <motion.button
                               key={user.id}
@@ -224,11 +228,11 @@ export function GlobalSearch() {
                               <img
                                 src={user.avatar || "/placeholder.svg?height=40&width=40&query=user"}
                                 alt=""
-                                className="h-10 w-10 rounded-full object-cover ring-2 ring-primary/20"
+                                className="h-10 w-10 rounded-full object-cover ring-2 ring-[var(--primary)]/20"
                               />
                               <div className="flex-1 min-w-0">
-                                <p className="font-medium text-foreground">{user.username}</p>
-                                <p className="text-xs text-muted-foreground capitalize">{user.membership} Member</p>
+                                <p className="font-medium text-[var(--text)]">{user.username}</p>
+                                <p className="text-xs text-[var(--textDim)] capitalize">{user.membership} Member</p>
                               </div>
                             </motion.button>
                           ))}
@@ -237,7 +241,7 @@ export function GlobalSearch() {
 
                       {query.length < 2 && (
                         <motion.div 
-                          className="text-center py-8 text-muted-foreground text-sm"
+                          className="text-center py-8 text-[var(--textDim)] text-sm"
                           initial={{ opacity: 0 }}
                           animate={{ opacity: 1 }}
                         >

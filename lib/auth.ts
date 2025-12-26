@@ -57,7 +57,7 @@ function getProviders() {
 export const authOptions: NextAuthOptions = {
   providers: getProviders(),
   secret: CONFIG.auth.secret,
-  debug: true, // Enable debug mode to see errors
+  debug: process.env.NODE_ENV === 'development', // Only enable debug in development
   callbacks: {
     async jwt({ token, account, profile }) {
       if (account?.provider === "discord" && profile) {

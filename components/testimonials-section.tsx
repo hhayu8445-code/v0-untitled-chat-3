@@ -22,13 +22,13 @@ interface Testimonial {
 const getBadgeIcon = (badge: string | null) => {
   switch (badge) {
     case "verified":
-      return <CheckCircle className="h-4 w-4 text-info" />
+      return <CheckCircle className="h-4 w-4 text-[var(--primary)]" />
     case "pro":
-      return <Crown className="h-4 w-4 text-warning" />
+      return <Crown className="h-4 w-4 text-[var(--primary)]" />
     case "vip":
-      return <Shield className="h-4 w-4 text-primary" />
+      return <Shield className="h-4 w-4 text-[var(--primary)]" />
     case "premium":
-      return <Zap className="h-4 w-4 text-accent" />
+      return <Zap className="h-4 w-4 text-[var(--primary)]" />
     default:
       return null
   }
@@ -37,15 +37,12 @@ const getBadgeIcon = (badge: string | null) => {
 const getBadgeColor = (badge: string | null) => {
   switch (badge) {
     case "verified":
-      return "border-info/50 bg-info/10"
     case "pro":
-      return "border-warning/50 bg-warning/10"
     case "vip":
-      return "border-primary/50 bg-primary/10"
     case "premium":
-      return "border-accent/50 bg-accent/10"
+      return "border-[var(--primary)]/50"
     default:
-      return "border-border/50"
+      return "border-white/10"
   }
 }
 
@@ -103,39 +100,39 @@ export function TestimonialsSection() {
   const verifiedCount = testimonials.filter((t) => t.is_verified).length
 
   return (
-    <div className="glass rounded-2xl p-8 overflow-hidden">
+    <div className="glass rounded-2xl p-8 overflow-hidden border border-white/10" style={{ background: 'rgba(255, 255, 255, 0.05)' }}>
       {/* Header with Stats */}
       <div className="text-center mb-8">
-        <h2 className="text-3xl font-bold text-foreground mb-2">Customer Reviews</h2>
-        <p className="text-muted-foreground mb-6">See what our clients say about FiveM UDG</p>
+        <h2 className="text-3xl font-bold text-[var(--text)] mb-2">Customer Reviews</h2>
+        <p className="text-[var(--textDim)] mb-6">See what our clients say about FiveM Tools</p>
 
         {/* Stats Bar */}
         <div className="flex items-center justify-center gap-8 flex-wrap">
           <div className="flex items-center gap-2">
-            <div className="h-10 w-10 rounded-full bg-success/20 flex items-center justify-center">
-              <ArrowUp className="h-5 w-5 text-success" />
+            <div className="h-10 w-10 rounded-full flex items-center justify-center" style={{ background: 'rgba(236, 72, 153, 0.2)' }}>
+              <ArrowUp className="h-5 w-5 text-[var(--primary)]" />
             </div>
             <div className="text-left">
-              <p className="text-xl font-bold text-foreground">{totalUpvotes.toLocaleString()}+</p>
-              <p className="text-xs text-muted-foreground">Total Upvotes</p>
+              <p className="text-xl font-bold text-[var(--text)]">{totalUpvotes.toLocaleString()}+</p>
+              <p className="text-xs text-[var(--textDim)]">Total Upvotes</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <div className="h-10 w-10 rounded-full bg-warning/20 flex items-center justify-center">
-              <Star className="h-5 w-5 text-warning fill-warning" />
+            <div className="h-10 w-10 rounded-full flex items-center justify-center" style={{ background: 'rgba(236, 72, 153, 0.2)' }}>
+              <Star className="h-5 w-5 text-[var(--primary)] fill-[var(--primary)]" />
             </div>
             <div className="text-left">
-              <p className="text-xl font-bold text-foreground">{avgRating}/5.0</p>
-              <p className="text-xs text-muted-foreground">Avg Rating</p>
+              <p className="text-xl font-bold text-[var(--text)]">{avgRating}/5.0</p>
+              <p className="text-xs text-[var(--textDim)]">Avg Rating</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <div className="h-10 w-10 rounded-full bg-info/20 flex items-center justify-center">
-              <Users className="h-5 w-5 text-info" />
+            <div className="h-10 w-10 rounded-full flex items-center justify-center" style={{ background: 'rgba(236, 72, 153, 0.2)' }}>
+              <Users className="h-5 w-5 text-[var(--primary)]" />
             </div>
             <div className="text-left">
-              <p className="text-xl font-bold text-foreground">{verifiedCount}</p>
-              <p className="text-xs text-muted-foreground">Verified Users</p>
+              <p className="text-xl font-bold text-[var(--text)]">{verifiedCount}</p>
+              <p className="text-xs text-[var(--textDim)]">Verified Users</p>
             </div>
           </div>
         </div>
@@ -151,7 +148,8 @@ export function TestimonialsSection() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.3, delay: index * 0.1 }}
-              className={`relative bg-gradient-to-br from-secondary/50 to-secondary/30 rounded-xl p-6 border-2 ${getBadgeColor(testimonial.badge)} hover:border-primary/50 transition-all hover:scale-[1.02] group`}
+              className="relative rounded-xl p-6 border-2 hover:border-[var(--primary)]/50 transition-all hover:scale-[1.02] group"
+              style={{ background: 'rgba(255, 255, 255, 0.05)', borderColor: getBadgeColor(testimonial.badge) === 'border-[var(--primary)]/50' ? 'var(--primary)' : 'rgba(255, 255, 255, 0.1)' }}
             >
               {/* Badge indicator */}
               {testimonial.badge && (
@@ -176,16 +174,16 @@ export function TestimonialsSection() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
-                    <h4 className="font-bold text-foreground truncate">{testimonial.username}</h4>
+                    <h4 className="font-bold text-[var(--text)] truncate">{testimonial.username}</h4>
                   </div>
                   {testimonial.server_name && (
-                    <p className="text-xs text-muted-foreground truncate">{testimonial.server_name}</p>
+                    <p className="text-xs text-[var(--textDim)] truncate">{testimonial.server_name}</p>
                   )}
                   <div className="flex gap-0.5 mt-1">
                     {Array.from({ length: 5 }).map((_, i) => (
                       <Star
                         key={i}
-                        className={`h-3 w-3 ${i < testimonial.rating ? "fill-warning text-warning" : "text-muted-foreground"}`}
+                        className={`h-3 w-3 ${i < testimonial.rating ? "fill-[var(--primary)] text-[var(--primary)]" : "text-[var(--textDim)]"}`}
                       />
                     ))}
                   </div>
@@ -205,20 +203,20 @@ export function TestimonialsSection() {
 
               {/* Content */}
               <div className="relative mb-4">
-                <Quote className="absolute -top-2 -left-2 h-6 w-6 text-primary/20" />
-                <p className="text-sm text-foreground leading-relaxed pl-5 line-clamp-3">{testimonial.content}</p>
+                <Quote className="absolute -top-2 -left-2 h-6 w-6 text-[var(--primary)]/20" />
+                <p className="text-sm text-[var(--text)] leading-relaxed pl-5 line-clamp-3">{testimonial.content}</p>
               </div>
 
               {/* Upvotes received */}
               {testimonial.upvotes_received && testimonial.upvotes_received > 0 && (
                 <div className="pt-4 border-t border-border/50">
                   <div className="flex items-center justify-between">
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-xs text-[var(--textDim)]">
                       Received{" "}
-                      <span className="text-success font-bold">{testimonial.upvotes_received.toLocaleString()}</span>{" "}
+                      <span className="text-[var(--primary)] font-bold">{testimonial.upvotes_received.toLocaleString()}</span>{" "}
                       upvotes
                     </p>
-                    <div className="flex items-center gap-1 text-success">
+                    <div className="flex items-center gap-1 text-[var(--primary)]">
                       <ArrowUp className="h-3 w-3" />
                       <span className="text-xs font-medium">Boosted</span>
                     </div>
@@ -233,7 +231,7 @@ export function TestimonialsSection() {
       {/* View more indicator */}
       {testimonials.length > 6 && (
         <div className="text-center mt-6">
-          <p className="text-sm text-muted-foreground">And {testimonials.length - 6} more happy customers...</p>
+          <p className="text-sm text-[var(--textDim)">And {testimonials.length - 6} more happy customers...</p>
         </div>
       )}
     </div>

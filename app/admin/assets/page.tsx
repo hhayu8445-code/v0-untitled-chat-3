@@ -2,8 +2,6 @@
 
 import { useEffect, useState, useCallback, useRef } from "react"
 import { useRouter } from "next/navigation"
-import { Sidebar } from "@/components/sidebar"
-import { Header } from "@/components/header"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -299,11 +297,7 @@ export default function AdminAssetsPage() {
   if (!user?.isAdmin) return null
 
   return (
-    <div className="min-h-screen bg-background">
-      <Sidebar />
-      <main className="md:ml-72 transition-all duration-300">
-        <Header />
-        <div className="p-6">
+    <div>
           {/* Header */}
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
             <div>
@@ -800,8 +794,6 @@ export default function AdminAssetsPage() {
               </div>
             </div>
           )}
-        </div>
-      </main>
     </div>
   )
 }

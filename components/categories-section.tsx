@@ -4,6 +4,7 @@ import Link from "next/link"
 import { Code, MapPin, Car, Shirt, ChevronRight, Sparkles } from "lucide-react"
 import { useStatsStore } from "@/lib/store"
 import { motion } from "framer-motion"
+import { SnowPile } from "@/components/snow-pile"
 
 const categories = [
   {
@@ -11,36 +12,24 @@ const categories = [
     description: "Lua scripts for your server",
     icon: Code,
     href: "/scripts",
-    color: "from-primary/20 to-primary/5",
-    iconColor: "text-primary",
-    borderColor: "border-primary/20 hover:border-primary/40",
   },
   {
     name: "Maps & MLO",
     description: "Custom interiors and maps",
     icon: MapPin,
     href: "/mlo",
-    color: "from-chart-5/20 to-chart-5/5",
-    iconColor: "text-chart-5",
-    borderColor: "border-chart-5/20 hover:border-chart-5/40",
   },
   {
     name: "Vehicles",
     description: "Cars, bikes, and more",
     icon: Car,
     href: "/vehicles",
-    color: "from-info/20 to-info/5",
-    iconColor: "text-info",
-    borderColor: "border-info/20 hover:border-info/40",
   },
   {
     name: "EUP & Clothing",
     description: "Uniforms and outfits",
     icon: Shirt,
     href: "/clothing",
-    color: "from-warning/20 to-warning/5",
-    iconColor: "text-warning",
-    borderColor: "border-warning/20 hover:border-warning/40",
   },
 ]
 
@@ -64,15 +53,16 @@ export function CategoriesSection() {
       >
         <div className="flex items-center gap-3">
           <motion.div 
-            className="h-10 w-10 rounded-xl bg-accent/20 flex items-center justify-center glow-sm"
+            className="h-10 w-10 rounded-xl flex items-center justify-center glow-sm"
+            style={{ background: 'rgba(236, 72, 153, 0.2)' }}
             animate={{ rotate: [0, 5, -5, 0] }}
             transition={{ duration: 3, repeat: Infinity }}
           >
-            <Sparkles className="h-5 w-5 text-accent" />
+            <Sparkles className="h-5 w-5 text-[var(--primary)]" />
           </motion.div>
           <div>
-            <h2 className="text-xl font-bold text-foreground">Browse Categories</h2>
-            <p className="text-sm text-muted-foreground">Find the perfect resource</p>
+            <h2 className="text-xl font-bold text-[var(--text)]">Browse Categories</h2>
+            <p className="text-sm text-[var(--textDim)]">Find the perfect resource</p>
           </div>
         </div>
       </motion.div>
@@ -87,35 +77,39 @@ export function CategoriesSection() {
           >
             <Link
               href={category.href}
-              className={`group relative overflow-hidden rounded-2xl glass p-5 card-hover ${category.borderColor} block`}
+              className="group relative overflow-hidden rounded-2xl glass p-5 card-hover border border-white/10 hover:border-[var(--primary)]/40 block"
+              style={{ background: 'rgba(255, 255, 255, 0.05)' }}
             >
+              <SnowPile size="sm" />
               <div
-                className={`absolute inset-0 bg-gradient-to-br ${category.color} opacity-50 group-hover:opacity-80 transition-opacity`}
+                className="absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity"
+                style={{ background: 'linear-gradient(135deg, var(--primary), var(--accent))' }}
               />
 
               <div className="relative flex items-center gap-4">
                 <motion.div 
                   className="h-14 w-14 rounded-xl glass backdrop-blur flex items-center justify-center"
+                  style={{ background: 'rgba(236, 72, 153, 0.2)' }}
                   whileHover={{ scale: 1.1, rotate: 5 }}
                   transition={{ type: "spring", stiffness: 300 }}
                 >
-                  <category.icon className={`h-7 w-7 ${category.iconColor}`} />
+                  <category.icon className="h-7 w-7 text-[var(--primary)]" />
                 </motion.div>
                 <div className="flex-1">
                   <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-semibold text-foreground group-hover:text-primary transition-colors">
+                    <h3 className="text-lg font-semibold text-[var(--text)] group-hover:text-[var(--primary)] transition-colors">
                       {category.name}
                     </h3>
                     <motion.div
                       animate={{ x: [0, 5, 0] }}
                       transition={{ duration: 1.5, repeat: Infinity }}
                     >
-                      <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-all" />
+                      <ChevronRight className="h-5 w-5 text-[var(--textDim)] group-hover:text-[var(--primary)] transition-all" />
                     </motion.div>
                   </div>
-                  <p className="text-sm text-muted-foreground mt-0.5">{category.description}</p>
-                  <p className="text-xs text-muted-foreground mt-2">
-                    <span className="font-semibold text-foreground">
+                  <p className="text-sm text-[var(--textDim)] mt-0.5">{category.description}</p>
+                  <p className="text-xs text-[var(--textDim)] mt-2">
+                    <span className="font-semibold text-[var(--text)]">
                       {assetCounts[category.name as keyof typeof assetCounts] || 0}+
                     </span>{" "}
                     resources

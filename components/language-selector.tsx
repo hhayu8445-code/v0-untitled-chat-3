@@ -18,12 +18,13 @@ export function LanguageSelector() {
           <span className="text-lg">{getLanguageFlag(language)}</span>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="bg-card border-border max-h-80 overflow-y-auto scrollbar-thin">
+      <DropdownMenuContent align="end" className="border max-h-80 overflow-y-auto scrollbar-thin" style={{ background: 'rgba(0, 0, 0, 0.95)', borderColor: 'var(--primary)' }}>
         {languages.map((lang) => (
           <DropdownMenuItem
             key={lang}
             onClick={() => setLanguage(lang)}
-            className={language === lang ? "bg-primary/10" : ""}
+            className="text-[var(--text)] hover:bg-white/5"
+            style={language === lang ? { background: 'rgba(236, 72, 153, 0.1)' } : {}}
           >
             <span className="mr-2">{getLanguageFlag(lang)}</span>
             {getLanguageName(lang)}

@@ -1,38 +1,37 @@
 import { NextResponse } from "next/server"
-import { createClient } from "@/lib/supabase/server"
+import { db } from "@/lib/db"
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const supabase = await createClient()
+    const { id } = await params
+    const asset = await db.assets.getById(id)
 
-    const { data: asset, error } = await supabase
-      .from("assets")
-      .select(`
-        *,
-        author:profiles!assets_author_id_fkey(
-          id,
-          username,
-          avatar,
-          membership
-        )
-      `)
-      .eq("id", params.id)
-      .single()
-
-    if (error || !asset) {
+    if (!asset) {
       return NextResponse.json({ error: "Asset not found" }, { status: 404 })
     }
 
     // Increment views
-    await supabase
-      .from("assets")
-      .update({ views: (asset.views || 0) + 1 })
-      .eq("id", params.id)
+    await db.assets.incrementViews(id)
 
-    return NextResponse.json({ asset })
+    // Format the asset with author info
+    const formattedAsset = {
+      ...asset,
+      price: asset.coin_price === 0 ? 'free' : 'premium',
+      coinPrice: asset.coin_price,
+      author: asset.author_name ? {
+        username: asset.author_name,
+        avatar: asset.author_avatar,
+        membership: asset.membership
+      } : null,
+      image: asset.thumbnail,
+      createdAt: asset.created_at,
+      updatedAt: asset.updated_at,
+    }
+
+    return NextResponse.json({ asset: formattedAsset })
   } catch (error) {
     console.error("Asset fetch error:", error)
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })

@@ -1,8 +1,6 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Sidebar } from "@/components/sidebar"
-import { Header } from "@/components/header"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -115,44 +113,32 @@ export default function ProfilePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background">
-        <Sidebar />
-        <main className="md:ml-72 transition-all duration-300">
-          <Header />
-          <div className="p-6">
-            <Skeleton className="h-8 w-24 mb-6" />
-            <div className="rounded-xl border border-border bg-card p-6 mb-6">
-              <div className="flex items-start gap-6">
-                <Skeleton className="h-28 w-28 rounded-full" />
-                <div className="flex-1 space-y-3">
-                  <Skeleton className="h-8 w-48" />
-                  <Skeleton className="h-4 w-96" />
-                  <Skeleton className="h-4 w-64" />
-                </div>
-              </div>
+      <div className="p-6">
+        <Skeleton className="h-8 w-24 mb-6" />
+        <div className="rounded-xl border border-border bg-card p-6 mb-6">
+          <div className="flex items-start gap-6">
+            <Skeleton className="h-28 w-28 rounded-full" />
+            <div className="flex-1 space-y-3">
+              <Skeleton className="h-8 w-48" />
+              <Skeleton className="h-4 w-96" />
+              <Skeleton className="h-4 w-64" />
             </div>
           </div>
-        </main>
+        </div>
       </div>
     )
   }
 
   if (error || !data) {
     return (
-      <div className="min-h-screen bg-background">
-        <Sidebar />
-        <main className="md:ml-72 transition-all duration-300">
-          <Header />
-          <div className="p-6">
-            <div className="rounded-xl border border-border bg-card p-12 text-center">
-              <h2 className="text-xl font-semibold text-foreground mb-2">User Not Found</h2>
-              <p className="text-muted-foreground mb-4">{error || "This user does not exist."}</p>
-              <Link href="/forum">
-                <Button>Back to Forum</Button>
-              </Link>
-            </div>
-          </div>
-        </main>
+      <div className="p-6">
+        <div className="rounded-xl border border-border bg-card p-12 text-center">
+          <h2 className="text-xl font-semibold text-foreground mb-2">User Not Found</h2>
+          <p className="text-muted-foreground mb-4">{error || "This user does not exist."}</p>
+          <Link href="/forum">
+            <Button>Back to Forum</Button>
+          </Link>
+        </div>
       </div>
     )
   }
@@ -169,11 +155,7 @@ export default function ProfilePage() {
   ].filter((a) => a.unlocked)
 
   return (
-    <div className="min-h-screen bg-background">
-      <Sidebar />
-      <main className="md:ml-72 transition-all duration-300">
-        <Header />
-        <div className="p-6">
+    <div className="p-4 md:p-6">
           <Link
             href="/forum"
             className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-6"
@@ -383,8 +365,6 @@ export default function ProfilePage() {
               </div>
             </div>
           </div>
-        </div>
-      </main>
     </div>
   )
 }

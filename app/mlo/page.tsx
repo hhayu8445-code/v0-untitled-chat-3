@@ -1,11 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Sidebar } from "@/components/sidebar"
-import { Header } from "@/components/header"
 import { AssetCard } from "@/components/asset-card"
-import { SponsorBanner } from "@/components/sponsor-banner"
-import { LinkvertiseAd } from "@/components/linkvertise-ad"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Grid, List, Search, MapPin, Zap } from "lucide-react"
@@ -42,12 +38,7 @@ export default function MLOPage() {
   }, [price, search])
 
   return (
-    <div className="min-h-screen bg-background">
-      <Sidebar />
-      <main className="md:ml-72 transition-all duration-300">
-        <Header />
-        <div className="p-6">
-          <SponsorBanner />
+    <div className="p-4 md:p-6">
 
           {/* Page Header */}
           <div className="mb-8">
@@ -120,7 +111,6 @@ export default function MLOPage() {
           </div>
 
           {/* MLO Grid */}
-          <LinkvertiseAd />
           {isLoading ? (
             <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {[1, 2, 3, 4].map((i) => (
@@ -150,8 +140,6 @@ export default function MLOPage() {
               <p className="text-muted-foreground">Try adjusting your filters</p>
             </div>
           )}
-        </div>
-      </main>
     </div>
   )
 }

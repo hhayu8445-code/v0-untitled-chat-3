@@ -75,13 +75,13 @@ export function UploadForm() {
     }
   }
 
-  if (isLoading) return <div>Loading...</div>
-  if (!user) return <div>Please login to upload assets</div>
+  if (isLoading) return <div className="text-[var(--text)]">Loading...</div>
+  if (!user) return <div className="text-[var(--text)]">Please login to upload assets</div>
 
   return (
-    <Card className="max-w-2xl mx-auto">
+    <Card className="max-w-2xl mx-auto glass border-white/10" style={{ background: 'rgba(255, 255, 255, 0.05)' }}>
       <CardHeader>
-        <CardTitle>Upload New Asset</CardTitle>
+        <CardTitle className="text-[var(--text)]">Upload New Asset</CardTitle>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -158,7 +158,7 @@ export function UploadForm() {
             />
           </div>
 
-          <Button type="submit" disabled={uploading} className="w-full">
+          <Button type="submit" disabled={uploading} className="w-full" style={{ background: 'var(--primary)', color: 'white' }}>
             {uploading ? 'Uploading...' : 'Upload Asset'}
           </Button>
         </form>

@@ -1,7 +1,5 @@
 "use client"
 
-import { Sidebar } from "@/components/sidebar"
-import { Header } from "@/components/header"
 import { Button } from "@/components/ui/button"
 import {
   Check,
@@ -108,11 +106,7 @@ export default function MembershipPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <Sidebar />
-      <main className="md:ml-72 transition-all duration-300">
-        <Header />
-        <div className="p-6">
+    <div className="p-4 md:p-6">
           {/* Header */}
           <div className="text-center mb-12 relative">
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-96 h-96 bg-primary/20 rounded-full blur-3xl pointer-events-none" />
@@ -336,8 +330,6 @@ export default function MembershipPage() {
               ))}
             </div>
           </div>
-        </div>
-      </main>
     </div>
   )
 }

@@ -26,10 +26,10 @@ export async function GET() {
       return NextResponse.json({ transactions: [] })
     }
 
-    const formattedTransactions = (transactions || []).map((t) => ({
+    const formattedTransactions = (transactions || []).map((t: any) => ({
       id: t.id,
-      username: t.users?.username || "Unknown",
-      avatar: t.users?.avatar || null,
+      username: t.users?.[0]?.username || t.users?.username || "Unknown",
+      avatar: t.users?.[0]?.avatar || t.users?.avatar || null,
       type: t.type,
       amount: t.amount,
       reason: t.reason || "No reason",

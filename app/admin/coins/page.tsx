@@ -2,8 +2,6 @@
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { Sidebar } from "@/components/sidebar"
-import { Header } from "@/components/header"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
@@ -133,11 +131,7 @@ export default function AdminCoinsPage() {
   if (!isAdmin) return null
 
   return (
-    <div className="min-h-screen bg-background">
-      <Sidebar />
-      <main className="md:ml-72 transition-all duration-300">
-        <Header />
-        <div className="p-6">
+    <div>
           <div className="mb-8">
             <div className="flex items-center gap-4 mb-3">
               <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-warning to-chart-5 flex items-center justify-center glow-sm">
@@ -339,8 +333,6 @@ export default function AdminCoinsPage() {
               </div>
             </div>
           </div>
-        </div>
-      </main>
     </div>
   )
 }

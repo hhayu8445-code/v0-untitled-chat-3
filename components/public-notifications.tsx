@@ -1,10 +1,11 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { X, Bell, Sparkles, AlertTriangle, Info, CheckCircle } from "lucide-react"
+import { X, Bell, Sparkles, AlertTriangle, Info, CheckCircle, ExternalLink, Zap } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
+import { motion, AnimatePresence } from "framer-motion"
 
 interface PublicNotification {
   id: string
@@ -20,8 +21,10 @@ export function PublicNotifications() {
   const [notifications, setNotifications] = useState<PublicNotification[]>([])
   const [dismissedIds, setDismissedIds] = useState<string[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [isMounted, setIsMounted] = useState(false)
 
   useEffect(() => {
+    setIsMounted(true)
     const dismissed = JSON.parse(localStorage.getItem("dismissedNotifications") || "[]")
     setDismissedIds(dismissed)
     fetchNotifications()
@@ -53,70 +56,176 @@ export function PublicNotifications() {
 
   const visibleNotifications = notifications.filter((n) => !dismissedIds.includes(n.id))
 
-  if (isLoading || visibleNotifications.length === 0) return null
+  // Prevent hydration mismatch - only render on client
+  if (!isMounted || isLoading || visibleNotifications.length === 0) return null
 
   const getIcon = (type: string) => {
     switch (type) {
       case "new_asset":
-        return <Sparkles className="h-4 w-4" />
+        return <Sparkles className="h-5 w-5" />
       case "success":
-        return <CheckCircle className="h-4 w-4" />
+        return <CheckCircle className="h-5 w-5" />
       case "warning":
-        return <AlertTriangle className="h-4 w-4" />
+        return <AlertTriangle className="h-5 w-5" />
       case "alert":
-        return <Bell className="h-4 w-4" />
+        return <Bell className="h-5 w-5" />
       default:
-        return <Info className="h-4 w-4" />
+        return <Info className="h-5 w-5" />
     }
   }
 
   const getStyles = (type: string) => {
     switch (type) {
       case "new_asset":
-        return "bg-gradient-to-r from-cyan-500/20 to-blue-500/20 border-cyan-500/50 text-cyan-100"
+        return {
+          container: "bg-gradient-to-br from-cyan-500/30 via-blue-500/20 to-purple-500/30 border-cyan-400/60 shadow-cyan-500/20",
+          icon: "bg-gradient-to-br from-cyan-400 to-blue-500 text-white shadow-lg shadow-cyan-500/30",
+          text: "text-cyan-50",
+          subtext: "text-cyan-200/80",
+          button: "bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-white"
+        }
       case "success":
-        return "bg-green-500/20 border-green-500/50 text-green-100"
+        return {
+          container: "bg-gradient-to-br from-green-500/30 via-emerald-500/20 to-teal-500/30 border-green-400/60 shadow-green-500/20",
+          icon: "bg-gradient-to-br from-green-400 to-emerald-500 text-white shadow-lg shadow-green-500/30",
+          text: "text-green-50",
+          subtext: "text-green-200/80",
+          button: "bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-400 hover:to-emerald-400 text-white"
+        }
       case "warning":
-        return "bg-yellow-500/20 border-yellow-500/50 text-yellow-100"
+        return {
+          container: "bg-gradient-to-br from-amber-500/30 via-orange-500/20 to-yellow-500/30 border-amber-400/60 shadow-amber-500/20",
+          icon: "bg-gradient-to-br from-amber-400 to-orange-500 text-white shadow-lg shadow-amber-500/30",
+          text: "text-amber-50",
+          subtext: "text-amber-200/80",
+          button: "bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white"
+        }
       case "alert":
-        return "bg-red-500/20 border-red-500/50 text-red-100"
+        return {
+          container: "bg-gradient-to-br from-red-500/30 via-rose-500/20 to-pink-500/30 border-red-400/60 shadow-red-500/20",
+          icon: "bg-gradient-to-br from-red-400 to-rose-500 text-white shadow-lg shadow-red-500/30",
+          text: "text-red-50",
+          subtext: "text-red-200/80",
+          button: "bg-gradient-to-r from-red-500 to-rose-500 hover:from-red-400 hover:to-rose-400 text-white"
+        }
       default:
-        return "bg-blue-500/20 border-blue-500/50 text-blue-100"
+        return {
+          container: "bg-gradient-to-br from-blue-500/30 via-indigo-500/20 to-violet-500/30 border-blue-400/60 shadow-blue-500/20",
+          icon: "bg-gradient-to-br from-blue-400 to-indigo-500 text-white shadow-lg shadow-blue-500/30",
+          text: "text-blue-50",
+          subtext: "text-blue-200/80",
+          button: "bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-400 hover:to-indigo-400 text-white"
+        }
     }
   }
 
   return (
-    <div className="fixed top-16 right-4 z-50 flex flex-col gap-2 max-w-sm">
-      {visibleNotifications.slice(0, 3).map((notification) => (
-        <div
-          key={notification.id}
-          className={cn(
-            "rounded-xl border p-4 shadow-lg backdrop-blur-sm animate-in slide-in-from-right duration-300",
-            getStyles(notification.type),
-          )}
-        >
-          <div className="flex items-start gap-3">
-            <div className="mt-0.5">{getIcon(notification.type)}</div>
-            <div className="flex-1 min-w-0">
-              <p className="font-semibold text-sm">{notification.title}</p>
-              <p className="text-xs opacity-80 mt-1 line-clamp-2">{notification.message}</p>
-              {notification.link && (
-                <Link href={notification.link} className="text-xs underline mt-2 inline-block hover:opacity-80">
-                  View Details
-                </Link>
+    <div className="fixed top-20 right-4 z-50 flex flex-col gap-3 w-[380px] max-w-[calc(100vw-2rem)]">
+      <AnimatePresence mode="popLayout">
+        {visibleNotifications.slice(0, 3).map((notification, index) => {
+          const styles = getStyles(notification.type)
+          return (
+            <motion.div
+              key={notification.id}
+              initial={{ opacity: 0, x: 100, scale: 0.8 }}
+              animate={{ opacity: 1, x: 0, scale: 1 }}
+              exit={{ opacity: 0, x: 100, scale: 0.8 }}
+              transition={{ 
+                type: "spring", 
+                stiffness: 400, 
+                damping: 30,
+                delay: index * 0.1 
+              }}
+              className={cn(
+                "relative rounded-2xl border-2 p-4 backdrop-blur-xl shadow-2xl overflow-hidden",
+                styles.container
               )}
-            </div>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-6 w-6 shrink-0 hover:bg-white/10"
-              onClick={() => dismissNotification(notification.id)}
             >
-              <X className="h-3 w-3" />
-            </Button>
-          </div>
-        </div>
-      ))}
+              {/* Animated background glow */}
+              <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                <div className="absolute -top-1/2 -right-1/2 w-full h-full bg-gradient-to-bl from-white/10 to-transparent rounded-full blur-2xl animate-pulse" />
+              </div>
+              
+              {/* Shimmer effect */}
+              <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full animate-[shimmer_3s_infinite]" />
+              </div>
+
+              <div className="relative flex items-start gap-4">
+                {/* Icon with glow */}
+                <motion.div 
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ type: "spring", delay: 0.2 }}
+                  className={cn(
+                    "flex-shrink-0 p-2.5 rounded-xl",
+                    styles.icon
+                  )}
+                >
+                  {getIcon(notification.type)}
+                </motion.div>
+
+                <div className="flex-1 min-w-0 space-y-2">
+                  {/* Title with badge */}
+                  <div className="flex items-center gap-2">
+                    <p className={cn("font-bold text-base", styles.text)}>
+                      {notification.title}
+                    </p>
+                    {notification.type === "new_asset" && (
+                      <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/20 text-[10px] font-bold uppercase tracking-wider">
+                        <Zap className="h-3 w-3" />
+                        New
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Message */}
+                  <p className={cn("text-sm leading-relaxed", styles.subtext)}>
+                    {notification.message}
+                  </p>
+
+                  {/* Action button */}
+                  {notification.link && (
+                    <Link href={notification.link}>
+                      <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        className={cn(
+                          "mt-2 flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all",
+                          styles.button
+                        )}
+                      >
+                        View Details
+                        <ExternalLink className="h-4 w-4" />
+                      </motion.button>
+                    </Link>
+                  )}
+                </div>
+
+                {/* Close button */}
+                <motion.button
+                  whileHover={{ scale: 1.1, rotate: 90 }}
+                  whileTap={{ scale: 0.9 }}
+                  onClick={() => dismissNotification(notification.id)}
+                  className="flex-shrink-0 p-1.5 rounded-lg bg-white/10 hover:bg-white/20 transition-colors"
+                >
+                  <X className="h-4 w-4 text-white/80" />
+                </motion.button>
+              </div>
+
+              {/* Progress bar for auto-dismiss (visual only) */}
+              <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/10">
+                <motion.div 
+                  initial={{ width: "100%" }}
+                  animate={{ width: "0%" }}
+                  transition={{ duration: 10, ease: "linear" }}
+                  className="h-full bg-white/30"
+                />
+              </div>
+            </motion.div>
+          )
+        })}
+      </AnimatePresence>
     </div>
   )
 }

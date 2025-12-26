@@ -1,10 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Sidebar } from "@/components/sidebar"
-import { Header } from "@/components/header"
 import { AssetCard } from "@/components/asset-card"
-import { SponsorBanner } from "@/components/sponsor-banner"
 import { FrameworkSelector } from "@/components/framework-selector"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -125,12 +122,7 @@ export default function AssetsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <Sidebar />
-      <main className="md:ml-72 transition-all duration-300">
-        <Header />
-        <div className="p-6">
-          <SponsorBanner />
+    <div className="p-4 md:p-6">
 
           {/* Page Header */}
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-8">
@@ -473,8 +465,6 @@ export default function AssetsPage() {
               </Button>
             </div>
           )}
-        </div>
-      </main>
     </div>
   )
 }

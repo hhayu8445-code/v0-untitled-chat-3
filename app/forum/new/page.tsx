@@ -2,14 +2,16 @@
 
 import type React from "react"
 import { useState, useEffect } from "react"
-import { Sidebar } from "@/components/sidebar"
-import { Header } from "@/components/header"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Badge } from "@/components/ui/badge"
 import { useAuth } from "@/components/auth-provider"
 import { useRouter } from "next/navigation"
 import { RichTextEditor } from "@/components/rich-text-editor"
-import { MessageSquare, Send, AlertCircle, CheckCircle, Tag, Sparkles } from "lucide-react"
+import { 
+  MessageSquare, Send, AlertCircle, CheckCircle, Tag, Sparkles, 
+  ArrowLeft, Eye, FileText, Image, Hash, Info, Zap, PenLine
+} from "lucide-react"
 
 interface Category {
   id: string
@@ -110,11 +112,7 @@ export default function NewThreadPage() {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-background">
-        <Sidebar />
-        <main className="md:ml-72 transition-all duration-300">
-          <Header />
-          <div className="flex items-center justify-center min-h-[80vh] p-6">
+      <div className="flex items-center justify-center min-h-[60vh] p-6">
             <div className="text-center glass rounded-2xl p-8 max-w-md">
               <div className="h-20 w-20 rounded-2xl bg-gradient-to-br from-primary to-accent flex items-center justify-center mx-auto mb-6">
                 <MessageSquare className="h-10 w-10 text-white" />
@@ -141,37 +139,65 @@ export default function NewThreadPage() {
                 </Button>
               </div>
             </div>
-          </div>
-        </main>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <Sidebar />
-      <main className="md:ml-72 transition-all duration-300">
-        <Header />
-        <div className="p-6 max-w-4xl mx-auto">
-          {/* Header */}
-          <div className="flex items-center gap-4 mb-8">
-            <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-primary to-accent flex items-center justify-center glow-sm">
-              <Sparkles className="h-7 w-7 text-white" />
-            </div>
-            <div>
-              <h1 className="text-3xl font-bold text-foreground">Create New Thread</h1>
-              <p className="text-muted-foreground">Share your thoughts with the community</p>
+    <div className="p-4 md:p-6 lg:p-8 max-w-4xl mx-auto">
+          {/* Back Button */}
+          <Button 
+            variant="ghost" 
+            onClick={() => router.back()} 
+            className="mb-6 gap-2 text-muted-foreground hover:text-foreground"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back to Forum
+          </Button>
+
+          {/* Modern Hero Header */}
+          <div className="relative overflow-hidden rounded-3xl glass mb-8">
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-transparent to-purple-500/20" />
+            <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl" />
+            
+            <div className="relative z-10 p-6 md:p-8">
+              <div className="flex items-center gap-5">
+                <div className="relative">
+                  <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-primary via-pink-500 to-purple-500 flex items-center justify-center shadow-2xl shadow-primary/30">
+                    <PenLine className="h-8 w-8 text-white" />
+                  </div>
+                  <div className="absolute -bottom-1 -right-1 h-5 w-5 bg-green-500 rounded-full border-2 border-background flex items-center justify-center">
+                    <Zap className="h-3 w-3 text-white" />
+                  </div>
+                </div>
+                <div>
+                  <div className="flex items-center gap-3 mb-1">
+                    <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-white via-pink-200 to-primary bg-clip-text text-transparent">
+                      Create New Thread
+                    </h1>
+                    <Badge className="bg-primary/20 text-primary border-primary/30 hidden sm:flex">
+                      <Sparkles className="h-3 w-3 mr-1" />
+                      New
+                    </Badge>
+                  </div>
+                  <p className="text-muted-foreground text-sm md:text-base">
+                    Share your thoughts, ask questions, or start a discussion
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
 
           {/* Notice */}
-          <div className="glass rounded-xl p-4 mb-6 border border-amber-500/30 bg-amber-500/5">
+          <div className="glass rounded-2xl p-4 mb-6 border border-amber-500/20 bg-gradient-to-r from-amber-500/10 to-orange-500/5">
             <div className="flex items-start gap-3">
-              <AlertCircle className="h-5 w-5 text-amber-500 shrink-0 mt-0.5" />
+              <div className="h-10 w-10 rounded-xl bg-amber-500/20 flex items-center justify-center shrink-0">
+                <Info className="h-5 w-5 text-amber-400" />
+              </div>
               <div>
                 <p className="font-medium text-foreground">Moderation Notice</p>
                 <p className="text-sm text-muted-foreground">
-                  All new posts require admin approval before they become visible to the community.
+                  All new posts require admin approval before they become visible to the community. This helps maintain quality discussions.
                 </p>
               </div>
             </div>
@@ -198,77 +224,122 @@ export default function NewThreadPage() {
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Category & Title */}
-            <div className="glass rounded-2xl p-6 space-y-5">
-              {/* Category Selection */}
-              <div>
-                <label className="flex items-center gap-2 text-sm font-medium text-foreground mb-3">
-                  <Tag className="h-4 w-4 text-primary" />
-                  Category
-                </label>
-                <div className="flex flex-wrap gap-2">
-                  {categories.map((cat) => (
-                    <button
-                      key={cat.id}
-                      type="button"
-                      onClick={() => setCategoryId(cat.id)}
-                      className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
-                        categoryId === cat.id
-                          ? "bg-primary text-primary-foreground shadow-lg shadow-primary/25"
-                          : "bg-secondary/50 text-muted-foreground hover:bg-secondary hover:text-foreground"
-                      }`}
-                    >
-                      {cat.name}
-                    </button>
-                  ))}
-                </div>
+            <div className="glass rounded-2xl overflow-hidden">
+              <div className="p-4 border-b border-white/5 bg-gradient-to-r from-purple-500/10 to-pink-500/5">
+                <h3 className="font-semibold text-foreground flex items-center gap-2">
+                  <Hash className="h-4 w-4 text-purple-400" />
+                  Thread Details
+                </h3>
               </div>
+              <div className="p-6 space-y-6">
+                {/* Category Selection */}
+                <div>
+                  <label className="flex items-center gap-2 text-sm font-medium text-foreground mb-3">
+                    <Tag className="h-4 w-4 text-primary" />
+                    Select Category
+                  </label>
+                  <div className="flex flex-wrap gap-2">
+                    {categories.map((cat) => (
+                      <button
+                        key={cat.id}
+                        type="button"
+                        onClick={() => setCategoryId(cat.id)}
+                        className={`px-4 py-2.5 rounded-xl text-sm font-medium transition-all border ${
+                          categoryId === cat.id
+                            ? "bg-gradient-to-r from-primary to-pink-500 text-white border-transparent shadow-lg shadow-primary/25"
+                            : "bg-white/[0.03] border-white/10 text-muted-foreground hover:bg-white/[0.06] hover:border-primary/30 hover:text-foreground"
+                        }`}
+                      >
+                        {cat.name}
+                      </button>
+                    ))}
+                  </div>
+                </div>
 
-              {/* Title */}
-              <div>
-                <label className="block text-sm font-medium text-foreground mb-2">
-                  Title <span className="text-red-500">*</span>
-                </label>
-                <Input
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  placeholder="Enter a descriptive title for your thread..."
-                  className="bg-secondary/50 border-border h-12 text-lg"
-                  maxLength={200}
-                  required
-                />
-                <div className="flex justify-between mt-2">
-                  <p className="text-xs text-muted-foreground">Make it clear and engaging</p>
-                  <p className="text-xs text-muted-foreground">{title.length}/200</p>
+                {/* Title */}
+                <div>
+                  <label className="flex items-center gap-2 text-sm font-medium text-foreground mb-2">
+                    <FileText className="h-4 w-4 text-cyan-400" />
+                    Title <span className="text-red-400">*</span>
+                  </label>
+                  <Input
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    placeholder="Enter a descriptive title for your thread..."
+                    className="bg-white/[0.03] border-white/10 h-12 text-lg rounded-xl focus:border-primary/50 focus:ring-primary/20"
+                    maxLength={200}
+                    required
+                  />
+                  <div className="flex justify-between mt-2">
+                    <p className="text-xs text-muted-foreground">Make it clear and engaging</p>
+                    <p className={`text-xs ${title.length > 180 ? 'text-amber-400' : 'text-muted-foreground'}`}>
+                      {title.length}/200
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
 
             {/* Content Editor */}
-            <div className="glass rounded-2xl p-6">
-              <label className="block text-sm font-medium text-foreground mb-3">
-                Content <span className="text-red-500">*</span>
-              </label>
-              <RichTextEditor
-                value={content}
-                onChange={setContent}
-                placeholder="Write your post content here... Use the toolbar above for formatting."
-                minHeight="300px"
-                files={files}
-                onFilesChange={setFiles}
-                maxFiles={10}
-              />
-              <p className="text-xs text-muted-foreground mt-2">Minimum 10 characters. Supports Markdown formatting.</p>
+            <div className="glass rounded-2xl overflow-hidden">
+              <div className="p-4 border-b border-white/5 bg-gradient-to-r from-cyan-500/10 to-blue-500/5">
+                <h3 className="font-semibold text-foreground flex items-center gap-2">
+                  <PenLine className="h-4 w-4 text-cyan-400" />
+                  Content
+                  <span className="text-red-400 text-sm">*</span>
+                </h3>
+              </div>
+              <div className="p-6">
+                <RichTextEditor
+                  value={content}
+                  onChange={setContent}
+                  placeholder="Write your post content here... Use the toolbar above for formatting."
+                  minHeight="300px"
+                  files={files}
+                  onFilesChange={setFiles}
+                  maxFiles={10}
+                />
+                <div className="flex items-center justify-between mt-3 pt-3 border-t border-white/5">
+                  <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                    <span className="flex items-center gap-1">
+                      <Image className="h-3 w-3" />
+                      Images supported
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <FileText className="h-3 w-3" />
+                      Markdown enabled
+                    </span>
+                  </div>
+                  <p className={`text-xs ${content.length < 10 ? 'text-red-400' : 'text-green-400'}`}>
+                    {content.length} characters {content.length < 10 && '(min 10)'}
+                  </p>
+                </div>
+              </div>
             </div>
 
-            {/* Submit Button */}
-            <div className="flex items-center gap-4">
-              <Button type="button" variant="outline" onClick={() => router.back()} className="flex-1 h-12">
+            {/* Submit Buttons */}
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={() => router.back()} 
+                className="h-12 rounded-xl border-white/10 hover:bg-white/5"
+              >
+                <ArrowLeft className="h-4 w-4 mr-2" />
                 Cancel
+              </Button>
+              <Button 
+                type="button"
+                variant="ghost"
+                className="h-12 rounded-xl hover:bg-white/5"
+              >
+                <Eye className="h-4 w-4 mr-2" />
+                Preview
               </Button>
               <Button
                 type="submit"
                 disabled={isSubmitting || !title.trim() || content.length < 10}
-                className="flex-1 h-12 bg-gradient-to-r from-primary to-accent hover:opacity-90 gap-2"
+                className="flex-1 h-12 bg-gradient-to-r from-primary to-pink-500 hover:from-primary/90 hover:to-pink-500/90 text-white font-semibold rounded-xl shadow-lg shadow-primary/25 transition-all hover:shadow-xl hover:shadow-primary/30 gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isSubmitting ? (
                   <>
@@ -284,8 +355,6 @@ export default function NewThreadPage() {
               </Button>
             </div>
           </form>
-        </div>
-      </main>
     </div>
   )
 }

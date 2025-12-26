@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import { Download, MessageSquare, Heart, UserPlus, Star, Clock } from "lucide-react"
 import Link from "next/link"
 import { motion, AnimatePresence } from "framer-motion"
+import { SnowPile } from "@/components/snow-pile"
 
 interface Activity {
   id: string
@@ -17,11 +18,11 @@ interface Activity {
 }
 
 const iconMap: Record<string, { icon: typeof Download; color: string; bg: string }> = {
-  download: { icon: Download, color: "text-primary", bg: "bg-primary/20" },
-  post: { icon: MessageSquare, color: "text-success", bg: "bg-success/20" },
-  like: { icon: Heart, color: "text-chart-5", bg: "bg-chart-5/20" },
-  join: { icon: UserPlus, color: "text-accent", bg: "bg-accent/20" },
-  review: { icon: Star, color: "text-warning", bg: "bg-warning/20" },
+  download: { icon: Download, color: "text-[var(--primary)]", bg: "bg-[var(--primaryBg)]" },
+  post: { icon: MessageSquare, color: "text-[var(--primary)]", bg: "bg-[var(--primaryBg)]" },
+  like: { icon: Heart, color: "text-[var(--primary)]", bg: "bg-[var(--primaryBg)]" },
+  join: { icon: UserPlus, color: "text-[var(--primary)]", bg: "bg-[var(--primaryBg)]" },
+  review: { icon: Star, color: "text-[var(--primary)]", bg: "bg-[var(--primaryBg)]" },
 }
 
 export function ActivityFeed() {
@@ -51,13 +52,14 @@ export function ActivityFeed() {
   if (isLoading) {
     return (
       <motion.div 
-        className="glass rounded-2xl p-6 border border-primary/10"
+        className="glass rounded-2xl p-6 border border-white/10"
+        style={{ background: "rgba(255, 255, 255, 0.05)" }}
         initial={{ opacity: 0, x: 20 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
-          <Clock className="h-5 w-5 text-muted-foreground" />
+        <h3 className="font-semibold text-[var(--text)] mb-4 flex items-center gap-2">
+          <Clock className="h-5 w-5 text-[var(--textDim)]" />
           Activity Feed
         </h3>
         <div className="space-y-3">
@@ -83,16 +85,18 @@ export function ActivityFeed() {
 
   return (
     <motion.div 
-      className="glass rounded-2xl p-6 border border-primary/10"
+      className="glass rounded-2xl p-6 border border-white/10 relative overflow-hidden"
+      style={{ background: "rgba(255, 255, 255, 0.05)" }}
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.5 }}
     >
-      <div className="flex items-center gap-2 mb-4">
-        <Clock className="h-5 w-5 text-muted-foreground" />
-        <h3 className="font-semibold text-foreground">Activity Feed</h3>
+      <SnowPile size="sm" />
+      <div className="flex items-center gap-2 mb-4 relative z-10">
+        <Clock className="h-5 w-5 text-[var(--textDim)]" />
+        <h3 className="font-semibold text-[var(--text)]">Activity Feed</h3>
         <motion.span 
-          className="ml-auto h-2 w-2 rounded-full status-online"
+          className="ml-auto h-2 w-2 rounded-full bg-white"
           animate={{ scale: [1, 1.3, 1] }}
           transition={{ duration: 1.5, repeat: Infinity }}
         />
@@ -102,7 +106,7 @@ export function ActivityFeed() {
         <AnimatePresence mode="popLayout">
           {activities.length === 0 ? (
             <motion.p 
-              className="text-sm text-muted-foreground text-center py-4"
+              className="text-sm text-[var(--textDim)] text-center py-4"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -130,11 +134,11 @@ export function ActivityFeed() {
                     <Icon className={`h-4 w-4 ${color}`} />
                   </motion.div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-foreground">
+                    <p className="text-[var(--text)]">
                       <span className="font-medium">{activity.user.username}</span>
-                      <span className="text-muted-foreground"> {activity.action}</span>
+                      <span className="text-[var(--textDim)]"> {activity.action}</span>
                     </p>
-                    <p className="text-xs text-muted-foreground">{new Date(activity.createdAt).toLocaleTimeString()}</p>
+                    <p className="text-xs text-[var(--textDim)]">{new Date(activity.createdAt).toLocaleTimeString()}</p>
                   </div>
                 </motion.div>
               )
@@ -146,7 +150,7 @@ export function ActivityFeed() {
       <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
         <Link
           href="/forum"
-          className="block w-full mt-4 text-sm text-primary hover:text-primary/80 transition-colors text-center py-2 glass rounded-lg"
+          className="block w-full mt-4 text-sm text-[var(--primary)] hover:text-[var(--primary)]/80 transition-colors text-center py-2 glass rounded-lg"
         >
           View all activity
         </Link>

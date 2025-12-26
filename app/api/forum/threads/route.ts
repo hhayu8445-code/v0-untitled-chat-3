@@ -9,12 +9,40 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '20')
     const offset = parseInt(searchParams.get('offset') || '0')
 
-    const threads = await db.forum.getThreads(categoryId || undefined, limit, offset)
+    const page = parseInt(searchParams.get('page') || '1')
+    const calculatedOffset = (page - 1) * limit
+
+    const rawThreads = await db.forum.getThreads(categoryId || undefined, limit, calculatedOffset)
+
+    // Transform threads to include author object
+    const threads = rawThreads.map((t: any) => ({
+      id: t.id,
+      title: t.title,
+      content: t.content,
+      category_id: t.category_id,
+      author_id: t.author_id,
+      status: t.status,
+      is_pinned: t.is_pinned,
+      is_locked: t.is_locked,
+      views: t.views || 0,
+      likes: t.likes || 0,
+      replies: t.replies_count || 0,
+      images: t.images || [],
+      created_at: t.created_at,
+      updated_at: t.updated_at,
+      author: t.author_username ? {
+        id: t.user_id,
+        username: t.author_username,
+        avatar: t.author_avatar,
+        membership: t.author_membership
+      } : null
+    }))
 
     return NextResponse.json({
       success: true,
-      data: threads,
+      threads: threads,
       total: threads.length,
+      totalPages: Math.ceil(threads.length / limit) || 1,
     })
   } catch (error) {
     console.error('Error fetching threads:', error)

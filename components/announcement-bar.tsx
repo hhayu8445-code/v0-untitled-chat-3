@@ -1,8 +1,9 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
-import { X, Sparkles, AlertTriangle, CheckCircle, Info, ChevronLeft, ChevronRight, ExternalLink } from "lucide-react"
+import { X, Sparkles, AlertTriangle, CheckCircle, Info, ChevronLeft, ChevronRight, ExternalLink, Megaphone, Gift, Zap } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { motion, AnimatePresence } from "framer-motion"
 
 interface Announcement {
   id: string
@@ -21,6 +22,7 @@ export function AnnouncementBar() {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [dismissed, setDismissed] = useState<Set<string>>(new Set())
   const [isLoading, setIsLoading] = useState(true)
+  const [isMounted, setIsMounted] = useState(false)
 
   const fetchAnnouncements = useCallback(async () => {
     try {
@@ -56,8 +58,9 @@ export function AnnouncementBar() {
     localStorage.setItem("dismissed_announcements", JSON.stringify(dismissedArray))
   }
 
-  // Load dismissed state from localStorage
+  // Load dismissed state from localStorage and mark as mounted
   useEffect(() => {
+    setIsMounted(true)
     const saved = localStorage.getItem("dismissed_announcements")
     if (saved) {
       try {
@@ -71,7 +74,8 @@ export function AnnouncementBar() {
 
   const visibleAnnouncements = announcements.filter((a) => (a.is_dismissible ? !dismissed.has(a.id) : true))
 
-  if (isLoading || visibleAnnouncements.length === 0) return null
+  // Prevent hydration mismatch
+  if (!isMounted || isLoading || visibleAnnouncements.length === 0) return null
 
   const current = visibleAnnouncements[currentIndex % visibleAnnouncements.length]
   if (!current) return null
@@ -80,33 +84,43 @@ export function AnnouncementBar() {
     switch (type) {
       case "success":
         return {
-          bg: "from-pink-600/90 via-rose-600/90 to-fuchsia-600/90",
+          bg: "from-emerald-600/95 via-green-600/95 to-teal-600/95",
+          glow: "shadow-emerald-500/30",
           icon: CheckCircle,
-          iconColor: "text-pink-200",
+          iconColor: "text-emerald-200",
+          iconBg: "bg-emerald-500/30",
         }
       case "warning":
         return {
-          bg: "from-rose-600/90 via-pink-600/90 to-purple-600/90",
+          bg: "from-amber-600/95 via-orange-600/95 to-yellow-600/95",
+          glow: "shadow-amber-500/30",
           icon: AlertTriangle,
-          iconColor: "text-rose-200",
+          iconColor: "text-amber-200",
+          iconBg: "bg-amber-500/30",
         }
       case "error":
         return {
-          bg: "from-red-600/90 via-rose-600/90 to-pink-600/90",
+          bg: "from-red-600/95 via-rose-600/95 to-pink-600/95",
+          glow: "shadow-red-500/30",
           icon: AlertTriangle,
           iconColor: "text-red-200",
+          iconBg: "bg-red-500/30",
         }
       case "promo":
         return {
-          bg: "from-fuchsia-600/90 via-purple-600/90 to-pink-600/90",
-          icon: Sparkles,
+          bg: "from-fuchsia-600/95 via-purple-600/95 to-pink-600/95",
+          glow: "shadow-fuchsia-500/30",
+          icon: Gift,
           iconColor: "text-fuchsia-200",
+          iconBg: "bg-fuchsia-500/30",
         }
       default:
         return {
-          bg: "from-pink-600/90 via-rose-600/90 to-purple-600/90",
-          icon: Info,
-          iconColor: "text-pink-200",
+          bg: "from-cyan-600/95 via-blue-600/95 to-indigo-600/95",
+          glow: "shadow-cyan-500/30",
+          icon: Megaphone,
+          iconColor: "text-cyan-200",
+          iconBg: "bg-cyan-500/30",
         }
     }
   }
@@ -115,15 +129,19 @@ export function AnnouncementBar() {
   const IconComponent = typeStyles.icon
 
   const Content = (
-    <div className={cn("relative w-full overflow-hidden bg-gradient-to-r", typeStyles.bg)}>
-      {/* Animated background shimmer for promo */}
-      {current.type === "promo" && (
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-shimmer" />
-        </div>
-      )}
+    <motion.div 
+      initial={{ y: -50, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      className={cn("relative w-full overflow-hidden bg-gradient-to-r shadow-lg", typeStyles.bg, typeStyles.glow)}
+    >
+      {/* Animated background effects */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-shimmer" />
+        <div className="absolute top-0 left-1/4 w-32 h-32 bg-white/10 rounded-full blur-3xl" />
+        <div className="absolute bottom-0 right-1/4 w-24 h-24 bg-white/5 rounded-full blur-2xl" />
+      </div>
 
-      <div className="relative flex items-center justify-center gap-3 px-4 py-2.5 md:py-3">
+      <div className="relative flex items-center justify-center gap-3 px-4 py-3 md:py-3.5">
         {/* Navigation arrows for multiple announcements */}
         {visibleAnnouncements.length > 1 && (
           <button
@@ -140,16 +158,35 @@ export function AnnouncementBar() {
         )}
 
         {/* Icon */}
-        <div className={cn("flex-shrink-0 p-1.5 rounded-full bg-white/10 backdrop-blur-sm", typeStyles.iconColor)}>
+        <motion.div 
+          initial={{ scale: 0, rotate: -180 }}
+          animate={{ scale: 1, rotate: 0 }}
+          transition={{ type: "spring", delay: 0.2 }}
+          className={cn("flex-shrink-0 p-2 rounded-xl backdrop-blur-sm", typeStyles.iconBg, typeStyles.iconColor)}
+        >
           <IconComponent className="w-4 h-4" aria-hidden="true" />
-        </div>
+        </motion.div>
 
         {/* Message */}
-        <p className="text-sm md:text-base font-medium text-center line-clamp-1 text-white">
-          {current.title && <span className="font-bold mr-1">{current.title}</span>}
-          {current.message}
-          {current.link && <ExternalLink className="inline-block ml-2 h-4 w-4" />}
-        </p>
+        <motion.p 
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="text-sm md:text-base font-medium text-center line-clamp-1 text-white flex items-center gap-2"
+        >
+          {current.title && (
+            <span className="font-bold bg-white/20 px-2.5 py-0.5 rounded-full text-xs uppercase tracking-wide">
+              {current.title}
+            </span>
+          )}
+          <span className="hidden sm:inline">{current.message}</span>
+          <span className="sm:hidden">{current.message.slice(0, 50)}...</span>
+          {current.link && (
+            <span className="hidden md:flex items-center gap-1 text-white/80 hover:text-white transition-colors">
+              <ExternalLink className="h-3.5 w-3.5" />
+            </span>
+          )}
+        </motion.p>
 
         {/* Navigation arrows for multiple announcements */}
         {visibleAnnouncements.length > 1 && (
@@ -184,25 +221,29 @@ export function AnnouncementBar() {
 
       {/* Pagination dots */}
       {visibleAnnouncements.length > 1 && (
-        <div className="absolute bottom-1 left-1/2 -translate-x-1/2 flex gap-1">
+        <div className="absolute bottom-1.5 left-1/2 -translate-x-1/2 flex gap-1.5">
           {visibleAnnouncements.map((_, idx) => (
-            <button
+            <motion.button
               key={idx}
+              whileHover={{ scale: 1.2 }}
+              whileTap={{ scale: 0.9 }}
               onClick={(e) => {
                 e.preventDefault()
                 e.stopPropagation()
                 setCurrentIndex(idx)
               }}
               className={cn(
-                "w-1.5 h-1.5 rounded-full transition-all",
-                idx === currentIndex % visibleAnnouncements.length ? "bg-white w-3" : "bg-white/40 hover:bg-white/60",
+                "h-1.5 rounded-full transition-all duration-300",
+                idx === currentIndex % visibleAnnouncements.length 
+                  ? "bg-white w-6 shadow-sm shadow-white/50" 
+                  : "bg-white/40 hover:bg-white/60 w-1.5",
               )}
               aria-label={`Go to announcement ${idx + 1}`}
             />
           ))}
         </div>
       )}
-    </div>
+    </motion.div>
   )
 
   if (current.link) {

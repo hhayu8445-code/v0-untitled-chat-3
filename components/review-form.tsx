@@ -63,19 +63,19 @@ export function ReviewForm({ assetId, onReviewSubmitted }: ReviewFormProps) {
 
   if (!user) {
     return (
-      <div className="glass rounded-xl p-6 text-center">
-        <p className="text-muted-foreground">Please login to leave a review</p>
+      <div className="glass rounded-xl p-6 text-center" style={{ background: 'rgba(255, 255, 255, 0.05)' }}>
+        <p className="text-[var(--textDim)]">Please login to leave a review</p>
       </div>
     )
   }
 
   return (
-    <div className="glass rounded-xl p-6 space-y-4">
-      <h3 className="font-semibold text-foreground">Write a Review</h3>
+    <div className="glass rounded-xl p-6 space-y-4" style={{ background: 'rgba(255, 255, 255, 0.05)' }}>
+      <h3 className="font-semibold text-[var(--text)]">Write a Review</h3>
 
       {/* Star Rating */}
       <div className="space-y-2">
-        <p className="text-sm text-muted-foreground">Your Rating</p>
+        <p className="text-sm text-[var(--textDim)]">Your Rating</p>
         <div className="flex gap-1">
           {[1, 2, 3, 4, 5].map((star) => (
             <button
@@ -89,13 +89,13 @@ export function ReviewForm({ assetId, onReviewSubmitted }: ReviewFormProps) {
               <Star
                 className={cn(
                   "h-6 w-6 transition-colors",
-                  (hoveredRating || rating) >= star ? "text-amber-400 fill-amber-400" : "text-muted-foreground",
+                  (hoveredRating || rating) >= star ? "text-[var(--primary)] fill-[var(--primary)]" : "text-[var(--textDim)]",
                 )}
               />
             </button>
           ))}
           {rating > 0 && (
-            <span className="ml-2 text-sm text-muted-foreground">
+            <span className="ml-2 text-sm text-[var(--textDim)]">
               {rating === 1 && "Poor"}
               {rating === 2 && "Fair"}
               {rating === 3 && "Good"}
@@ -108,20 +108,21 @@ export function ReviewForm({ assetId, onReviewSubmitted }: ReviewFormProps) {
 
       {/* Review Content */}
       <div className="space-y-2">
-        <p className="text-sm text-muted-foreground">Your Review</p>
+        <p className="text-sm text-[var(--textDim)]">Your Review</p>
         <Textarea
           placeholder="Share your experience with this asset..."
           value={content}
           onChange={(e) => setContent(e.target.value)}
-          className="min-h-[100px] bg-secondary/50 border-border"
+          className="min-h-[100px] border-white/20"
         />
-        <p className="text-xs text-muted-foreground text-right">{content.length}/500 characters</p>
+        <p className="text-xs text-[var(--textDim)] text-right">{content.length}/500 characters</p>
       </div>
 
       <Button
         onClick={handleSubmit}
         disabled={isSubmitting || rating === 0 || content.trim().length < 10}
         className="w-full"
+        style={{ background: 'var(--primary)', color: 'white' }}
       >
         {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
         Submit Review

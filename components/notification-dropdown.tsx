@@ -65,7 +65,7 @@ export function NotificationDropdown() {
 
   if (!user) {
     return (
-      <Button variant="ghost" size="icon" className="relative text-muted-foreground hover:text-foreground">
+      <Button variant="ghost" size="icon" className="relative text-[var(--textDim)] hover:text-[var(--text)]">
         <Bell className="h-5 w-5" />
       </Button>
     )
@@ -74,20 +74,20 @@ export function NotificationDropdown() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" className="relative text-muted-foreground hover:text-foreground">
+        <Button variant="ghost" size="icon" className="relative text-[var(--textDim)] hover:text-[var(--text)]">
           <Bell className="h-5 w-5" />
           {unreadCount > 0 && (
-            <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-destructive text-xs font-medium text-destructive-foreground">
+            <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full text-xs font-medium text-white" style={{ background: 'var(--primary)' }}>
               {unreadCount}
             </span>
           )}
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-80 bg-card border-border">
-        <div className="flex items-center justify-between border-b border-border px-4 py-3">
-          <h3 className="font-semibold text-foreground">Notifications</h3>
+      <DropdownMenuContent align="end" className="w-80 border" style={{ background: 'rgba(0, 0, 0, 0.95)', borderColor: 'var(--primary)' }}>
+        <div className="flex items-center justify-between border-b px-4 py-3" style={{ borderColor: 'var(--primary)' }}>
+          <h3 className="font-semibold text-[var(--text)]">Notifications</h3>
           {unreadCount > 0 && (
-            <Button variant="ghost" size="sm" className="text-xs text-primary" onClick={markAllRead}>
+            <Button variant="ghost" size="sm" className="text-xs text-[var(--primary)]" onClick={markAllRead}>
               <Check className="h-3 w-3 mr-1" />
               Mark all read
             </Button>
@@ -96,10 +96,10 @@ export function NotificationDropdown() {
         <div className="max-h-96 overflow-y-auto">
           {isLoading ? (
             <div className="flex items-center justify-center py-8">
-              <div className="h-6 w-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+              <div className="h-6 w-6 border-2 rounded-full animate-spin" style={{ borderColor: 'var(--primary)', borderTopColor: 'transparent' }} />
             </div>
           ) : notifications.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
+            <div className="text-center py-8 text-[var(--textDim)]">
               <Bell className="h-8 w-8 mx-auto mb-2 opacity-50" />
               <p className="text-sm">No notifications yet</p>
             </div>
@@ -111,28 +111,24 @@ export function NotificationDropdown() {
                   key={notification.id}
                   className={cn(
                     "flex items-start gap-3 px-4 py-3 cursor-pointer",
-                    !notification.read && "bg-primary/5",
+                    !notification.read && "" 
                   )}
+                  style={!notification.read ? { background: 'rgba(236, 72, 153, 0.05)' } : {}}
                 >
                   <div
-                    className={cn(
-                      "flex h-8 w-8 items-center justify-center rounded-full",
-                      notification.type === "like" && "bg-pink-500/20 text-pink-500",
-                      notification.type === "reply" && "bg-blue-500/20 text-blue-500",
-                      notification.type === "system" && "bg-primary/20 text-primary",
-                      notification.type === "download" && "bg-green-500/20 text-green-500",
-                    )}
+                    className="flex h-8 w-8 items-center justify-center rounded-full"
+                    style={{ background: 'rgba(236, 72, 153, 0.2)', color: 'var(--primary)' }}
                   >
                     <Icon className="h-4 w-4" />
                   </div>
                   <div className="flex-1">
-                    <p className="text-sm font-medium text-foreground">{notification.title}</p>
-                    <p className="text-xs text-muted-foreground">{notification.message}</p>
-                    <p className="mt-1 text-xs text-muted-foreground">
+                    <p className="text-sm font-medium text-[var(--text)]">{notification.title}</p>
+                    <p className="text-xs text-[var(--textDim)]">{notification.message}</p>
+                    <p className="mt-1 text-xs text-[var(--textDim)]">
                       {new Date(notification.createdAt).toLocaleDateString()}
                     </p>
                   </div>
-                  {!notification.read && <div className="h-2 w-2 rounded-full bg-primary" />}
+                  {!notification.read && <div className="h-2 w-2 rounded-full" style={{ background: 'var(--primary)' }} />}
                 </DropdownMenuItem>
               )
             })

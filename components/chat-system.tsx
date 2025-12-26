@@ -91,44 +91,47 @@ export function ChatSystem({ threadId }: { threadId?: string }) {
 
   if (!user) {
     return (
-      <Card>
-        <CardContent className="p-6 text-center">
-          <MessageCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-          <p className="text-muted-foreground">Please login to participate in chat</p>
-        </CardContent>
-      </Card>
+      <div className="glass rounded-2xl p-8 text-center border border-white/10" style={{ background: 'rgba(255, 255, 255, 0.05)' }}>
+        <div className="relative inline-block mb-4">
+          <MessageCircle className="h-16 w-16 text-[var(--primary)] animate-pulse" />
+          <div className="absolute inset-0 blur-xl opacity-50" style={{ background: 'var(--primary)' }} />
+        </div>
+        <p className="text-[var(--textDim)] text-lg">Please login to participate in chat</p>
+      </div>
     )
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <MessageCircle className="h-5 w-5" />
+    <div className="glass rounded-2xl border border-white/10 overflow-hidden" style={{ background: 'rgba(255, 255, 255, 0.05)' }}>
+      <div className="p-6 border-b border-white/10" style={{ background: 'rgba(255, 20, 147, 0.1)' }}>
+        <h3 className="flex items-center gap-3 text-xl font-bold text-[var(--text)]">
+          <div className="p-2 rounded-xl" style={{ background: 'var(--primaryBg)' }}>
+            <MessageCircle className="h-6 w-6 text-[var(--primary)]" />
+          </div>
           {threadId ? 'Discussion' : 'Messages'}
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="max-h-96 overflow-y-auto space-y-3">
+        </h3>
+      </div>
+      <div className="p-6 space-y-4">
+        <div className="max-h-96 overflow-y-auto space-y-4 pr-2 custom-scrollbar">
           {messages.map((message) => (
-            <div key={message.id} className="flex gap-3">
-              <Avatar className="h-8 w-8">
+            <div key={message.id} className="flex gap-3 group hover:bg-white/5 p-3 rounded-xl transition-all">
+              <Avatar className="h-10 w-10 ring-2 ring-[var(--primary)]/30">
                 <AvatarImage src={message.author.avatar || undefined} />
-                <AvatarFallback>{message.author.username[0]}</AvatarFallback>
+                <AvatarFallback className="bg-[var(--primaryBg)] text-[var(--primary)]">{message.author.username[0]}</AvatarFallback>
               </Avatar>
               <div className="flex-1">
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="font-medium text-sm">{message.author.username}</span>
-                  <Badge variant="secondary" className="text-xs">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="font-semibold text-sm text-[var(--text)]">{message.author.username}</span>
+                  <Badge className="text-xs px-2 py-0.5" style={{ background: 'var(--primaryBg)', color: 'var(--primary)', border: '1px solid var(--primary)' }}>
                     {message.author.membership}
                   </Badge>
-                  <span className="text-xs text-muted-foreground">
+                  <span className="text-xs text-[var(--textDim)] ml-auto">
                     {new Date(message.createdAt).toLocaleTimeString()}
                   </span>
                 </div>
-                <p className="text-sm">{message.content}</p>
+                <p className="text-sm text-[var(--text)] leading-relaxed">{message.content}</p>
                 {!threadId && message.thread && (
-                  <p className="text-xs text-muted-foreground mt-1">
+                  <p className="text-xs text-[var(--textDim)] mt-2 italic">
                     in: {message.thread.title}
                   </p>
                 )}
@@ -137,18 +140,24 @@ export function ChatSystem({ threadId }: { threadId?: string }) {
           ))}
         </div>
         
-        <form onSubmit={sendMessage} className="flex gap-2">
+        <form onSubmit={sendMessage} className="flex gap-3 mt-4">
           <Input
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
             placeholder="Type your message..."
             disabled={loading}
+            className="flex-1 bg-white/5 border-white/20 focus:border-[var(--primary)] transition-all"
           />
-          <Button type="submit" disabled={loading || !newMessage.trim()}>
+          <Button 
+            type="submit" 
+            disabled={loading || !newMessage.trim()}
+            className="px-6 transition-all hover:scale-105"
+            style={{ background: 'var(--primary)', color: 'white' }}
+          >
             <Send className="h-4 w-4" />
           </Button>
         </form>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   )
 }

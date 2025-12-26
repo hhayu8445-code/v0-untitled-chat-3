@@ -2,10 +2,6 @@
 
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import { Sidebar } from "@/components/sidebar"
-import { Header } from "@/components/header"
-import { SponsorBanner } from "@/components/sponsor-banner"
-import { LinkvertiseAd } from "@/components/linkvertise-ad"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { useAuth } from "@/components/auth-provider"
@@ -156,7 +152,7 @@ export default function DashboardPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="flex items-center justify-center min-h-[60vh]">
         <Loader2 className="h-12 w-12 animate-spin text-primary" />
       </div>
     )
@@ -165,13 +161,7 @@ export default function DashboardPage() {
   if (!user) return null
 
   return (
-    <div className="min-h-screen bg-background">
-      <Sidebar />
-      <main className="md:ml-72 transition-all duration-300">
-        <Header />
-        <div className="p-4 md:p-6">
-          <SponsorBanner />
-          <LinkvertiseAd />
+    <div className="p-4 md:p-6">
 
           {/* Profile Header */}
           <div className="glass rounded-2xl p-4 md:p-6 mb-6 relative overflow-hidden">
@@ -450,8 +440,6 @@ export default function DashboardPage() {
               )}
             </div>
           </div>
-        </div>
-      </main>
     </div>
   )
 }

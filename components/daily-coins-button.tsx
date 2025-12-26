@@ -2,7 +2,8 @@
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Dialog, DialogContent } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
 import { useAuth } from "@/components/auth-provider"
 import { Gift, Loader2, CheckCircle, Clock, Sparkles } from "lucide-react"
 import { CoinIcon } from "@/components/coin-icon"
@@ -48,9 +49,10 @@ export function DailyCoinsButton() {
       <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
         <Button
           onClick={() => setShowModal(true)}
-          className="w-full bg-gradient-to-r from-warning to-chart-5 hover:from-warning/90 hover:to-chart-5/90 rounded-xl gap-2 glow relative overflow-hidden group"
+          className="w-full rounded-xl gap-2 glow relative overflow-hidden group shimmer"
+          style={{ background: 'linear-gradient(90deg, var(--primary), var(--accent))', color: 'white' }}
         >
-          <div className="absolute inset-0 bg-gradient-to-r from-warning/20 via-chart-5/20 to-warning/20 opacity-0 group-hover:opacity-100 transition-opacity animate-shimmer" />
+          <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity" style={{ background: 'linear-gradient(90deg, var(--primary), var(--accent), var(--primary))' }} />
           <Gift className="h-4 w-4 relative z-10" />
           <span className="relative z-10">Daily Coins</span>
           <Sparkles className="h-3 w-3 relative z-10 animate-pulse" />
@@ -60,7 +62,10 @@ export function DailyCoinsButton() {
       <AnimatePresence>
         {showModal && (
           <Dialog open={showModal} onOpenChange={setShowModal}>
-            <DialogContent className="max-w-md glass border-2 border-warning/30">
+            <DialogContent className="max-w-md glass border-2" style={{ background: 'rgba(255, 255, 255, 0.05)', borderColor: 'var(--primary)' }}>
+              <VisuallyHidden>
+                <DialogTitle>Daily Coins</DialogTitle>
+              </VisuallyHidden>
               <motion.div 
                 className="p-6 space-y-4"
                 initial={{ opacity: 0, scale: 0.9 }}
@@ -69,7 +74,8 @@ export function DailyCoinsButton() {
               >
                 <div className="text-center">
                   <motion.div 
-                    className="h-20 w-20 rounded-2xl bg-warning/20 flex items-center justify-center mx-auto mb-4 relative"
+                    className="h-20 w-20 rounded-2xl flex items-center justify-center mx-auto mb-4 relative"
+                    style={{ background: 'rgba(236, 72, 153, 0.2)' }}
                     animate={{ 
                       rotate: [0, 10, -10, 0],
                       scale: [1, 1.05, 1]
@@ -78,13 +84,14 @@ export function DailyCoinsButton() {
                   >
                     <CoinIcon size="xl" />
                     <motion.div
-                      className="absolute inset-0 rounded-2xl bg-warning/30"
+                      className="absolute inset-0 rounded-2xl"
+                      style={{ background: 'var(--primary)', opacity: 0.3 }}
                       animate={{ scale: [1, 1.2, 1], opacity: [0.5, 0, 0.5] }}
                       transition={{ duration: 2, repeat: Infinity }}
                     />
                   </motion.div>
-                  <h2 className="text-2xl font-bold text-foreground mb-2">Daily Coins</h2>
-                  <p className="text-muted-foreground">Claim your free 25 coins every 24 hours!</p>
+                  <h2 className="text-2xl font-bold text-[var(--text)] mb-2">Daily Coins</h2>
+                  <p className="text-[var(--textDim)]">Claim your free 25 coins every 24 hours!</p>
                 </div>
 
                 <AnimatePresence mode="wait">
@@ -101,7 +108,7 @@ export function DailyCoinsButton() {
                           animate={{ scale: 1 }}
                           transition={{ type: "spring", stiffness: 200 }}
                         >
-                          <CheckCircle className="h-16 w-16 text-success mx-auto" />
+                          <CheckCircle className="h-16 w-16 text-[var(--primary)] mx-auto" />
                         </motion.div>
                         <motion.div 
                           className="flex items-center justify-center gap-2"
@@ -110,10 +117,10 @@ export function DailyCoinsButton() {
                           transition={{ delay: 0.2 }}
                         >
                           <CoinIcon size="md" />
-                          <p className="text-lg font-semibold text-success">+{result.coinsAdded} Coins Claimed!</p>
+                          <p className="text-lg font-semibold text-[var(--primary)]">+{result.coinsAdded} Coins Claimed!</p>
                         </motion.div>
                         <motion.p 
-                          className="text-muted-foreground"
+                          className="text-[var(--textDim)]"
                           initial={{ y: 20, opacity: 0 }}
                           animate={{ y: 0, opacity: 1 }}
                           transition={{ delay: 0.3 }}
@@ -128,11 +135,11 @@ export function DailyCoinsButton() {
                         animate={{ opacity: 1, scale: 1 }}
                         exit={{ opacity: 0, scale: 0.8 }}
                       >
-                        <Clock className="h-16 w-16 text-warning mx-auto" />
-                        <p className="text-lg font-semibold text-foreground">Already Claimed</p>
-                        <p className="text-muted-foreground">{result.error}</p>
+                        <Clock className="h-16 w-16 text-[var(--primary)] mx-auto" />
+                        <p className="text-lg font-semibold text-[var(--text)]">Already Claimed</p>
+                        <p className="text-[var(--textDim)]">{result.error}</p>
                         {result.canClaimIn && (
-                          <p className="text-sm text-muted-foreground">Come back in {result.canClaimIn}</p>
+                          <p className="text-sm text-[var(--textDim)]">Come back in {result.canClaimIn}</p>
                         )}
                       </motion.div>
                     )
@@ -146,9 +153,10 @@ export function DailyCoinsButton() {
                         <Button
                           onClick={handleClaim}
                           disabled={isClaiming}
-                          className="w-full bg-warning hover:bg-warning/90 rounded-xl h-12 glow-sm relative overflow-hidden group"
+                          className="w-full rounded-xl h-12 glow-sm relative overflow-hidden group shimmer"
+                          style={{ background: 'var(--primary)', color: 'white' }}
                         >
-                          <div className="absolute inset-0 bg-gradient-to-r from-warning/20 via-chart-5/20 to-warning/20 opacity-0 group-hover:opacity-100 transition-opacity animate-shimmer" />
+                          <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity" style={{ background: 'linear-gradient(90deg, var(--primary), var(--accent), var(--primary))' }} />
                           {isClaiming ? (
                             <>
                               <Loader2 className="h-4 w-4 mr-2 animate-spin relative z-10" />

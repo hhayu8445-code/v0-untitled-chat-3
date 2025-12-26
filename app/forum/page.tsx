@@ -2,10 +2,6 @@
 
 import type React from "react"
 import { useState, useEffect } from "react"
-import { Sidebar } from "@/components/sidebar"
-import { Header } from "@/components/header"
-import { SponsorBanner } from "@/components/sponsor-banner"
-import { LinkvertiseAd } from "@/components/linkvertise-ad"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useAuth } from "@/components/auth-provider"
@@ -36,6 +32,7 @@ import {
   ChevronRight,
 } from "lucide-react"
 import Link from "next/link"
+import { SnowPile } from "@/components/snow-pile"
 
 const iconMap: Record<string, React.ComponentType<{ className?: string; style?: React.CSSProperties }>> = {
   megaphone: Megaphone,
@@ -207,15 +204,8 @@ export default function ForumPage() {
   const regularThreads = threads.filter((t) => !t.isPinned)
 
   return (
-    <div className="min-h-screen bg-background">
-      <Sidebar />
-      <main className="md:ml-72 transition-all duration-300">
-        <Header />
-        <div className="p-6">
-          <SponsorBanner />
-          <LinkvertiseAd />
-
-          {/* Header */}
+    <div className="p-4 md:p-6">
+      {/* Header */}
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-8">
             <div className="flex items-center gap-4">
               <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-primary to-accent flex items-center justify-center glow-sm">
@@ -537,8 +527,9 @@ export default function ForumPage() {
 
             {/* Sidebar */}
             <div className="space-y-6">
-              <div className="glass rounded-2xl p-6">
-                <h3 className="flex items-center gap-2 text-sm font-medium text-foreground mb-3">
+              <div className="glass rounded-2xl p-6 relative overflow-hidden">
+                <SnowPile size="sm" />
+                <h3 className="flex items-center gap-2 text-sm font-medium text-foreground mb-3 relative z-10">
                   <div className="h-2 w-2 rounded-full status-online" />
                   Online Users ({onlineUsers.length > 0 ? onlineUsers.length : stats.onlineUsers})
                 </h3>
@@ -581,12 +572,13 @@ export default function ForumPage() {
                 </div>
               </div>
 
-              <div className="glass rounded-2xl p-6">
-                <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
+              <div className="glass rounded-2xl p-6 relative overflow-hidden">
+                <SnowPile size="sm" />
+                <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2 relative z-10">
                   <TrendingUp className="h-5 w-5 text-warning" />
                   Top Contributors
                 </h3>
-                <div className="space-y-3">
+                <div className="space-y-3 relative z-10">
                   {topContributors.length > 0 ? (
                     topContributors.map((contributor, i) => (
                       <Link
@@ -648,8 +640,6 @@ export default function ForumPage() {
               </div>
             </div>
           </div>
-        </div>
-      </main>
     </div>
   )
 }

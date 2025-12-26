@@ -29,7 +29,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     }
 
     // Transform downloads into reviews (since we don't have a dedicated reviews table)
-    const formattedReviews = (reviews || []).map((r, index) => {
+    const formattedReviews = (reviews || []).map((r: any, index: number) => {
       const reviewTexts = [
         "Amazing script! Works perfectly on my server. The developer is very helpful with support.",
         "Clean code, easy to install, and runs without any errors. Highly recommended!",
@@ -43,8 +43,8 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
 
       return {
         id: r.id,
-        user: r.users?.username || "Anonymous",
-        avatar: r.users?.avatar || null,
+        user: r.users?.[0]?.username || r.users?.username || "Anonymous",
+        avatar: r.users?.[0]?.avatar || r.users?.avatar || null,
         rating: 5,
         text: reviewTexts[index % reviewTexts.length],
         time: getRelativeTime(r.created_at),
