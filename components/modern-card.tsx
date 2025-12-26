@@ -76,7 +76,7 @@ export function ModernCard({
 
         {/* Shimmer Effect */}
         <div className="absolute inset-0 shimmer opacity-0 group-hover:opacity-100 transition-opacity" />
-      </Card>
+      </div>
     </motion.div>
   )
 }
