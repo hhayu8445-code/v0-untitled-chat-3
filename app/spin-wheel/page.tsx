@@ -70,46 +70,43 @@ export default function SpinWheelPage() {
   const fetchData = useCallback(async () => {
     try {
       setLoading(true)
-      const [prizesRes, userRes, historyRes, dailyRes] = await Promise.all([
-        fetch("/api/spin-wheel/prizes"),
-        user ? fetch("/api/user/balance") : Promise.resolve(null),
-        user ? fetch("/api/spin-wheel/history") : Promise.resolve(null),
-        user ? fetch("/api/spin-wheel/daily-status") : Promise.resolve(null),
-      ])
-
-      if (!prizesRes.ok) throw new Error("Failed to fetch prizes")
-
-      const prizesData = await prizesRes.json()
-      const fetchedPrizes = prizesData.prizes || []
       
-      // Validate prizes
-      if (fetchedPrizes.length === 0) {
-        console.warn("No prizes found, initializing...")
-        // Try to initialize prizes
-        const initRes = await fetch("/api/spin-wheel/init-prizes", { method: "POST" })
-        if (initRes.ok) {
-          const initData = await initRes.json()
-          setPrizes(initData.prizes || [])
-        }
-      } else {
+      // Fetch prizes first
+      const prizesRes = await fetch("/api/spin-wheel/prizes", {
+        cache: 'no-store',
+        headers: { 'Cache-Control': 'no-cache' }
+      })
+      
+      if (prizesRes.ok) {
+        const prizesData = await prizesRes.json()
+        const fetchedPrizes = prizesData.prizes || []
         setPrizes(fetchedPrizes)
       }
 
-      if (userRes && userRes.ok) {
-        const userData = await userRes.json()
-        setUserCoins(userData.coins || 0)
-        setUserTickets(userData.spin_tickets || 0)
-      }
+      // Fetch user data if logged in
+      if (user) {
+        const [userRes, historyRes, dailyRes] = await Promise.all([
+          fetch("/api/user/balance"),
+          fetch("/api/spin-wheel/history"),
+          fetch("/api/spin-wheel/daily-status"),
+        ])
 
-      if (historyRes && historyRes.ok) {
-        const historyData = await historyRes.json()
-        setHistory(historyData.history || [])
-      }
+        if (userRes.ok) {
+          const userData = await userRes.json()
+          setUserCoins(userData.coins || 0)
+          setUserTickets(userData.spin_tickets || 0)
+        }
 
-      if (dailyRes && dailyRes.ok) {
-        const dailyData = await dailyRes.json()
-        setCanClaimDaily(dailyData.canClaim || false)
-        setStreak(dailyData.streak || 0)
+        if (historyRes.ok) {
+          const historyData = await historyRes.json()
+          setHistory(historyData.history || [])
+        }
+
+        if (dailyRes.ok) {
+          const dailyData = await dailyRes.json()
+          setCanClaimDaily(dailyData.canClaim || false)
+          setStreak(dailyData.streak || 0)
+        }
       }
     } catch (error) {
       console.error("Error fetching data:", error)
