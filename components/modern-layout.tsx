@@ -9,9 +9,9 @@ import { SponsorBanner } from './sponsor-banner';
 import { useMemo } from 'react';
 
 export function ModernLayout({ children }: { children: React.ReactNode }) {
-  // Generate snowflakes
+  // Generate snowflakes - reduced from 50 to 20 for better performance
   const snowflakes = useMemo(() => {
-    return Array.from({ length: 50 }, (_, i) => ({
+    return Array.from({ length: 20 }, (_, i) => ({
       id: i,
       left: `${Math.random() * 100}%`,
       animationDuration: `${Math.random() * 10 + 10}s`,
