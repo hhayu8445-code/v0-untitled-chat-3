@@ -1,82 +1,117 @@
-"use client"
+'use client';
 
-import { motion, AnimatePresence } from "framer-motion"
-import { CheckCircle, XCircle, AlertCircle, Info, X } from "lucide-react"
-import { create } from "zustand"
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { X, CheckCircle, AlertCircle, Info, AlertTriangle } from 'lucide-react';
+import { MODERN_UI_CONFIG } from '@/lib/constants';
 
-type ToastType = "success" | "error" | "warning" | "info"
+type ToastType = 'success' | 'error' | 'info' | 'warning';
 
 interface Toast {
-  id: string
-  type: ToastType
-  message: string
-  duration?: number
+  id: string;
+  message: string;
+  type: ToastType;
+  duration?: number;
 }
 
-interface ToastStore {
-  toasts: Toast[]
-  addToast: (toast: Omit<Toast, "id">) => void
-  removeToast: (id: string) => void
+interface ToastContainerProps {
+  position?: 'top-right' | 'top-left' | 'bottom-right' | 'bottom-left';
 }
 
-export const useToast = create<ToastStore>((set) => ({
-  toasts: [],
-  addToast: (toast) => {
-    const id = Math.random().toString(36).substr(2, 9)
-    set((state) => ({ toasts: [...state.toasts, { ...toast, id }] }))
-    setTimeout(() => {
-      set((state) => ({ toasts: state.toasts.filter((t) => t.id !== id) }))
-    }, toast.duration || 3000)
-  },
-  removeToast: (id) => set((state) => ({ toasts: state.toasts.filter((t) => t.id !== id) })),
-}))
+const ToastIcon = ({ type }: { type: ToastType }) => {
+  switch (type) {
+    case 'success':
+      return <CheckCircle className="w-5 h-5 text-success" />;
+    case 'error':
+      return <AlertCircle className="w-5 h-5 text-destructive" />;
+    case 'warning':
+      return <AlertTriangle className="w-5 h-5 text-warning" />;
+    case 'info':
+    default:
+      return <Info className="w-5 h-5 text-primary" />;
+  }
+};
 
-const icons = {
-  success: CheckCircle,
-  error: XCircle,
-  warning: AlertCircle,
-  info: Info,
-}
+export const useToast = () => {
+  const [toasts, setToasts] = useState<Toast[]>([]);
 
-const colors = {
-  success: "from-green-500 to-emerald-500",
-  error: "from-red-500 to-rose-500",
-  warning: "from-yellow-500 to-orange-500",
-  info: "from-blue-500 to-cyan-500",
-}
+  const addToast = (message: string, type: ToastType = 'info', duration = 5000) => {
+    const id = Math.random().toString(36).substring(2, 9);
+    setToasts((prev) => [...prev, { id, message, type, duration }]);
+  };
 
-export function ToastContainer() {
-  const { toasts, removeToast } = useToast()
+  const removeToast = (id: string) => {
+    setToasts((prev) => prev.filter((toast) => toast.id !== id));
+  };
+
+  return { toasts, addToast, removeToast };
+};
+
+export const ToastContainer: React.FC<ToastContainerProps> = ({ 
+  position = 'bottom-right' 
+}) => {
+  const { toasts, removeToast } = useToast();
+  
+  const positionClasses = {
+    'top-right': 'top-4 right-4',
+    'top-left': 'top-4 left-4',
+    'bottom-right': 'bottom-4 right-4',
+    'bottom-left': 'bottom-4 left-4',
+  };
 
   return (
-    <div className="fixed bottom-4 right-4 z-50 space-y-2">
+    <div className={`fixed z-[1000] ${positionClasses[position]} space-y-2`}>
       <AnimatePresence>
-        {toasts.map((toast) => {
-          const Icon = icons[toast.type]
-          return (
-            <motion.div
-              key={toast.id}
-              initial={{ opacity: 0, x: 100, scale: 0.8 }}
-              animate={{ opacity: 1, x: 0, scale: 1 }}
-              exit={{ opacity: 0, x: 100, scale: 0.8 }}
-              className="glass rounded-2xl p-4 min-w-[300px] max-w-md shadow-2xl"
-            >
-              <div className="flex items-start gap-3">
-                <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${colors[toast.type]} flex items-center justify-center glow-sm shrink-0`}>
-                  <Icon className="h-5 w-5 text-white" />
-                </div>
-                <p className="flex-1 text-sm text-foreground pt-2">{toast.message}</p>
-                <button
-                  onClick={() => removeToast(toast.id)}
-                  className="text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              </div>
-            </motion.div>
-          )
-        })}
+        {toasts.map((toast) => (
+          <ToastItem key={toast.id} toast={toast} onRemove={removeToast} />
+        ))}
       </AnimatePresence>
     </div>
-  )
+  );
+};
+
+interface ToastItemProps {
+  toast: Toast;
+  onRemove: (id: string) => void;
 }
+
+const ToastItem: React.FC<ToastItemProps> = ({ toast, onRemove }) => {
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      onRemove(toast.id);
+    }, toast.duration);
+
+    return () => clearTimeout(timer);
+  }, [toast.id, toast.duration, onRemove]);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20, scale: 0.8 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, y: 20, scale: 0.8 }}
+      className={`
+        glass-effect flex items-center p-4 rounded-xl backdrop-blur-sm border
+        max-w-sm shadow-xl relative overflow-hidden
+      `}
+      style={{
+        boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.2), 0 10px 10px -5px rgba(0, 0, 0, 0.1)',
+      }}
+    >
+      <div className="mr-3 z-10">
+        <ToastIcon type={toast.type} />
+      </div>
+      <div className="flex-1 text-sm font-medium text-foreground z-10">
+        {toast.message}
+      </div>
+      <button
+        onClick={() => onRemove(toast.id)}
+        className="ml-3 text-muted-foreground hover:text-foreground transition-colors z-10"
+      >
+        <X className="w-4 h-4" />
+      </button>
+      <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-primary/5 via-accent/5 to-primary/5 opacity-0 hover:opacity-100 transition-opacity" />
+    </motion.div>
+  );
+};
+
+export default ToastContainer;

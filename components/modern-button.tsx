@@ -25,10 +25,10 @@ export function ModernButton({
   disabled,
 }: ModernButtonProps) {
   const variants = {
-    primary: "bg-primary hover:bg-primary/90 text-primary-foreground glow-sm shimmer",
-    secondary: "glass glass-hover",
+    primary: "bg-primary hover:bg-primary/90 text-primary-foreground shimmer",
+    secondary: "glass-effect glass-hover neon-border",
     outline: "border-2 neon-border glass-hover",
-    ghost: "hover:glass",
+    ghost: "hover:glass-effect",
   }
 
   const sizes = {
@@ -47,7 +47,7 @@ export function ModernButton({
         onClick={onClick}
         disabled={disabled}
         className={cn(
-          "magnetic relative overflow-hidden group",
+          "magnetic relative overflow-hidden group modern-button",
           variants[variant],
           sizes[size],
           className

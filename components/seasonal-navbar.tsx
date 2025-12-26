@@ -6,6 +6,7 @@ import { Bell, User, Menu, X } from "lucide-react"
 import { useAuth } from "@/components/auth-provider"
 import { LanguageSelector } from "@/components/language-selector"
 import Link from "next/link"
+import { motion } from "framer-motion"
 
 export function SeasonalNavbar() {
   const [holiday, setHoliday] = useState(getCurrentHoliday())
@@ -64,16 +65,26 @@ export function SeasonalNavbar() {
                 </Link>
               </>
             ) : (
-              <button onClick={login} className="nav-login-btn">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={login}
+                className="nav-login-btn"
+              >
                 <User className="h-4 w-4" />
                 <span>Login</span>
-              </button>
+              </motion.button>
             )}
 
             {/* Mobile Toggle */}
-            <button className="mobile-toggle" onClick={() => setIsOpen(!isOpen)}>
+            <motion.button 
+              className="mobile-toggle"
+              onClick={() => setIsOpen(!isOpen)}
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+            >
               {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-            </button>
+            </motion.button>
           </div>
         </div>
 
@@ -382,6 +393,8 @@ export function SeasonalNavbar() {
           cursor: pointer;
           transition: all 0.3s ease;
           box-shadow: 0 0 20px var(--nav-color);
+          border: none;
+          outline: none;
         }
 
         .nav-login-btn:hover {

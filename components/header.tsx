@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import { Bell, Settings, LogOut, User, Sparkles, Crown, Shield } from "lucide-react"
+import { Bell, Settings, LogOut, User, Sparkles, Crown, Shield, Sun, Moon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -25,6 +25,7 @@ export function Header() {
 
   const [userCoins, setUserCoins] = useState(0)
   const [userTickets, setUserTickets] = useState(0)
+  const [isDarkMode, setIsDarkMode] = useState(true)
 
   useEffect(() => {
     const fetchNotifications = async () => {
@@ -68,9 +69,14 @@ export function Header() {
     }
   }, [user])
 
+  const toggleTheme = () => {
+    setIsDarkMode(!isDarkMode)
+    document.documentElement.classList.toggle('dark')
+  }
+
   return (
     <motion.header 
-      className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-border glass px-6"
+      className="sticky top-0 z-50 flex h-16 items-center justify-between border-b border-border glass-effect backdrop-blur-8 bg-gray-900/30 border-gray-700/50 px-6 neon-glow"
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.5, type: "spring" }}
@@ -80,11 +86,20 @@ export function Header() {
       <div className="flex items-center gap-2 ml-6">
         <LanguageSelector />
 
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          onClick={toggleTheme}
+          className="text-muted-foreground hover:text-foreground glass-hover"
+        >
+          {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+        </Button>
+
         {user && (
           <>
             <Link href="/spin-wheel">
               <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                <Button variant="ghost" size="sm" className="gap-2 text-muted-foreground hover:text-foreground glass-hover">
+                <Button variant="ghost" size="sm" className="gap-2 text-muted-foreground hover:text-foreground glass-hover neon-border relative overflow-hidden">
                   <svg className="h-4 w-4 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
                     <polyline points="9 22 9 12 15 12 15 22" />
@@ -104,7 +119,7 @@ export function Header() {
             </Link>
 
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-              <Button variant="ghost" size="sm" className="gap-2 text-muted-foreground hover:text-foreground glass-hover">
+              <Button variant="ghost" size="sm" className="gap-2 text-muted-foreground hover:text-foreground glass-hover neon-border relative overflow-hidden">
                 <svg className="h-4 w-4 text-yellow-500" viewBox="0 0 24 24" fill="currentColor">
                   <circle cx="12" cy="12" r="10" />
                   <circle cx="12" cy="12" r="6" fill="none" stroke="white" strokeWidth="1.5" />
@@ -129,7 +144,7 @@ export function Header() {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                <Button variant="ghost" size="icon" className="relative text-muted-foreground hover:text-foreground">
+                <Button variant="ghost" size="icon" className="relative text-muted-foreground hover:text-foreground glass-hover neon-border">
                   <Bell className="h-5 w-5" />
                   <AnimatePresence>
                     {unreadCount > 0 && (
@@ -146,7 +161,7 @@ export function Header() {
                 </Button>
               </motion.div>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-80 glass border-primary/20">
+            <DropdownMenuContent align="end" className="w-80 glass-effect backdrop-blur-8 bg-gray-900/80 border-gray-700/50 neon-glow">
               <div className="p-3 border-b border-border">
                 <h3 className="font-semibold text-foreground">Notifications</h3>
                 <p className="text-xs text-muted-foreground">
@@ -164,7 +179,7 @@ export function Header() {
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: i * 0.05 }}
                     >
-                      <DropdownMenuItem className="p-3 cursor-pointer">
+                      <DropdownMenuItem className="p-3 cursor-pointer glass-hover">
                         <div className="flex gap-3">
                           <div className="h-10 w-10 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
                             <Sparkles className="h-5 w-5 text-primary" />
@@ -184,12 +199,15 @@ export function Header() {
         )}
 
         {isLoading ? (
-          <div className="h-10 w-24 bg-secondary/50 animate-pulse rounded-xl" />
+          <div className="h-10 w-24 bg-secondary/50 animate-pulse rounded-xl loading-2025" />
         ) : user ? (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                <Button variant="ghost" className="rounded-xl h-10 px-3 gap-2 hover:bg-secondary/50 glass-hover">
+                <Button 
+                  variant="ghost" 
+                  className="rounded-xl h-10 px-3 gap-2 hover:bg-secondary/50 glass-hover neon-border relative overflow-hidden"
+                >
                   <img
                     src={user.avatar || "/placeholder.svg"}
                     alt={user.username}
@@ -201,18 +219,18 @@ export function Header() {
                 </Button>
               </motion.div>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56 glass border-primary/20">
+            <DropdownMenuContent align="end" className="w-56 glass-effect backdrop-blur-8 bg-gray-900/80 border-gray-700/50 neon-glow">
               <div className="p-3 border-b border-border">
                 <p className="font-semibold text-foreground">{user.username}</p>
                 <p className="text-xs text-primary capitalize">{user.membership} Member</p>
               </div>
               <Link href="/dashboard">
-                <DropdownMenuItem className="gap-2 cursor-pointer">
+                <DropdownMenuItem className="gap-2 cursor-pointer glass-hover">
                   <User className="h-4 w-4" /> Dashboard
                 </DropdownMenuItem>
               </Link>
               <Link href="/dashboard/settings">
-                <DropdownMenuItem className="gap-2 cursor-pointer">
+                <DropdownMenuItem className="gap-2 cursor-pointer glass-hover">
                   <Settings className="h-4 w-4" /> Settings
                 </DropdownMenuItem>
               </Link>
@@ -220,22 +238,25 @@ export function Header() {
                 <>
                   <DropdownMenuSeparator />
                   <Link href="/admin">
-                    <DropdownMenuItem className="gap-2 cursor-pointer text-destructive">
+                    <DropdownMenuItem className="gap-2 cursor-pointer text-destructive glass-hover">
                       <Shield className="h-4 w-4" /> Admin Panel
                     </DropdownMenuItem>
                   </Link>
                 </>
               )}
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={logout} className="gap-2 cursor-pointer text-destructive">
+              <DropdownMenuItem onClick={logout} className="gap-2 cursor-pointer text-destructive glass-hover">
                 <LogOut className="h-4 w-4" /> Log out
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         ) : (
           <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-            <Button onClick={login} className="bg-[#5865F2] hover:bg-[#4752C4] text-white gap-2 rounded-xl h-10 px-4 glow-sm relative overflow-hidden group">
-              <div className="absolute inset-0 bg-gradient-to-r from-[#5865F2] via-[#7289DA] to-[#5865F2] opacity-0 group-hover:opacity-100 transition-opacity animate-shimmer" />
+            <Button 
+              onClick={login} 
+              className="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white gap-2 rounded-xl h-10 px-4 relative overflow-hidden group modern-button"
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 opacity-0 group-hover:opacity-100 transition-opacity animate-shimmer" />
               <svg className="h-5 w-5 relative z-10" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515a.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0a12.64 12.64 0 0 0-.617-1.25a.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057a19.9 19.9 0 0 0 5.993 3.03a.076.076 0 0 0 .084-.028a14.09 14.09 0 0 0 1.226-1.994a.077.077 0 0 0-.041-.106a13.107 13.107 0 0 1-1.872-.892a.077.077 0 0 1-.008-.128a10.2 10.2 0 0 0 .372-.292a.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127a12.299 12.299 0 0 1-1.873.892a.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028a19.839 19.839 0 0 0 6.002-3.03a.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.956-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.955-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.946 2.418-2.157 2.418z" />
               </svg>

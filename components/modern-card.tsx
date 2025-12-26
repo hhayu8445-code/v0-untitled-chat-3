@@ -2,7 +2,6 @@
 
 import { motion } from "framer-motion"
 import { LucideIcon } from "lucide-react"
-import { Card, CardContent } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
 
 interface ModernCardProps {
@@ -32,20 +31,20 @@ export function ModernCard({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
     >
-      <Card
+      <div
         className={cn(
-          "glass card-hover magnetic cursor-pointer overflow-hidden group",
+          "glass-effect card-hover magnetic cursor-pointer overflow-hidden group relative neon-border",
           className
         )}
         onClick={onClick}
       >
-        <CardContent className="p-6">
+        <div className="p-6">
           <div className="flex items-start justify-between">
             <div className="space-y-2 flex-1">
               <p className="text-sm text-muted-foreground">{title}</p>
               {value && (
                 <div className="flex items-baseline gap-2">
-                  <p className="text-3xl font-bold gradient-text">{value}</p>
+                  <p className="text-3xl font-bold text-seasonal">{value}</p>
                   {trend && (
                     <span
                       className={cn(
@@ -68,12 +67,12 @@ export function ModernCard({
             </div>
             
             {Icon && (
-              <div className="p-3 rounded-xl glass group-hover:glow-sm transition-all">
+              <div className="p-3 rounded-xl glass-effect group-hover:neon-glow transition-all">
                 <Icon className="h-6 w-6 text-primary group-hover:scale-110 transition-transform" />
               </div>
             )}
           </div>
-        </CardContent>
+        </div>
 
         {/* Shimmer Effect */}
         <div className="absolute inset-0 shimmer opacity-0 group-hover:opacity-100 transition-opacity" />

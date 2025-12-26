@@ -43,9 +43,9 @@ export default function HomePage() {
   return (
     <div className="min-h-screen relative">
       <div className="fixed inset-0 -z-10 overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/20 via-background to-background" />
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl animate-float" />
-        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-accent/10 rounded-full blur-3xl animate-float" style={{ animationDelay: "2s" }} />
+        <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-gray-900 to-black" />
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-gradient-to-r from-blue-600/20 to-purple-600/20 rounded-full blur-3xl animate-float-2025" />
+        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-gradient-to-r from-purple-600/20 to-pink-600/20 rounded-full blur-3xl animate-float-2025" style={{ animationDelay: "2s" }} />
       </div>
 
       <Sidebar />
@@ -56,17 +56,27 @@ export default function HomePage() {
           <SeasonalHero />
           <LinkvertiseAd />
           <ModernHero />
-          <ModernStats />
+          <div className="glass-effect p-6 rounded-2xl backdrop-blur-8 bg-gray-900/30 border border-gray-700/50">
+            <ModernStats />
+          </div>
           <LinkvertiseAd />
-          <ModernFeatures />
+          <div className="glass-effect p-6 rounded-2xl backdrop-blur-8 bg-gray-900/30 border border-gray-700/50">
+            <ModernFeatures />
+          </div>
           <div className="grid lg:grid-cols-3 gap-6">
             <div className="lg:col-span-2 space-y-8">
-              <TrendingSection />
+              <div className="glass-effect p-6 rounded-2xl backdrop-blur-8 bg-gray-900/30 border border-gray-700/50">
+                <TrendingSection />
+              </div>
               <LinkvertiseAd />
-              <RecentAssets />
+              <div className="glass-effect p-6 rounded-2xl backdrop-blur-8 bg-gray-900/30 border border-gray-700/50">
+                <RecentAssets />
+              </div>
             </div>
             <div className="space-y-6">
-              <ActivityFeed />
+              <div className="glass-effect p-6 rounded-2xl backdrop-blur-8 bg-gray-900/30 border border-gray-700/50 h-full">
+                <ActivityFeed />
+              </div>
             </div>
           </div>
         </div>

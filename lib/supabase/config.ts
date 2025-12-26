@@ -18,3 +18,23 @@ export const SUPABASE_CONFIG = {
   publishableKey: process.env.SUPABASE_PUBLISHABLE_KEY || "sb_publishable_qAu7FwbQGSSpw25X35BzfA_aikkbjz8",
   secretKey: process.env.SUPABASE_SECRET_KEY || "sb_secret_eovanDfZcPbXkEOlgkyALw_jw-imRnL",
 }
+
+// Validate required configuration
+export function validateSupabaseConfig() {
+  if (!SUPABASE_CONFIG.url || SUPABASE_CONFIG.url.includes('linnqtixdfjwbrixitrb') && process.env.NODE_ENV === 'production') {
+    console.warn('⚠️  Warning: Using default Supabase URL. Please set NEXT_PUBLIC_SUPABASE_URL environment variable in production.')
+  }
+  
+  if (!SUPABASE_CONFIG.anonKey || SUPABASE_CONFIG.anonKey.includes('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9') && process.env.NODE_ENV === 'production') {
+    console.warn('⚠️  Warning: Using default anon key. Please set NEXT_PUBLIC_SUPABASE_ANON_KEY environment variable in production.')
+  }
+  
+  if (!SUPABASE_CONFIG.serviceRoleKey || SUPABASE_CONFIG.serviceRoleKey.includes('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9') && process.env.NODE_ENV === 'production') {
+    console.warn('⚠️  Warning: Using default service role key. Please set SUPABASE_SERVICE_ROLE_KEY environment variable in production.')
+  }
+}
+
+// Run validation in development
+if (process.env.NODE_ENV !== 'production') {
+  validateSupabaseConfig();
+}

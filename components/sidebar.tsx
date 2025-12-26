@@ -127,10 +127,10 @@ export function Sidebar() {
         href={item.href}
         onClick={() => isMobile && setMobileOpen(false)}
         className={cn(
-          "flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-200 group relative",
+          "flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-200 group relative glass-effect neon-border",
           isActive
-            ? "bg-primary/20 text-primary border border-primary/30"
-            : "text-muted-foreground hover:text-foreground hover:bg-accent/50",
+            ? "bg-primary/20 text-primary border border-primary/30 neon-glow"
+            : "text-muted-foreground hover:text-foreground hover:bg-accent/20 hover:neon-glow",
         )}
       >
         <Icon3D src={item.icon} alt={item.label} className="transition-transform group-hover:scale-110" />
@@ -161,7 +161,7 @@ export function Sidebar() {
       <button
         aria-label={mobileOpen ? "Close navigation menu" : "Open navigation menu"}
         onClick={() => setMobileOpen(!mobileOpen)}
-        className="md:hidden fixed top-4 left-4 z-50 p-2.5 rounded-xl glass-card border border-border"
+        className="md:hidden fixed top-4 left-4 z-50 p-2.5 rounded-xl glass-effect border border-border neon-border"
       >
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
           <path
@@ -198,7 +198,7 @@ export function Sidebar() {
             />
             {!collapsed && (
               <div>
-                <h1 className="font-bold text-lg text-foreground">{SITE_NAME}</h1>
+                <h1 className="font-bold text-lg text-foreground text-seasonal">{SITE_NAME}</h1>
                 <p className="text-xs text-primary">V7 Premium</p>
               </div>
             )}
@@ -206,7 +206,7 @@ export function Sidebar() {
           <button
             aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
             onClick={() => setCollapsed(!collapsed)}
-            className="ml-auto p-1.5 rounded-lg hover:bg-accent/50 transition-colors hidden md:flex"
+            className="ml-auto p-1.5 rounded-lg hover:bg-accent/50 transition-colors hidden md:flex glass-effect"
           >
             <ChevronLeft className={cn("h-4 w-4 transition-transform", collapsed && "rotate-180")} />
           </button>
@@ -232,7 +232,7 @@ export function Sidebar() {
 
         {/* Live Status */}
         <div className="p-4 border-t border-border">
-          <div className="glass-card rounded-xl p-4">
+          <div className="glass-effect rounded-xl p-4 neon-border">
             <div className="flex items-center gap-2 mb-3">
               <div className="relative">
                 <Users className="h-4 w-4 text-primary" />
@@ -243,7 +243,7 @@ export function Sidebar() {
             {!collapsed && (
               <div className="grid grid-cols-2 gap-3">
                 <div className="text-center">
-                  <p className="text-xl font-bold text-primary transition-all duration-300">{displayOnline}</p>
+                  <p className="text-xl font-bold text-seasonal transition-all duration-300">{displayOnline}</p>
                   <p className="text-xs text-muted-foreground">Online</p>
                 </div>
                 <div className="text-center">

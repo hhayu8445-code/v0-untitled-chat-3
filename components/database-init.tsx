@@ -1,55 +1,33 @@
-"use client"
+"use client";
 
-import { useEffect, useRef, useState } from "react"
+import { useEffect } from 'react';
+import { createClient } from '@/lib/supabase/server';
 
-export function DatabaseInit() {
-  const initialized = useRef(false)
-  const [status, setStatus] = useState<string>("")
-
+/**
+ * Database initialization component
+ * This component initializes the Supabase client and ensures proper connection
+ */
+export default function DatabaseInit() {
   useEffect(() => {
-    // Only run once
-    if (initialized.current) return
-    initialized.current = true
-
-    const initDb = async () => {
+    const initDatabase = async () => {
       try {
-        console.log("[v0] Starting database auto-initialization...")
-        setStatus("Initializing database...")
-
-        const response = await fetch("/api/auto-setup-db")
-        const data = await response.json()
-
-        if (data.success) {
-          console.log("[v0] Database initialized successfully:", data.message)
-          setStatus("")
+        const supabase = await createClient();
+        
+        // Test the connection
+        const { error } = await supabase.from('profiles').select('id').limit(1);
+        
+        if (error) {
+          console.error('Database connection error:', error);
         } else {
-          console.log("[v0] Database initialization note:", data.message)
-          if (data.instructions) {
-            console.log("[v0] Instructions:", data.instructions)
-          }
-          setStatus("")
+          console.log('Database connection successful');
         }
-      } catch (error) {
-        console.error("[v0] Database init error:", error)
-        setStatus("")
+      } catch (err) {
+        console.error('Error initializing database:', err);
       }
-    }
+    };
 
-    // Run with small delay to ensure app is ready
-    setTimeout(initDb, 1000)
-  }, [])
+    initDatabase();
+  }, []);
 
-  // Show loading indicator only briefly
-  if (status) {
-    return (
-      <div className="fixed bottom-4 right-4 z-50 bg-background/80 backdrop-blur-sm border rounded-lg p-3 shadow-lg">
-        <div className="flex items-center gap-2 text-sm">
-          <div className="animate-spin h-4 w-4 border-2 border-primary border-t-transparent rounded-full" />
-          <span>{status}</span>
-        </div>
-      </div>
-    )
-  }
-
-  return null
+  return null; // This component doesn't render anything
 }

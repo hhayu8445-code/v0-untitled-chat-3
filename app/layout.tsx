@@ -143,6 +143,7 @@ export const viewport: Viewport = {
   maximumScale: 5,
   userScalable: true,
   colorScheme: "dark",
+  viewportFit: "cover"
 }
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
@@ -449,7 +450,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           }}
         />
       </head>
-      <body className="font-sans antialiased scrollbar-thin">
+      <body className="font-sans antialiased scrollbar-thin bg-gradient-to-br from-gray-900 via-gray-900 to-black">
         <noscript>
           <iframe
             src="https://www.googletagmanager.com/ns.html?id=GTM-N3GV4T4M"

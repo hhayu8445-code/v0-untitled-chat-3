@@ -48,7 +48,7 @@ export function DailyCoinsButton() {
       <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
         <Button
           onClick={() => setShowModal(true)}
-          className="w-full bg-gradient-to-r from-warning to-chart-5 hover:from-warning/90 hover:to-chart-5/90 rounded-xl gap-2 glow relative overflow-hidden group"
+          className="w-full bg-gradient-to-r from-warning to-chart-5 hover:from-warning/90 hover:to-chart-5/90 rounded-xl gap-2 relative overflow-hidden group modern-button"
         >
           <div className="absolute inset-0 bg-gradient-to-r from-warning/20 via-chart-5/20 to-warning/20 opacity-0 group-hover:opacity-100 transition-opacity animate-shimmer" />
           <Gift className="h-4 w-4 relative z-10" />
@@ -60,7 +60,7 @@ export function DailyCoinsButton() {
       <AnimatePresence>
         {showModal && (
           <Dialog open={showModal} onOpenChange={setShowModal}>
-            <DialogContent className="max-w-md glass border-2 border-warning/30">
+            <DialogContent className="max-w-md glass-effect border-2 border-warning/30 neon-border">
               <motion.div 
                 className="p-6 space-y-4"
                 initial={{ opacity: 0, scale: 0.9 }}
@@ -146,7 +146,7 @@ export function DailyCoinsButton() {
                         <Button
                           onClick={handleClaim}
                           disabled={isClaiming}
-                          className="w-full bg-warning hover:bg-warning/90 rounded-xl h-12 glow-sm relative overflow-hidden group"
+                          className="w-full bg-warning hover:bg-warning/90 rounded-xl h-12 relative overflow-hidden group"
                         >
                           <div className="absolute inset-0 bg-gradient-to-r from-warning/20 via-chart-5/20 to-warning/20 opacity-0 group-hover:opacity-100 transition-opacity animate-shimmer" />
                           {isClaiming ? (
