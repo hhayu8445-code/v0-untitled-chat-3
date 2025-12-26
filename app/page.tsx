@@ -9,7 +9,7 @@ import { ModernFeatures } from "@/components/modern-features"
 import { TrendingSection } from "@/components/trending-section"
 import { RecentAssets } from "@/components/recent-assets"
 import { ActivityFeed } from "@/components/activity-feed"
-
+import { LinkvertiseAd } from "@/components/linkvertise-ad"
 import { ScrollToTop } from "@/components/scroll-to-top"
 
 export const metadata: Metadata = {
@@ -54,19 +54,21 @@ export default function HomePage() {
         <Header />
         <div className="p-6 space-y-12">
           <SeasonalHero />
+          <LinkvertiseAd />
           <ModernHero />
           <ModernStats />
+          <LinkvertiseAd />
           <ModernFeatures />
           <div className="grid lg:grid-cols-3 gap-6">
             <div className="lg:col-span-2 space-y-8">
               <TrendingSection />
+              <LinkvertiseAd />
               <RecentAssets />
             </div>
             <div className="space-y-6">
               <ActivityFeed />
             </div>
           </div>
-
         </div>
       </main>
       

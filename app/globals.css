@@ -311,6 +311,26 @@
       min-width: 44px;
     }
   }
+
+  /* Snow puddle effect */
+  @keyframes snow-puddle {
+    0% {
+      opacity: 0;
+      transform: scale(0.8);
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    100% {
+      opacity: 0.8;
+      transform: scale(1.1);
+    }
+  }
+
+  .snow-puddle {
+    animation: snow-puddle 0.4s ease-out forwards;
+  }
 }
 
 /* Complete v0 branding removal - maximum specificity */

@@ -3,6 +3,7 @@
 import { useAuth } from "@/components/auth-provider"
 import { Sidebar } from "@/components/sidebar"
 import { Header } from "@/components/header"
+import { LinkvertiseAd } from "@/components/linkvertise-ad"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -12,7 +13,8 @@ import dynamic from "next/dynamic"
 
 const confetti = dynamic(() => import("canvas-confetti").then(mod => mod.default), { ssr: false })
 
-const MARIO_COINS_GIF = "/single-gold-coin.png"
+const TICKET_ICON_3D = "https://cdn3d.iconscout.com/3d/premium/thumb/ticket-3d-icon-png-download-9964703.png"
+const MARIO_COINS_GIF = "https://media.tenor.com/jX0Ytn_JLcIAAAAj/mario-coins.gif"
 
 interface Prize {
   id: string
@@ -67,6 +69,7 @@ export default function SpinWheelPage() {
 
   const fetchData = useCallback(async () => {
     try {
+      setLoading(true)
       const [prizesRes, userRes, historyRes, dailyRes] = await Promise.all([
         fetch("/api/spin-wheel/prizes"),
         user ? fetch("/api/user/balance") : Promise.resolve(null),
@@ -74,21 +77,36 @@ export default function SpinWheelPage() {
         user ? fetch("/api/spin-wheel/daily-status") : Promise.resolve(null),
       ])
 
-      const prizesData = await prizesRes.json()
-      setPrizes(prizesData.prizes || [])
+      if (!prizesRes.ok) throw new Error("Failed to fetch prizes")
 
-      if (userRes) {
+      const prizesData = await prizesRes.json()
+      const fetchedPrizes = prizesData.prizes || []
+      
+      // Validate prizes
+      if (fetchedPrizes.length === 0) {
+        console.warn("No prizes found, initializing...")
+        // Try to initialize prizes
+        const initRes = await fetch("/api/spin-wheel/init-prizes", { method: "POST" })
+        if (initRes.ok) {
+          const initData = await initRes.json()
+          setPrizes(initData.prizes || [])
+        }
+      } else {
+        setPrizes(fetchedPrizes)
+      }
+
+      if (userRes && userRes.ok) {
         const userData = await userRes.json()
         setUserCoins(userData.coins || 0)
         setUserTickets(userData.spin_tickets || 0)
       }
 
-      if (historyRes) {
+      if (historyRes && historyRes.ok) {
         const historyData = await historyRes.json()
         setHistory(historyData.history || [])
       }
 
-      if (dailyRes) {
+      if (dailyRes && dailyRes.ok) {
         const dailyData = await dailyRes.json()
         setCanClaimDaily(dailyData.canClaim || false)
         setStreak(dailyData.streak || 0)
@@ -147,7 +165,7 @@ export default function SpinWheelPage() {
       }
 
       const data = await res.json()
-      const activePrizes = prizes.filter((p) => p.coins > 0)
+      const activePrizes = prizes.filter((p) => p.coins >= 0)
       const prizeIndex = activePrizes.findIndex((p) => p.id === data.prize.id)
       const segmentAngle = 360 / activePrizes.length
 
@@ -195,7 +213,7 @@ export default function SpinWheelPage() {
     }
   }
 
-  const activePrizes = prizes.filter((p) => p.coins > 0)
+  const activePrizes = prizes.filter((p) => p.coins >= 0)
   const segmentAngle = activePrizes.length > 0 ? 360 / activePrizes.length : 45
 
   if (loading) {
@@ -218,6 +236,7 @@ export default function SpinWheelPage() {
       <main className="md:ml-72 transition-all duration-300">
         <Header />
         <div className="p-4 md:p-6">
+          <LinkvertiseAd />
           {/* Header Stats */}
           <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
             <div>
@@ -229,11 +248,11 @@ export default function SpinWheelPage() {
             </div>
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-yellow-500/20 border border-yellow-500/30">
-                <Coins className="h-5 w-5 text-yellow-500" />
+                <img src={MARIO_COINS_GIF} alt="Coins" className="h-6 w-6 object-contain" />
                 <span className="font-bold text-yellow-500">{userCoins.toLocaleString()}</span>
               </div>
               <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-primary/20 border border-primary/30">
-                <Gift className="h-5 w-5 text-primary" />
+                <img src={TICKET_ICON_3D} alt="Tickets" className="h-6 w-6 object-contain" />
                 <span className="font-bold text-primary">{userTickets} Tickets</span>
               </div>
             </div>
@@ -242,6 +261,20 @@ export default function SpinWheelPage() {
           <div className="grid lg:grid-cols-3 gap-6">
             {/* Wheel Section */}
             <div className="lg:col-span-2 flex flex-col items-center">
+              {activePrizes.length === 0 ? (
+                <Card className="w-full">
+                  <CardContent className="p-12 text-center">
+                    <Trophy className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
+                    <h3 className="text-xl font-bold mb-2">No Prizes Available</h3>
+                    <p className="text-muted-foreground mb-4">Prizes are being set up. Please check back soon!</p>
+                    <Button onClick={fetchData} variant="outline">
+                      <RotateCw className="h-4 w-4 mr-2" />
+                      Refresh
+                    </Button>
+                  </CardContent>
+                </Card>
+              ) : (
+                <>
               {/* Wheel Container with 3D */}
               <div 
                 className="relative w-72 h-72 md:w-96 md:h-96"
@@ -316,13 +349,17 @@ export default function SpinWheelPage() {
                   </svg>
                 </div>
 
-                {/* Center coin */}
+                {/* Center coin - ANIMATED */}
                 <div 
                   className="absolute inset-0 flex items-center justify-center pointer-events-none"
                   style={{ transform: "translateZ(40px)" }}
                 >
-                  <div className="w-16 h-16 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 shadow-lg flex items-center justify-center border-4 border-yellow-300/50">
-                    <Coins className="h-8 w-8 text-yellow-900" />
+                  <div className="w-20 h-20 rounded-full bg-gradient-to-br from-yellow-400/20 to-orange-500/20 shadow-2xl flex items-center justify-center border-4 border-yellow-300/30 backdrop-blur-sm">
+                    <img 
+                      src={MARIO_COINS_GIF} 
+                      alt="Coin" 
+                      className="w-16 h-16 object-contain"
+                    />
                   </div>
                 </div>
 
@@ -362,9 +399,13 @@ export default function SpinWheelPage() {
                     onClick={claimDailyTicket}
                     disabled={claiming}
                     variant="outline"
-                    className="border-primary/50 hover:bg-primary/10 bg-transparent"
+                    className="border-primary/50 hover:bg-primary/10 bg-transparent gap-2"
                   >
-                    {claiming ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Gift className="h-4 w-4 mr-2" />}
+                    {claiming ? (
+                      <Loader2 className="h-5 w-5 animate-spin" />
+                    ) : (
+                      <img src={TICKET_ICON_3D} alt="Ticket" className="h-5 w-5 object-contain" />
+                    )}
                     Claim Daily Ticket {streak > 0 && `(${streak} day streak)`}
                   </Button>
                 )}
@@ -382,12 +423,16 @@ export default function SpinWheelPage() {
                     <CardContent className="p-8 text-center">
                       <div className="mb-4">
                         <div
-                          className="w-20 h-20 mx-auto rounded-full flex items-center justify-center"
+                          className="w-24 h-24 mx-auto rounded-full flex items-center justify-center"
                           style={{
                             backgroundColor: `${RARITY_COLORS[result.rarity || getRarityFromCoins(result.coins)]}30`,
                           }}
                         >
-                          <Coins className="h-10 w-10 text-yellow-500" />
+                          <img 
+                            src={MARIO_COINS_GIF} 
+                            alt="Prize" 
+                            className="w-20 h-20 object-contain"
+                          />
                         </div>
                       </div>
                       <h3 className="text-2xl font-bold mb-2">You Won!</h3>
@@ -433,7 +478,10 @@ export default function SpinWheelPage() {
                               <Badge className="bg-yellow-500/20 text-yellow-400 text-xs px-1.5">JACKPOT</Badge>
                             )}
                           </div>
-                          <span className="font-bold text-yellow-500">+{prize.coins}</span>
+                          <div className="flex items-center gap-1">
+                            <img src={MARIO_COINS_GIF} alt="Coins" className="w-5 h-5 object-contain" />
+                            <span className="font-bold text-yellow-500">{prize.coins}</span>
+                          </div>
                         </div>
                       )
                     })}
@@ -458,7 +506,10 @@ export default function SpinWheelPage() {
                               {new Date(item.created_at).toLocaleDateString()}
                             </p>
                           </div>
-                          <span className="font-bold text-yellow-500 text-sm">+{item.coins_won}</span>
+                          <div className="flex items-center gap-1">
+                            <img src={MARIO_COINS_GIF} alt="Coins" className="w-4 h-4 object-contain" />
+                            <span className="font-bold text-yellow-500 text-sm">{item.coins_won}</span>
+                          </div>
                         </div>
                       ))}
                     </div>

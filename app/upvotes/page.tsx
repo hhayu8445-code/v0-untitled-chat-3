@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from "react"
 import { Sidebar } from "@/components/sidebar"
 import { Header } from "@/components/header"
+import { LinkvertiseAd } from "@/components/linkvertise-ad"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Progress } from "@/components/ui/progress"
@@ -374,6 +375,7 @@ export default function UpvotesPage() {
       <main className="md:ml-72 transition-all duration-300">
         <Header />
         <div className="p-6 max-w-7xl mx-auto space-y-6">
+          <LinkvertiseAd />
           <div className="w-full overflow-hidden rounded-xl border border-border bg-card">
             <div className="relative">
               {UPVOTES_SPONSOR_BANNERS.map((banner, index) => (

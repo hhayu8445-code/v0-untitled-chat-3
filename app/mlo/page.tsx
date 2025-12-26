@@ -5,6 +5,7 @@ import { Sidebar } from "@/components/sidebar"
 import { Header } from "@/components/header"
 import { AssetCard } from "@/components/asset-card"
 import { SponsorBanner } from "@/components/sponsor-banner"
+import { LinkvertiseAd } from "@/components/linkvertise-ad"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Grid, List, Search, MapPin, Zap } from "lucide-react"
@@ -119,6 +120,7 @@ export default function MLOPage() {
           </div>
 
           {/* MLO Grid */}
+          <LinkvertiseAd />
           {isLoading ? (
             <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {[1, 2, 3, 4].map((i) => (

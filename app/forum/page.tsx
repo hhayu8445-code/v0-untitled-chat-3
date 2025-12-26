@@ -5,6 +5,7 @@ import { useState, useEffect } from "react"
 import { Sidebar } from "@/components/sidebar"
 import { Header } from "@/components/header"
 import { SponsorBanner } from "@/components/sponsor-banner"
+import { LinkvertiseAd } from "@/components/linkvertise-ad"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useAuth } from "@/components/auth-provider"
@@ -212,6 +213,7 @@ export default function ForumPage() {
         <Header />
         <div className="p-6">
           <SponsorBanner />
+          <LinkvertiseAd />
 
           {/* Header */}
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-8">

@@ -112,6 +112,31 @@ export function SeasonalFooter() {
           background: linear-gradient(90deg, transparent, var(--footer-color), transparent);
           opacity: 0.3;
           animation: pulse 3s ease-in-out infinite;
+          position: relative;
+        }
+
+        .seasonal-banner::before {
+          content: "";
+          position: absolute;
+          left: 10%;
+          top: 50%;
+          transform: translateY(-50%);
+          width: 30px;
+          height: 30px;
+          background: url('https://media.tenor.com/Zy_GvzVLYPQAAAAi/snowflake.gif') center/contain no-repeat;
+          animation: float 3s ease-in-out infinite;
+        }
+
+        .seasonal-banner::after {
+          content: "";
+          position: absolute;
+          right: 10%;
+          top: 50%;
+          transform: translateY(-50%);
+          width: 30px;
+          height: 30px;
+          background: url('https://media.tenor.com/Zy_GvzVLYPQAAAAi/snowflake.gif') center/contain no-repeat;
+          animation: float 3s ease-in-out infinite 1.5s;
         }
 
         .seasonal-text {

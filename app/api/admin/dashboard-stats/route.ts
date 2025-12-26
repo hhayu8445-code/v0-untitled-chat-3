@@ -1,120 +1,85 @@
-import { createAdminClient } from "@/lib/supabase/server"
 import { NextResponse } from "next/server"
-import { getServerSession } from "next-auth"
-import { authOptions } from "@/lib/auth"
+import { createClient } from "@/lib/supabase/server"
 
 export async function GET() {
   try {
-    const session = await getServerSession(authOptions)
-    if (!session?.user) {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+
+    if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const supabase = createAdminClient()
-    const discordId = session.user.id
-
-    const { data: userData } = await supabase
-      .from("users")
-      .select("is_admin, membership")
-      .eq("discord_id", discordId)
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("is_admin")
+      .eq("id", user.id)
       .single()
 
-    if (!userData?.is_admin && userData?.membership !== "admin") {
+    if (!profile?.is_admin) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 })
     }
 
-    const stats = {
-      totalUsers: 0,
-      totalBanners: 0,
-      activeBanners: 0,
-      totalAnnouncements: 0,
-      activeAnnouncements: 0,
-      forumCategories: 0,
-      totalSpins: 0,
-      totalCoinsWon: 0,
-      pendingAssets: 0,
-    }
+    const now = new Date()
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+    const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000)
 
-    try {
-      const { count: totalUsers } = await supabase.from("users").select("*", { count: "exact", head: true })
-      stats.totalUsers = totalUsers || 0
-    } catch (e) {
-      console.log("[v0] users table not accessible")
-    }
+    const [
+      usersResult,
+      bannersResult,
+      announcementsResult,
+      forumResult,
+      spinsResult,
+      coinsResult,
+      assetsResult,
+      todayUsersResult,
+      weekUsersResult,
+      threadsResult,
+      pendingThreadsResult
+    ] = await Promise.all([
+      supabase.from("profiles").select("id", { count: "exact", head: true }),
+      supabase.from("banners").select("id, is_active", { count: "exact" }),
+      supabase.from("announcements").select("id, is_active", { count: "exact" }),
+      supabase.from("forum_categories").select("id", { count: "exact", head: true }),
+      supabase.from("spin_history").select("id", { count: "exact", head: true }),
+      supabase.from("spin_history").select("coins_won"),
+      supabase.from("assets").select("id, status", { count: "exact" }),
+      supabase.from("profiles").select("id", { count: "exact", head: true }).gte("created_at", today.toISOString()),
+      supabase.from("profiles").select("id", { count: "exact", head: true }).gte("created_at", weekAgo.toISOString()),
+      supabase.from("forum_threads").select("id", { count: "exact", head: true }),
+      supabase.from("forum_threads").select("id", { count: "exact", head: true }).eq("status", "pending")
+    ])
 
-    try {
-      const { count: totalBanners } = await supabase.from("banners").select("*", { count: "exact", head: true })
-      stats.totalBanners = totalBanners || 0
-    } catch (e) {
-      console.log("[v0] banners table not accessible")
-    }
+    const totalCoinsWon = coinsResult.data?.reduce((sum, record) => sum + (record.coins_won || 0), 0) || 0
+    const activeBanners = bannersResult.data?.filter(b => b.is_active).length || 0
+    const activeAnnouncements = announcementsResult.data?.filter(a => a.is_active).length || 0
+    const pendingAssets = assetsResult.data?.filter(a => a.status === "pending").length || 0
+    const activeAssets = assetsResult.data?.filter(a => a.status === "active").length || 0
+    
+    const totalUsers = usersResult.count || 0
+    const todayUsers = todayUsersResult.count || 0
+    const weekUsers = weekUsersResult.count || 0
+    const weeklyGrowth = totalUsers > 0 ? Math.round((weekUsers / totalUsers) * 100) : 0
 
-    try {
-      const { count: activeBanners } = await supabase
-        .from("banners")
-        .select("*", { count: "exact", head: true })
-        .eq("is_active", true)
-      stats.activeBanners = activeBanners || 0
-    } catch (e) {
-      console.log("[v0] active banners query failed")
-    }
-
-    try {
-      const { count: totalAnnouncements } = await supabase
-        .from("announcements")
-        .select("*", { count: "exact", head: true })
-      stats.totalAnnouncements = totalAnnouncements || 0
-    } catch (e) {
-      console.log("[v0] announcements table not accessible")
-    }
-
-    try {
-      const { count: activeAnnouncements } = await supabase
-        .from("announcements")
-        .select("*", { count: "exact", head: true })
-        .eq("is_active", true)
-      stats.activeAnnouncements = activeAnnouncements || 0
-    } catch (e) {
-      console.log("[v0] active announcements query failed")
-    }
-
-    try {
-      const { count: forumCategories } = await supabase
-        .from("forum_categories")
-        .select("*", { count: "exact", head: true })
-        .eq("is_active", true)
-      stats.forumCategories = forumCategories || 0
-    } catch (e) {
-      console.log("[v0] forum_categories table not accessible")
-    }
-
-    try {
-      const { count: totalSpins } = await supabase.from("spin_history").select("*", { count: "exact", head: true })
-      stats.totalSpins = totalSpins || 0
-    } catch (e) {
-      console.log("[v0] spin_history table not accessible")
-    }
-
-    try {
-      const { data: coinsData } = await supabase.from("spin_history").select("prize_amount")
-      stats.totalCoinsWon = coinsData?.reduce((sum, s) => sum + (s.prize_amount || 0), 0) || 0
-    } catch (e) {
-      console.log("[v0] spin_history coins query failed")
-    }
-
-    try {
-      const { count: pendingAssets } = await supabase
-        .from("assets")
-        .select("*", { count: "exact", head: true })
-        .eq("status", "pending")
-      stats.pendingAssets = pendingAssets || 0
-    } catch (e) {
-      console.log("[v0] assets table not accessible")
-    }
-
-    return NextResponse.json(stats)
+    return NextResponse.json({
+      totalUsers,
+      todayUsers,
+      weeklyGrowth,
+      totalBanners: bannersResult.count || 0,
+      activeBanners,
+      totalAnnouncements: announcementsResult.count || 0,
+      activeAnnouncements,
+      forumCategories: forumResult.count || 0,
+      totalSpins: spinsResult.count || 0,
+      totalCoinsWon,
+      totalAssets: assetsResult.count || 0,
+      pendingAssets,
+      activeAssets,
+      totalThreads: threadsResult.count || 0,
+      pendingThreads: pendingThreadsResult.count || 0
+    })
   } catch (error) {
-    console.error("[v0] Error fetching dashboard stats:", error)
-    return NextResponse.json({ error: "Failed to fetch stats" }, { status: 500 })
+    console.error("Dashboard stats error:", error)
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }
 }

@@ -17,10 +17,19 @@ export function SeasonalNavbar() {
   }, [])
 
   const color = holiday ? holiday.theme.primary : "oklch(0.75 0.15 180)"
+  const isWinter = holiday?.name === "Christmas" || holiday?.name === "New Year"
 
   return (
     <>
       <nav className="seasonal-navbar" style={{ "--nav-color": color } as any}>
+        {/* Snow pile decoration for winter */}
+        {isWinter && (
+          <div className="snow-pile-nav">
+            <img src="https://media.tenor.com/Zy_GvzVLYPQAAAAi/snowflake.gif" alt="" className="snow-deco left" />
+            <img src="https://media.tenor.com/Zy_GvzVLYPQAAAAi/snowflake.gif" alt="" className="snow-deco right" />
+          </div>
+        )}
+
         <div className="nav-container">
           {/* Logo */}
           <Link href="/" className="nav-logo">
@@ -97,6 +106,37 @@ export function SeasonalNavbar() {
           backdrop-filter: blur(24px);
           border-bottom: 1px solid rgba(255, 255, 255, 0.1);
           position: relative;
+        }
+
+        .snow-pile-nav {
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          height: 100%;
+          pointer-events: none;
+          overflow: hidden;
+        }
+
+        .snow-deco {
+          position: absolute;
+          width: 40px;
+          height: 40px;
+          opacity: 0.3;
+          animation: float 3s ease-in-out infinite;
+        }
+
+        .snow-deco.left {
+          left: 5%;
+          top: 50%;
+          transform: translateY(-50%);
+        }
+
+        .snow-deco.right {
+          right: 5%;
+          top: 50%;
+          transform: translateY(-50%);
+          animation-delay: 1.5s;
         }
 
         .nav-container {
@@ -196,11 +236,29 @@ export function SeasonalNavbar() {
           font-weight: 500;
           transition: all 0.3s ease;
           position: relative;
+          overflow: hidden;
         }
 
         .nav-link:hover {
           color: rgba(255, 255, 255, 0.9);
           background: rgba(255, 255, 255, 0.05);
+        }
+
+        .nav-link::before {
+          content: "";
+          position: absolute;
+          bottom: -5px;
+          left: 0;
+          right: 0;
+          height: 12px;
+          background: url('https://media.tenor.com/Zy_GvzVLYPQAAAAi/snowflake.gif') center/contain no-repeat;
+          opacity: 0;
+          transition: all 0.4s ease;
+        }
+
+        .nav-link:hover::before {
+          opacity: 0.6;
+          bottom: -2px;
         }
 
         .nav-link::after {
@@ -213,6 +271,7 @@ export function SeasonalNavbar() {
           height: 2px;
           background: var(--nav-color);
           transition: width 0.3s ease;
+          box-shadow: 0 0 10px var(--nav-color);
         }
 
         .nav-link:hover::after {
@@ -238,12 +297,25 @@ export function SeasonalNavbar() {
           cursor: pointer;
           transition: all 0.3s ease;
           position: relative;
+          overflow: hidden;
         }
 
-        .nav-icon-btn:hover {
-          background: rgba(255, 255, 255, 0.1);
-          color: rgba(255, 255, 255, 0.9);
-          border-color: var(--nav-color);
+        .nav-icon-btn::before {
+          content: "";
+          position: absolute;
+          bottom: -5px;
+          left: 50%;
+          transform: translateX(-50%);
+          width: 20px;
+          height: 20px;
+          background: url('https://media.tenor.com/Zy_GvzVLYPQAAAAi/snowflake.gif') center/contain no-repeat;
+          opacity: 0;
+          transition: all 0.4s ease;
+        }
+
+        .nav-icon-btn:hover::before {
+          opacity: 0.8;
+          bottom: -8px;
         }
 
         .notification-dot {

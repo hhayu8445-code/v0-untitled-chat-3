@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import { Sidebar } from "@/components/sidebar"
 import { Header } from "@/components/header"
 import { SponsorBanner } from "@/components/sponsor-banner"
+import { LinkvertiseAd } from "@/components/linkvertise-ad"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { useAuth } from "@/components/auth-provider"
@@ -170,6 +171,7 @@ export default function DashboardPage() {
         <Header />
         <div className="p-4 md:p-6">
           <SponsorBanner />
+          <LinkvertiseAd />
 
           {/* Profile Header */}
           <div className="glass rounded-2xl p-4 md:p-6 mb-6 relative overflow-hidden">

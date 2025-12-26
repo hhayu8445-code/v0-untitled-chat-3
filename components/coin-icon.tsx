@@ -22,7 +22,7 @@ export function CoinIcon({ size = "md", className = "" }: CoinIconProps) {
 
   return (
     <Image
-      src={COIN_GIF_URL || "/placeholder.svg"}
+      src={COIN_GIF_URL}
       alt="Coins"
       width={dimension}
       height={dimension}
@@ -32,5 +32,4 @@ export function CoinIcon({ size = "md", className = "" }: CoinIconProps) {
   )
 }
 
-// Export for direct img tag usage (for places that need regular img)
 export const COIN_ICON_URL = COIN_GIF_URL
