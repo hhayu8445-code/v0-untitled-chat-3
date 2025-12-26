@@ -484,7 +484,6 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
                     {children}
                     <SpinWinNotifications />
                     <ToastContainer />
-                    <ModernParticles />
                   </AppWrapper>
                 </ModernLayout>
               </SeasonalWrapper>

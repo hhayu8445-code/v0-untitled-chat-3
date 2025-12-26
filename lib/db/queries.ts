@@ -315,7 +315,7 @@ export const assetsQueries = {
       SELECT a.*, u.username as author_name, u.avatar as author_avatar, u.membership
       FROM assets a
       LEFT JOIN users u ON a.author_id = u.discord_id
-      WHERE a.status = 'active'
+      WHERE a.status IN ('active', 'approved', 'published')
     `
     
     if (category && category !== 'all') {
@@ -338,7 +338,7 @@ export const assetsQueries = {
   getCount: async (filters?: { category?: string; framework?: string; search?: string }) => {
     const { category, framework, search } = filters || {}
     
-    let query = sql`SELECT COUNT(*) as count FROM assets WHERE status = 'active'`
+    let query = sql`SELECT COUNT(*) as count FROM assets WHERE status IN ('active', 'approved', 'published')`
     
     if (category && category !== 'all') {
       query = sql`${query} AND category = ${category}`
