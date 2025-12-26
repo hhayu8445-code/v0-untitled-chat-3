@@ -1,30 +1,26 @@
 import { NextResponse } from "next/server"
-import { createClient } from "@/lib/supabase/server"
+import { getServerSession } from "next-auth"
+import { authOptions } from "@/lib/auth"
+import { createAdminClient } from "@/lib/supabase/server"
 
 export async function GET() {
   try {
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-
-    if (!user) {
+    const session = await getServerSession(authOptions)
+    
+    if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("is_admin")
-      .eq("id", user.id)
-      .single()
-
-    if (!profile?.is_admin) {
+    if (!session.user.isAdmin) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 })
     }
+    
+    const supabase = createAdminClient()
 
     const { data: threads, error } = await supabase
       .from("forum_threads")
       .select(`
         *,
-        author:profiles!forum_threads_author_id_fkey(id, username, avatar, membership),
         category:forum_categories(id, name, color)
       `)
       .eq("status", "pending")
@@ -40,29 +36,24 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-
-    if (!user) {
+    const session = await getServerSession(authOptions)
+    
+    if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("is_admin")
-      .eq("id", user.id)
-      .single()
-
-    if (!profile?.is_admin) {
+    if (!session.user.isAdmin) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 })
     }
+    
+    const supabase = createAdminClient()
 
     const { threadId, action, reason } = await request.json()
 
     if (action === "approve") {
       const { error } = await supabase
         .from("forum_threads")
-        .update({ status: "active" })
+        .update({ status: "approved" })
         .eq("id", threadId)
 
       if (error) throw error

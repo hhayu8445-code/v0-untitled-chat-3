@@ -1,24 +1,21 @@
 import { NextResponse } from "next/server"
-import { createClient } from "@/lib/supabase/server"
+import { getServerSession } from "next-auth"
+import { authOptions } from "@/lib/auth"
+import { createAdminClient } from "@/lib/supabase/server"
 
 export async function GET() {
   try {
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-
-    if (!user) {
+    const session = await getServerSession(authOptions)
+    
+    if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("is_admin")
-      .eq("id", user.id)
-      .single()
-
-    if (!profile?.is_admin) {
+    if (!session.user.isAdmin) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 })
     }
+    
+    const supabase = createAdminClient()
 
     const now = new Date()
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
@@ -37,15 +34,15 @@ export async function GET() {
       threadsResult,
       pendingThreadsResult
     ] = await Promise.all([
-      supabase.from("profiles").select("id", { count: "exact", head: true }),
+      supabase.from("users").select("id", { count: "exact", head: true }),
       supabase.from("banners").select("id, is_active", { count: "exact" }),
       supabase.from("announcements").select("id, is_active", { count: "exact" }),
       supabase.from("forum_categories").select("id", { count: "exact", head: true }),
       supabase.from("spin_history").select("id", { count: "exact", head: true }),
       supabase.from("spin_history").select("coins_won"),
       supabase.from("assets").select("id, status", { count: "exact" }),
-      supabase.from("profiles").select("id", { count: "exact", head: true }).gte("created_at", today.toISOString()),
-      supabase.from("profiles").select("id", { count: "exact", head: true }).gte("created_at", weekAgo.toISOString()),
+      supabase.from("users").select("id", { count: "exact", head: true }).gte("created_at", today.toISOString()),
+      supabase.from("users").select("id", { count: "exact", head: true }).gte("created_at", weekAgo.toISOString()),
       supabase.from("forum_threads").select("id", { count: "exact", head: true }),
       supabase.from("forum_threads").select("id", { count: "exact", head: true }).eq("status", "pending")
     ])

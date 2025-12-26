@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server"
-import { createClient } from "@/lib/supabase/server"
+import { getServerSession } from "next-auth"
+import { authOptions } from "@/lib/auth"
+import { createAdminClient } from "@/lib/supabase/server"
 import { sendDiscordNotification } from "@/lib/discord-webhook"
 
 export async function PUT(
@@ -7,23 +9,18 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id: assetId } = await params
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-
-    if (!user) {
+    const session = await getServerSession(authOptions)
+    
+    if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("is_admin")
-      .eq("id", user.id)
-      .single()
-
-    if (!profile?.is_admin) {
+    if (!session.user.isAdmin) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 })
     }
+
+    const { id: assetId } = await params
+    const supabase = createAdminClient()
 
     const body = await request.json()
     const updates = body
@@ -34,7 +31,7 @@ export async function PUT(
       .eq("id", assetId)
       .select(`
         *,
-        author:profiles!assets_author_id_fkey(username, avatar)
+        author:users!assets_user_id_fkey(username, avatar)
       `)
       .single()
 
@@ -63,23 +60,18 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = await params
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-
-    if (!user) {
+    const session = await getServerSession(authOptions)
+    
+    if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("is_admin")
-      .eq("id", user.id)
-      .single()
-
-    if (!profile?.is_admin) {
+    if (!session.user.isAdmin) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 })
     }
+
+    const { id } = await params
+    const supabase = createAdminClient()
 
     const { error } = await supabase
       .from("assets")

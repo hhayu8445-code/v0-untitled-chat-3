@@ -119,7 +119,7 @@ export default function SpinWheelPage() {
   const [loading, setLoading] = useState(true)
   const [canClaimDaily, setCanClaimDaily] = useState(false)
   const [claiming, setClaiming] = useState(false)
-  const [isAutoSpinning, setIsAutoSpinning] = useState(false)
+  // Removed isAutoSpinning state - using CSS animation instead
   const [winners, setWinners] = useState<WinnerHistory[]>([])
 
   // Items for display (use API prizes or defaults)
@@ -187,18 +187,10 @@ export default function SpinWheelPage() {
     fetchData()
   }, [fetchData])
 
-  // Auto rotate wheel for visual effect
-  useEffect(() => {
-    if (!spinning && !isAutoSpinning) {
-      setIsAutoSpinning(true)
-      const interval = setInterval(() => {
-        if (!spinning) {
-          setRotation(prev => prev + 0.2)
-        }
-      }, 50)
-      return () => clearInterval(interval)
-    }
-  }, [spinning, isAutoSpinning])
+  // Auto rotate wheel for visual effect - using CSS animation instead of state updates
+  const autoRotateStyle = !spinning ? {
+    animation: 'spin-slow 60s linear infinite'
+  } : {}
 
   const claimDailyTicket = async () => {
     if (claiming || !canClaimDaily) return
@@ -225,7 +217,6 @@ export default function SpinWheelPage() {
     setSpinning(true)
     setResult(null)
     setShowResult(false)
-    setIsAutoSpinning(false)
 
     try {
       const res = await fetch("/api/spin-wheel/spin", { method: "POST" })
@@ -361,7 +352,8 @@ export default function SpinWheelPage() {
               style={{ 
                 transform: `rotate(${rotation}deg)`,
                 transformOrigin: "1000px 1000px",
-                transition: spinning ? "none" : "transform 0.1s linear"
+                transition: spinning ? "transform 5s cubic-bezier(0.17, 0.67, 0.12, 0.99)" : "none",
+                ...(spinning ? {} : { animation: 'spin-slow 60s linear infinite' })
               }}
             >
               <g transform="translate(1000, 1000)">
