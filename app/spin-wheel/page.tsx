@@ -451,6 +451,8 @@ export default function SpinWheelPage() {
                   </Card>
                 </div>
               )}
+                </>
+              )}
             </div>
 
             {/* Prize Pool & History */}
